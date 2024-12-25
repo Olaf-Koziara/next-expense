@@ -10,8 +10,31 @@ import {getServerSession} from "next-auth/next";
 export const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+            clientId: process.env.AUTH_GOOGLE_ID as string,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
+            async profile(profile) {
+                await connectMongoDB();
+                let user = await User.findOne({email: profile.email});
+
+                if (!user) {
+                    console.log(profile)
+                    user = new User({
+                        name: profile.name,
+                        email: profile.email,
+                        image: profile.picture,
+                        provider: "google"
+                    });
+                    await user.save();
+                }
+
+                return {
+                    id: user._id.toString(),
+                    name: user.name,
+                    email: user.email,
+                    image: user.image,
+                };
+
+            }
         }),
         CredentialsProvider({
             name: "Credentials",
