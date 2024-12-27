@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
             name: "Credentials",
             id: "credentials",
             credentials: {
-                email: {label: "Email", type: "text", placeholder: "jsmith"},
+                email: {label: "Email", type: "text"},
                 password: {label: "Password", type: "password"},
             },
             async authorize(credentials) {
@@ -48,8 +48,6 @@ export const authOptions: NextAuthOptions = {
                 const userFound = await User.findOne({
                     email: credentials?.email,
                 })
-                console.log(userFound)
-
                 if (!userFound) throw new Error("Invalid Email");
 
                 const passwordMatch = await bcrypt.compare(
