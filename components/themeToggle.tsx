@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button} from "@/components/ui/button";
 import {useTheme} from "next-themes";
 import {MoonIcon, SunIcon} from "lucide-react";
@@ -12,17 +12,18 @@ const ThemeToggleWrapper = styled.div`
 `
 const ThemeToggle = () => {
     const {theme, setTheme} = useTheme();
-    // useLayoutEffect(() => window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', handleBrowserColorSchemeChange), []);
-    const handleBrowserColorSchemeChange = (event) => {
-        const newColorScheme = event.matches ? "dark" : "light";
-        setTheme(newColorScheme);
-    }
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+        window.matchMedia('(prefers-color-scheme: dark)').matches && setTheme('dark');
+    }, []);
+
 
     const handleThemeChange = () => theme === 'light' ? setTheme('dark') : setTheme('light');
     return (
         <ThemeToggleWrapper>
             <Button variant={'ghost'} onClick={handleThemeChange}>
-                {theme === "light" ? <MoonIcon/> : <SunIcon/>}
+                {theme === "light" && mounted ? <MoonIcon/> : <SunIcon/>}
             </Button>
         </ThemeToggleWrapper>
     );
