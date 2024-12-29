@@ -1,72 +1,39 @@
 import {NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import bcrypt from "bcryptjs";
-import {connectMongoDB} from "@/lib/mongodb";
-import {User} from "./models/user";
 import {GetServerSidePropsContext, NextApiRequest, NextApiResponse} from "next";
 import {getServerSession} from "next-auth/next";
+import {signInWithCredentials, signInWithOauth} from "@/actions/auth.actions";
 
 export const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
             clientId: process.env.AUTH_GOOGLE_ID as string,
             clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
-            async profile(profile) {
-                await connectMongoDB();
-                let user = await User.findOne({email: profile.email});
-
-                if (!user) {
-                    console.log(profile)
-                    user = new User({
-                        name: profile.name,
-                        email: profile.email,
-                        image: profile.picture,
-                        provider: "google"
-                    });
-                    await user.save();
-                }
-
-                return {
-                    id: user._id.toString(),
-                    name: user.name,
-                    email: user.email,
-                    image: user.image,
-                };
-
-            }
+            profile: (profile) => signInWithOauth(profile, 'google'),
         }),
         CredentialsProvider({
-            name: "Credentials",
-            id: "credentials",
-            credentials: {
-                email: {label: "Email", type: "text"},
-                password: {label: "Password", type: "password"},
-            },
-            async authorize(credentials) {
-                await connectMongoDB();
-                const userFound = await User.findOne({
-                    email: credentials?.email,
-                })
-                if (!userFound) throw new Error("Invalid Email");
+                name: "Credentials",
+                id: "credentials",
+                credentials: {
+                    email: {label: "Email", type: "text"},
+                    password: {label: "Password", type: "password"},
+                },
 
-                const passwordMatch = await bcrypt.compare(
-                    credentials!.password,
-                    userFound.password
-                );
-
-                if (!passwordMatch) throw new Error("Invalid Password");
-                return userFound;
-            },
-        }),
+                authorize: (credentials) => signInWithCredentials(credentials)
+            }
+        ),
     ],
     pages: {
         signIn: "/login",
+        error: "/login",
+
     },
     session: {
         strategy: "jwt",
     },
     callbacks: {
+
         async jwt({token, user, session, trigger}) {
             if (trigger === "update" && session?.name) {
                 token.name = session.name;
