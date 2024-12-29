@@ -9,8 +9,7 @@ import {authOptions} from "@/auth";
 
 
 export async function getUserSession() {
-    const session = await getServerSession(authOptions)
-    return ({session})
+    return await getServerSession(authOptions)
 }
 
 interface ExtendedProfile extends Profile {
@@ -157,7 +156,7 @@ export async function signInWithCredentials({
         throw new Error("Invalid email or password")
     }
 
-    return {...user._doc, _id: user._id.toString()}
+    return {email: user.email, name: user.name, _id: user._id.toString()}
 }
 
 export interface ChangeUserPasswordParams {
