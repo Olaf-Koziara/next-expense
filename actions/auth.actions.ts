@@ -1,11 +1,12 @@
-"use server" // 開頭統一加上"use server"即可
+"use server"
 import {getServerSession} from 'next-auth/next'
-import {Account, Profile} from "next-auth"
+import {Profile} from "next-auth"
 import {redirect} from "next/navigation"
 import bcrypt from "bcryptjs"
 import {User} from "@/models/user"
 import {connectMongoDB} from "@/lib/mongodb";
 import {authOptions} from "@/auth";
+import {OAuthProviderType} from "next-auth/providers/oauth";
 
 
 export async function getUserSession() {
@@ -17,49 +18,42 @@ interface ExtendedProfile extends Profile {
     picture?: string
 }
 
-interface SignInWithOauthParams {
-    account: Account,
-    profile: ExtendedProfile
-}
-
-export async function signInWithOauth({
-                                          account,
-                                          profile
-                                      }: SignInWithOauthParams) {
+export async function signInWithOauth(profile: ExtendedProfile, provider: OAuthProviderType) {
     await connectMongoDB()
 
-    const user = await User.findOne({email: profile.email})
-
-    if (user) return true
-
-    const newUser = new User({
-        name: profile.name,
-        email: profile.email,
-        image: profile.picture,
-        provider: account.provider
-    })
-
-    await newUser.save()
-
-    return true
-}
-
-interface GetUserByEmailParams {
-    email: string
-}
-
-export async function getUserByEmail({
-                                         email
-                                     }: GetUserByEmailParams) {
-    await connectMongoDB()
-
-    const user = await User.findOne({email}).select("-password")
+    const user = await getUserByEmail(profile.email)
 
     if (!user) {
-        throw new Error("User does not exist!")
+        const newUser = new User({
+            name: profile.name,
+            email: profile.email,
+            image: profile.picture,
+            provider
+        })
+
+        await newUser.save()
     }
 
-    // console.log({user})
+    return {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        image: user.image,
+    };
+
+}
+
+
+export async function getUserByEmail(email?: string, select = '') {
+    if (!email) return;
+    await connectMongoDB()
+
+    const user = await User.findOne({email}).select(select)
+
+    if (!user) {
+        return null;
+    }
+
     return {...user._doc, _id: user._id.toString()}
 }
 
@@ -70,9 +64,7 @@ export interface UpdateUserProfileParams {
 export async function updateUserProfile({
                                             name
                                         }: UpdateUserProfileParams) {
-    const session = await getServerSession(authOptions)
-    // console.log(session)
-
+    const session = await getUserSession();
     await connectMongoDB()
 
     try {
@@ -131,22 +123,21 @@ export async function signUpWithCredentials({
     }
 }
 
-interface SignInWithCredentialsParams {
-    email: string,
-    password: string
-}
+type Credentials = Record<"email" | "password", string> | undefined;
 
-export async function signInWithCredentials({
-                                                email,
-                                                password
-                                            }: SignInWithCredentialsParams) {
+export async function signInWithCredentials(credentials: Credentials) {
+
+    if (!credentials) {
+        throw new Error("Invalid credentials")
+    }
+    const {email, password} = credentials;
     await connectMongoDB()
-
-    const user = await User.findOne({email})
+    const user = await getUserByEmail(email)
 
     if (!user) {
-        throw new Error("Invalid email or password!")
+        throw new Error("Invalid email")
     }
+
 
     const passwordIsValid = await bcrypt.compare(
         password,
@@ -154,7 +145,7 @@ export async function signInWithCredentials({
     )
 
     if (!passwordIsValid) {
-        throw new Error("Invalid email or password")
+        throw new Error("Invalid password2")
     }
 
     return {...user._doc, _id: user._id.toString()}
