@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
     },
     callbacks: {
 
-        async jwt({token, user, session, trigger}) {
+        async jwt({token, session, trigger}) {
 
             if (trigger === "update" && session?.name) {
                 token.name = session.name;
