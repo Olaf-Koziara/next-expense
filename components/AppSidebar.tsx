@@ -1,4 +1,14 @@
-import {DiamondMinus, DiamondPlus, DoorClosedIcon, Home, PlusCircleIcon, Search, Settings, UserIcon} from "lucide-react"
+import {
+    DiamondMinus,
+    DiamondPlus,
+    DoorClosedIcon,
+    Home,
+    PlusCircleIcon,
+    Search,
+    Settings,
+    UserIcon,
+    UserPenIcon
+} from "lucide-react"
 
 import {
     Sidebar,
@@ -64,9 +74,17 @@ const UserInfo = ({name, email}: { name: string, email: string }) =>
         <SignOut><DoorClosedIcon/></SignOut>
 
     </div>
+const AuthButtons = () =>
+    <div className='flex justify-between'>
+        <div className='flex items-center gap-1'><UserIcon/> <Link className={buttonVariants({variant: 'outline'})}
+                                                                   href={'/auth/signIn'}>Login</Link></div>
+        <div className='flex items-center gap-1'><UserPenIcon/><Link className={buttonVariants({variant: 'outline'})}
+                                                                     href={'/auth/signUp'}>Register</Link>
+        </div>
+    </div>
 export const AppSidebar = async () => {
+
     const session = await auth();
-    console.log(session)
 
     return (
         <Sidebar>
@@ -76,13 +94,12 @@ export const AppSidebar = async () => {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem className="p-2">
-                                {session && session.user ? <><UserInfo name={session.user.name ?? ''}
-                                                                       email={session.user.email ?? ''}/> </> :
-                                    <div><Link className={buttonVariants({variant: 'outline'})}
-                                               href={'/login'}>Login</Link><Link
-                                        className={buttonVariants({variant: 'outline'})}
-                                        href={'/register'}>Register</Link>
-                                    </div>
+
+                                {session && session.user ?
+                                    <UserInfo name={session.user.name ?? ''}
+                                              email={session.user.email ?? ''}/> :
+                                    <AuthButtons/>
+
                                 }
 
                             </SidebarMenuItem>

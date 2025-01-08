@@ -1,11 +1,11 @@
+'use client'
 import {ReactNode} from "react";
 import {signOut} from "next-auth/react";
 
-export const SignOut = async ({children}: { children: ReactNode }) => {
+export const SignOut = ({children}: { children: ReactNode }) => {
     return (
         <form
             action={async () => {
-                'use server';
                 await signOut({redirect: true})
             }}
         >
