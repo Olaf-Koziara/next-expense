@@ -8,7 +8,7 @@ import {Calendar} from "@/components/ui/calendar";
 import {UseFormReturn} from "react-hook-form";
 
 const DatePicker = ({form, name, label, description}: {
-    form: UseFormReturn,
+    form: UseFormReturn<any>,
     name: string,
     label?: string,
     description?: string
@@ -21,14 +21,14 @@ const DatePicker = ({form, name, label, description}: {
                 name={name}
                 render={({field}) => (
                     <FormItem className="flex flex-col">
-                        <FormLabel>Date of birth</FormLabel>
+                        {label && <FormLabel>{label}</FormLabel>}
                         <Popover>
                             <PopoverTrigger asChild>
                                 <FormControl>
                                     <Button
                                         variant={"outline"}
                                         className={cn(
-                                            "w-[240px] pl-3 text-left font-normal",
+                                            "w-full text-left font-normal",
                                             !field.value && "text-muted-foreground"
                                         )}
                                     >
@@ -53,9 +53,12 @@ const DatePicker = ({form, name, label, description}: {
                                 />
                             </PopoverContent>
                         </Popover>
-                        <FormDescription>
-                            {description}
-                        </FormDescription>
+                        {
+                            description &&
+                            <FormDescription>
+                                {description}
+                            </FormDescription>
+                        }
                         <FormMessage/>
                     </FormItem>
                 )}
