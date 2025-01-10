@@ -1,41 +1,54 @@
-export const BASE_URL = process.env.HOSTNAME;
+export const BASE_URL = process.env.NEXT_PUBLIC_HOSTNAME;
 
-export const enpoints = {
-  wallet: "/api/wallet",
-};
+async function GET<T>(_url: string, queryString?: string): Promise<T> {
+    const url = queryString ? `${_url}/?${queryString}` : _url;
+    const res = await fetch(url, {
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
 
-async function get<T>(_url: string, queryString?: string): Promise<T> {
-  const url = queryString ? `${_url}/?${queryString}` : _url;
-  const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+    if (!res.ok) {
+        throw new Error(res.statusText);
+    }
 
-  if (!res.ok) {
-    throw new Error(res.statusText);
-  }
-
-  return res.json();
+    return res.json();
 }
 
-async function post<T, K>(url: string, data: K): Promise<T> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+async function POST<T, K>(url: string, data: T): Promise<K> {
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
 
-  if (!res.ok) {
-    throw new Error(res.statusText);
-  }
+    if (!res.ok) {
+        throw new Error(res.statusText);
+    }
 
-  return res.json();
+    return res.json();
+}
+
+async function DELETE<T, K>(url: string, data: T): Promise<K> {
+    const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        throw new Error(res.statusText);
+    }
+
+    return res.json();
 }
 
 export const api = {
-  get,
-  post,
+    GET,
+    POST,
+    DELETE
 };

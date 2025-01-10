@@ -1,16 +1,17 @@
-import { Wallet } from "@/types/Wallet";
-import { api, BASE_URL, enpoints } from "./api";
+import {Wallet} from "@/types/Wallet";
+import {api, BASE_URL} from "./api";
+import {endpoints} from "@/app/services/endpoints";
 
 const getAll = async (): Promise<Wallet[]> => {
-  return await api.get<Wallet[]>(BASE_URL + enpoints.wallet);
+    return await api.GET<Wallet[]>(BASE_URL + endpoints.wallet);
 };
 
 type AddWallet = Omit<Wallet, "_id">;
 const add = async (wallet: AddWallet): Promise<Wallet> => {
-  return await api.post<Wallet, AddWallet>(BASE_URL + enpoints.wallet, wallet);
+    return await api.POST<AddWallet, Wallet>(BASE_URL + endpoints.wallet, wallet);
 };
 
-export const walletsSercice = {
-  add,
-  getAll,
+export const walletsService = {
+    add,
+    getAll,
 };
