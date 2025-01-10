@@ -39,7 +39,7 @@ const items = [
     },
     {
         title: "Incomes",
-        url: "#",
+        url: "/incomes",
         icon: DiamondPlus,
         children: [{title: 'Categories', url: '/incomes/categories', icon: BookOpen}]
     },
@@ -54,10 +54,10 @@ const UserInfo = ({name, email}: { name: string, email: string }) =>
                 <div className="font-bold pb-2">
 
                     <div className='flex items-center gap-1 pb-2'>
-                        <Button>
+                        <Link className={buttonVariants({variant: 'outline'})} href='/user'>
                             <UserIcon size={64}/>
                             {name}
-                        </Button>
+                        </Link>
 
                         <SignOut>
 
