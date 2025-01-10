@@ -1,6 +1,8 @@
 import React from 'react';
 import SignInButtonOAuth from "@/components/SignInButtonOAuth";
 import SignInForm from "@/components/form/SignInForm";
+import Link from "next/link";
+import {buttonVariants} from "@/components/ui/button";
 
 const Page = () => {
     return (
@@ -13,6 +15,11 @@ const Page = () => {
                         <SignInButtonOAuth className='basis-full' providerType={'google'}>
                             Sign in with Google
                         </SignInButtonOAuth>
+                    </div>
+                    <div className='pt-3 '>
+                        <Link href='/auth/signUp' className={buttonVariants({variant: "outline"}) + ' w-full'}>
+                            Sign Up
+                        </Link>
                     </div>
                 </div>
             </div>
