@@ -1,13 +1,6 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {DataTable} from "@/components/dataTable";
-import {Expense} from '@/types/Expense';
-import {ColumnDef} from "@tanstack/table-core";
-import ExpenseForm from "@/components/form/ExpenseForm";
-import {useWallet} from "@/context/WalletContext";
-import {Alert, AlertDescription} from '@/components/ui/alert';
-import {Skeleton} from '@/components/ui/skeleton';
-import {generateColumns} from './columns';
+
 import ExpenseIncomeForm from "@/components/form/ExpenseIncomeForm";
 import ExpenseIncomeTable from "@/components/ExpenseIncomeTable";
 
@@ -15,14 +8,19 @@ import ExpenseIncomeTable from "@/components/ExpenseIncomeTable";
 
 
 const Page = () => {
+    const [triggerFetch, setTriggerFetch] = useState(false);
+
+    const handleFormSubmitted = () => {
+        setTriggerFetch(prev => !prev);
+    };
 
 
     return (
         <div className="mt-5">
             <div className="flex flex-col lg:flex-row gap-6">
-                <ExpenseIncomeTable type={'expense'}/>
+                <ExpenseIncomeTable triggerFetch={triggerFetch} type={'expense'}/>
                 <div className="w-full lg:w-80">
-                    {/*<ExpenseIncomeForm type='expense' onFormSubmitted={fetchExpenses}/>*/}
+                    <ExpenseIncomeForm type='expense' onFormSubmitted={handleFormSubmitted}/>
                 </div>
             </div>
         </div>
