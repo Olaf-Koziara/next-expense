@@ -5,31 +5,17 @@ import {Button} from "@/components/ui/button";
 
 type Props = {
     type: 'expense' | 'income';
-    onCategoryAdded?: () => void;
+    onSubmit?: (name: string) => void;
 };
 
-const ExpenseIncomeCategoryForm = ({type, onCategoryAdded}: Props) => {
+const ExpenseIncomeCategoryForm = ({type, onSubmit}: Props) => {
     const [name, setName] = useState('');
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const response = await fetch(`/api/${type}Categories`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({name}),
-            });
+            if (onSubmit) onSubmit(name);
 
-            if (!response.ok) {
-                throw new Error(`Error: ${response.status} ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            if (onCategoryAdded) {
-                onCategoryAdded();
-            }
             setName('');
         } catch (error) {
             console.error(`Failed to create ${type} category:`, error);
