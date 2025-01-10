@@ -4,15 +4,12 @@ import {Column, ColumnDef, RowData} from "@tanstack/table-core";
 import {Button} from "@/components/ui/button";
 import {ArrowUpDown} from "lucide-react";
 import {Expense} from "@/types/Expense";
-import {resolve} from "dns";
-import {ExpenseCategory} from "@/types/ExpenseCategory";
+import {Category} from "@/types/Category";
 import {DataTable} from "@/components/dataTable";
 import {Income} from "@/types/Income";
 import {useWallet} from "@/context/WalletContext";
-import {Alert, AlertDescription} from "@/components/ui/alert";
-import {Skeleton} from "@/components/ui/skeleton";
-import {IncomeCategory} from "@/types/IncomeCategory";
 import {SortingState} from "@tanstack/react-table";
+import useCategories from "@/hooks/useCategories";
 
 
 declare module '@tanstack/react-table' {
@@ -27,30 +24,25 @@ declare module '@tanstack/react-table' {
 const formatedDate = (date: Date) => <div>{date.toLocaleDateString('en-GB')}</div>;
 
 type Props = {
-    type: 'expense' | 'income'
+    type: 'expense' | 'income',
+    triggerFetch?: boolean,
 }
-const ExpenseIncomeTable = ({type}: Props) => {
+const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
     const {selectedWallet} = useWallet();
     const [data, setData] = useState<Expense[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [columns, setColumns] = useState<ColumnDef<Income | Expense>[]>()
-    const [categories, setCategories] = useState([]);
-    useEffect(() => {
-        fetchCategories().then((data) => {
-                setColumns(getColumns(data))
-            }
-        )
-    }, []);
+    const {categories} = useCategories({type})
     useEffect(() => {
         fetchExpenses()
-    }, [selectedWallet]);
-    const fetchCategories = async () => {
-        const response = await fetch(`/api/${type}Categories`);
-        const data = await response.json();
-        setCategories(data.expenseCategories)
-        return data.expenseCategories;
-    }
+
+    }, [selectedWallet, triggerFetch]);
+    useEffect(() => {
+        setColumns(getColumns(categories));
+
+    }, [categories]);
+
     const fetchExpenses = async (sortBy?: string, order: 'desc' | 'asc' = 'asc') => {
         if (!selectedWallet?._id) return;
 
@@ -62,7 +54,7 @@ const ExpenseIncomeTable = ({type}: Props) => {
             const response = await fetch(url);
             if (!response.ok) throw new Error('Failed to fetch expenses');
             const expenseData = await response.json();
-            setData(expenseData.expenses);
+            setData(expenseData);
         } catch (error) {
             setError('Failed to load expenses');
             console.error('Error fetching expenses:', error);
@@ -88,7 +80,7 @@ const ExpenseIncomeTable = ({type}: Props) => {
             </Button>
         )
     }
-    const getColumns = (categories: ExpenseCategory[] | IncomeCategory[]): ColumnDef<Income | Expense>[] => [{
+    const getColumns = (categories: Category[]): ColumnDef<Income | Expense>[] => [{
         accessorKey: 'date',
         header: (data) => sortableHeader(data.column, 'Date', 'date'),
         cell: ({row}) => formatedDate(new Date(row.getValue('date')))
@@ -110,7 +102,7 @@ const ExpenseIncomeTable = ({type}: Props) => {
             meta: {
                 filterVariant: 'select',
                 filterPlaceholder: 'Category',
-                filterOptions: categories.map(category => category.name)
+                filterOptions: categories ? categories.map(category => category.name) : []
             }
         }];
 
