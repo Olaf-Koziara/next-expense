@@ -5,16 +5,16 @@ import DatePicker from '@/components/ui/datepicker';
 import {Input} from '@/components/ui/input';
 import {Form, FormControl, FormField, FormItem, FormLabel} from '@/components/ui/form';
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
-import {ExpenseCategory} from '@/types/ExpenseCategory';
-import {IncomeCategory} from '@/types/IncomeCategory';
+import {Category} from '@/types/Category';
 import {Button} from '@/components/ui/button';
 import {useWallet} from '@/context/WalletContext';
+import useCategories from "@/hooks/useCategories";
 
 type FormData = {
     title: string;
     amount: number;
     date: string;
-    category: ExpenseCategory | IncomeCategory;
+    category: Category["name"];
 };
 
 export const getCategories = async (type: 'expense' | 'income') => {
@@ -31,11 +31,8 @@ type Props = {
 const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
     const {selectedWallet} = useWallet();
     const form = useForm<FormData>();
-    const [categories, setCategories] = useState<(ExpenseCategory | IncomeCategory)[]>([]);
+    const {categories} = useCategories({type: type});
 
-    useEffect(() => {
-        getCategories(type).then((result) => setCategories(result));
-    }, [type]);
 
     const onSubmit: SubmitHandler<FormData> = async (data, event) => {
         event?.preventDefault();
@@ -46,6 +43,7 @@ const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
         if (onFormSubmitted) {
             onFormSubmitted();
         }
+        form.reset();
     };
 
     return (
