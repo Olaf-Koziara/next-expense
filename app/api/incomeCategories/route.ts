@@ -3,6 +3,7 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {User} from "@/models/user";
 import {ExpenseCategory} from "@/models/expenseCategory";
+import {IncomeCategory} from "@/models/incomeCategory";
 
 export const GET = async (req: NextApiRequest) => {
     try {
@@ -12,14 +13,14 @@ export const GET = async (req: NextApiRequest) => {
 
 
             const user = await User.findOne({email: session.user.email})
-                .populate('expenseCategories');
+                .populate('incomeCategories');
 
             if (!user) {
                 return Response.json({message: 'User not found'}, {status: 404});
             }
 
 
-            return Response.json(user.expenseCategories, {status: 200});
+            return Response.json(user.incomeCategories, {status: 200});
         }
     } catch (error) {
         return Response.json({message: 'Error', error}, {status: 500})
@@ -40,25 +41,23 @@ export const POST = async (req: Request) => {
             return Response.json({message: 'Name is required'}, {status: 400});
         }
 
-        // Create new expense category
-        const newCategory = await ExpenseCategory.create({name});
+        const newCategory = await IncomeCategory.create({name});
 
-        // Add reference to user's expenseCategories array
         const user = await User.findOneAndUpdate(
             {email: session.user.email},
             {
                 $push: {
-                    expenseCategories: newCategory._id
+                    incomeCategories: newCategory._id
                 }
             },
             {
                 new: true
             }
-        ).populate('expenseCategories');
+        ).populate('incomeCategories');
 
         if (!user) {
             // Cleanup the created category if user update fails
-            await ExpenseCategory.findByIdAndDelete(newCategory._id);
+            await IncomeCategory.findByIdAndDelete(newCategory._id);
             return Response.json({message: 'User not found'}, {status: 404});
         }
 
@@ -66,7 +65,7 @@ export const POST = async (req: Request) => {
             {status: 201}
         );
     } catch (error) {
-        console.error('Error creating expense category:', error);
+        console.error('Error creating income category:', error);
         return Response.json(
             {message: 'Internal server error'},
             {status: 500}
@@ -90,7 +89,7 @@ export const DELETE = async (req: Request) => {
 
         const user = await User.findOneAndUpdate(
             {email: session.user.email},
-            {$pull: {expenseCategories: _id}},
+            {$pull: {incomeCategories: _id}},
             {new: true}
         );
 
@@ -99,11 +98,11 @@ export const DELETE = async (req: Request) => {
         }
 
 
-        await ExpenseCategory.findByIdAndDelete(_id);
+        await IncomeCategory.findByIdAndDelete(_id);
 
         return Response.json({message: 'Category deleted successfully'}, {status: 200});
     } catch (error) {
-        console.error('Error deleting expense category:', error);
+        console.error('Error deleting income category:', error);
         return Response.json({message: 'Internal server error'}, {status: 500});
     }
 }
