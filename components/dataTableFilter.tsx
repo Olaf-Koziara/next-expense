@@ -1,9 +1,11 @@
 import {Column} from "@tanstack/table-core";
 import DebouncedInput from "@/components/ui/debouncedInput";
-import {Expense} from "@/app/(root)/expenses/columns";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
-function DataTableFilter({column}: { column: Column<Expense> }) {
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Expense} from "@/types/Expense";
+import {Income} from "@/types/Income";
+
+function DataTableFilter({column}: { column: Column<Expense | Income> }) {
     const columnFilterValue = column.getFilterValue()
     const {filterVariant, filterOptions, filterPlaceholder} = column.columnDef.meta ?? {}
 
@@ -41,8 +43,8 @@ function DataTableFilter({column}: { column: Column<Expense> }) {
                 <SelectValue placeholder={filterPlaceholder}></SelectValue> </SelectTrigger>
             <SelectContent>
                 {/*<SelectItem value=''>All</SelectItem>*/}
-                {filterOptions.map((option, index) => <SelectItem key={index}
-                                                                  value={option.title}>{option.title}</SelectItem>)}
+                {filterOptions.length > 0 && filterOptions.map((option, index) => <SelectItem key={index}
+                                                                                              value={option}>{option}</SelectItem>)}
             </SelectContent>
         </Select>
     ) : (

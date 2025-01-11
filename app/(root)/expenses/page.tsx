@@ -1,15 +1,28 @@
-import React from 'react';
-import {DataTable} from "@/components/dataTable";
-import {columns, Expense} from "@/app/(root)/expenses/columns";
-import {generateExpenses} from "@/components/dataGenerator";
-import ExpenseForm from "@/components/form/ExpenseForm";
+'use client';
+import React, {useEffect, useState} from 'react';
 
-const data: Expense[] = generateExpenses(200);
-const Page = async () => {
+import ExpenseIncomeForm from "@/components/form/ExpenseIncomeForm";
+import ExpenseIncomeTable from "@/components/ExpenseIncomeTable";
+
+// Separate the columns generation logic
+
+
+const Page = () => {
+    const [triggerFetch, setTriggerFetch] = useState(false);
+
+    const handleFormSubmitted = () => {
+        setTriggerFetch(prev => !prev);
+    };
+
+
     return (
-        <div>
-            <DataTable columns={columns} data={data}/>
-            <ExpenseForm/>
+        <div className="mt-5">
+            <div className="flex flex-col lg:flex-row gap-6">
+                <ExpenseIncomeTable triggerFetch={triggerFetch} type={'expense'}/>
+                <div className="w-full lg:w-80">
+                    <ExpenseIncomeForm type='expense' onFormSubmitted={handleFormSubmitted}/>
+                </div>
+            </div>
         </div>
     );
 };

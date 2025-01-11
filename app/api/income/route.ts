@@ -1,8 +1,6 @@
-import {NextApiRequest} from "next";
 import {NextResponse} from "next/server";
 import {connectMongoDB} from "@/lib/mongodb";
-import {getServerSession} from "next-auth/next";
-import {auth, authOptions} from "@/auth";
+import {auth,} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
 
@@ -16,7 +14,7 @@ export const POST = async (req: Request) => {
             return NextResponse.json({error: "Unauthorized!"}, {status: 401});
         }
 
-        const {selectedWalletId, ...expenseData} = await req.json();
+        const {selectedWalletId, ...incomeData} = await req.json();
 
         const walletOwner = await User.findOne({
             email: session.user.email,
@@ -31,7 +29,7 @@ export const POST = async (req: Request) => {
 
         const wallet = await Wallet.findByIdAndUpdate(
             selectedWalletId,
-            {$push: {expenses: expenseData}}, {new: true}
+            {$push: {incomes: incomeData}}, {new: true}
         );
 
 
@@ -56,22 +54,9 @@ export const GET = async (req: Request) => {
         const url = new URL(req.url)
 
         const walletId = url.searchParams.get("wallet")
-        const sortBy = url.searchParams.get("sortBy") ?? 'title';
-        console.log(sortBy)
-        const order = url.searchParams.get("order") ?? 'asc';
-        console.log(order)
 
-
-        const wallet = await Wallet.findOne({_id: walletId}, {expenses: 1});
-        const sortedExpenses = [...wallet.expenses].sort((a, b) => {
-            const valueA = a[sortBy].toString().toLowerCase();
-            const valueB = b[sortBy].toString().toLowerCase();
-            if (order === "asc") {
-                return valueA > valueB ? 1 : -1;
-            }
-            return valueA < valueB ? 1 : -1;
-        });
-        return NextResponse.json(sortedExpenses, {status: 200});
+        const wallet = await Wallet.findOne({_id: walletId}, {incomes: 1});
+        return NextResponse.json(wallet.incomes, {status: 200});
     } catch (error) {
         return NextResponse.json({message: 'Error', error}, {status: 500});
     }

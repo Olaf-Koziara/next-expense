@@ -26,6 +26,7 @@ export const authOptions: NextAuthOptions = {
     ],
     pages: {
         error: "/signIn",
+        signIn: '/auth/signIn',
 
     },
     session: {
@@ -34,7 +35,6 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
 
         async jwt({token, session, trigger}) {
-
             if (trigger === "update" && session?.name) {
                 token.name = session.name;
             }

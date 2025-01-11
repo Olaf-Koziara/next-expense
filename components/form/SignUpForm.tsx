@@ -4,6 +4,8 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {signUpWithCredentials} from "@/actions/auth.actions";
+import {signIn} from "next-auth/react";
+
 
 type SignUpFormData = {
     name: string;
@@ -14,6 +16,12 @@ const SignUpForm = () => {
     const {register, handleSubmit} = useForm<SignUpFormData>()
     const onSubmit: SubmitHandler<SignUpFormData> = async (data) => {
         await signUpWithCredentials(data);
+        await signIn('credentials', {
+            email: data.email,
+            password: data.password,
+            callbackUrl: '/',
+            redirect: true
+        });
     }
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

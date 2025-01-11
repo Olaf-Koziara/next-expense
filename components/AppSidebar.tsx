@@ -1,14 +1,5 @@
-import {
-    DiamondMinus,
-    DiamondPlus,
-    DoorClosedIcon,
-    Home,
-    PlusCircleIcon,
-    Search,
-    Settings,
-    UserIcon,
-    UserPenIcon
-} from "lucide-react"
+'use client';
+import {BookOpen, DiamondMinus, DiamondPlus, DoorClosedIcon, Home, PlusCircleIcon, UserIcon, Wallet} from "lucide-react"
 
 import {
     Sidebar,
@@ -25,11 +16,16 @@ import {
 } from "@/components/ui/sidebar"
 import {SignOut} from "@/components/signOutButton";
 import Link from "next/link";
-import {buttonVariants} from "@/components/ui/button";
+import {Button, buttonVariants} from "@/components/ui/button";
 import {auth} from "@/auth";
+import {useEffect, useState} from "react";
+import {useSession} from "next-auth/react";
+import {useWallet} from "@/context/WalletContext";
+import WalletList from "@/components/WalletList/WalletList";
 
 // Menu items.
 const items = [
+
     {
         title: "Summary",
         url: "#",
@@ -39,52 +35,56 @@ const items = [
         title: "Expenses",
         url: "/expenses",
         icon: DiamondMinus,
-        children: [{
-            title: "Add expense",
-            url: "/expenses/add",
-            icon: PlusCircleIcon
-        }]
+        children: [{title: 'Categories', url: '/expenses/categories', icon: BookOpen}]
     },
     {
         title: "Incomes",
-        url: "#",
+        url: "/incomes",
         icon: DiamondPlus,
+        children: [{title: 'Categories', url: '/incomes/categories', icon: BookOpen}]
     },
-    {
-        title: "Search",
-        url: "#",
-        icon: Search,
-    },
-    {
-        title: "Settings",
-        url: "#",
-        icon: Settings,
-    },
+
 ]
 
 const UserInfo = ({name, email}: { name: string, email: string }) =>
-    <div className="flex items-center justify-around">
-        <div>
-            <div className="flex items-center font-bold">
-                <UserIcon/>
-                {name}
+    <div>
+
+        <div className="flex items-center justify-between pb-2">
+            <div>
+                <div className="font-bold pb-2">
+
+                    <div className='flex items-center gap-1 pb-2'>
+                        <Link className={buttonVariants({variant: 'outline'})} href='/user'>
+                            <UserIcon size={64}/>
+                            {name}
+                        </Link>
+
+                        <SignOut>
+
+                            <DoorClosedIcon
+                                className='inline'/>Sign
+                            Out
+
+                        </SignOut>
+                    </div>
+                </div>
+                <WalletList/>
             </div>
-            {email}
-        </div>
-        <SignOut><DoorClosedIcon/></SignOut>
 
-    </div>
-const AuthButtons = () =>
-    <div className='flex justify-between'>
-        <div className='flex items-center gap-1'><UserIcon/> <Link className={buttonVariants({variant: 'outline'})}
-                                                                   href={'/auth/signIn'}>Login</Link></div>
-        <div className='flex items-center gap-1'><UserPenIcon/><Link className={buttonVariants({variant: 'outline'})}
-                                                                     href={'/auth/signUp'}>Register</Link>
         </div>
     </div>
-export const AppSidebar = async () => {
+const AuthLinks = () => <div>
+    <Link className={buttonVariants({variant: 'outline'})}
+          href={'/auth/signIn'}>SignIn</Link>
+    <Link
+        className={buttonVariants({variant: 'outline'})}
+        href={'/auth/signUp'}>SignUp</Link>
+</div>
+export const AppSidebar = () => {
 
-    const session = await auth();
+
+    const {data: session} = useSession();
+
 
     return (
         <Sidebar>
@@ -94,17 +94,14 @@ export const AppSidebar = async () => {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem className="p-2">
-
                                 {session && session.user ?
-                                    <UserInfo name={session.user.name ?? ''}
-                                              email={session.user.email ?? ''}/> :
-                                    <AuthButtons/>
-
+                                    <UserInfo name={session.user.name ?? ''} email={session.user.email ?? ''}/>
+                                    : <div><AuthLinks/></div>
                                 }
 
                             </SidebarMenuItem>
                             {
-                                items.map((item) => (
+                                session && session.user && items.map((item) => (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild>
                                             <a href={item.url}>

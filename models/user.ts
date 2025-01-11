@@ -18,12 +18,20 @@ const UserSchema = new Schema({
         type: String,
         required: true,
     },
-    expenses: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Expense', // Nawiązanie do modelu `Expense`
-        },
+    expenseCategories: [
+        {type: Schema.Types.ObjectId, ref: 'ExpenseCategory'}
     ],
+    incomeCategories: [
+        {type: Schema.Types.ObjectId, ref: 'IncomeCategory'}
+    ],
+    wallets: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Wallet'
+        }
+
+    ]
+
 }, {collection: 'users'});
 
 export const User = mongoose.models?.User || mongoose.model('User', UserSchema);
