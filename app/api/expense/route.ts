@@ -1,10 +1,9 @@
-import {NextApiRequest} from "next";
 import {NextResponse} from "next/server";
 import {connectMongoDB} from "@/lib/mongodb";
-import {getServerSession} from "next-auth/next";
-import {auth, authOptions} from "@/auth";
+import {auth} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
+import {Expense} from "@/types/Expense";
 
 
 export const POST = async (req: Request) => {
@@ -16,7 +15,7 @@ export const POST = async (req: Request) => {
             return NextResponse.json({error: "Unauthorized!"}, {status: 401});
         }
 
-        const {selectedWalletId, ...expenseData} = await req.json();
+        const {selectedWalletId, ...expenseData}: { selectedWalletId: string } & Expense = await req.json();
 
         const walletOwner = await User.findOne({
             email: session.user.email,
@@ -24,14 +23,13 @@ export const POST = async (req: Request) => {
         });
 
         if (!walletOwner) {
-            throw new Error('Wallet not found or unauthorized');
-
+            return NextResponse.json({error: "Wallet doesn't belong to user"}, {status: 404});
         }
 
 
         const wallet = await Wallet.findByIdAndUpdate(
             selectedWalletId,
-            {$push: {expenses: expenseData}}, {new: true}
+            {$push: {expenses: expenseData}, $inc: {balance: -expenseData.amount}}, {new: true}
         );
 
 

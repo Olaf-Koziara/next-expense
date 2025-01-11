@@ -3,6 +3,7 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth,} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
+import {Income} from "@/types/Income";
 
 
 export const POST = async (req: Request) => {
@@ -14,7 +15,7 @@ export const POST = async (req: Request) => {
             return NextResponse.json({error: "Unauthorized!"}, {status: 401});
         }
 
-        const {selectedWalletId, ...incomeData} = await req.json();
+        const {selectedWalletId, ...incomeData}: { selectedWalletId: string } & Income = await req.json();
 
         const walletOwner = await User.findOne({
             email: session.user.email,
@@ -22,14 +23,14 @@ export const POST = async (req: Request) => {
         });
 
         if (!walletOwner) {
-            throw new Error('Wallet not found or unauthorized');
+            return NextResponse.json({error: "Wallet doesn't belong to user"}, {status: 404});
 
         }
 
 
         const wallet = await Wallet.findByIdAndUpdate(
             selectedWalletId,
-            {$push: {incomes: incomeData}}, {new: true}
+            {$push: {incomes: incomeData}, $inc: {balance: incomeData.amount}}, {new: true}
         );
 
 
