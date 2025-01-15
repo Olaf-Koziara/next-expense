@@ -1,12 +1,9 @@
 'use client';
-import React, {useEffect} from 'react';
-import {useWallet} from "@/context/WalletContext";
-import {Income} from "@/types/Income";
+import React from 'react';
 import ExpenseIncomeTable from "@/components/ExpenseIncomeTable";
 import ExpenseIncomeForm from "@/components/form/ExpenseIncomeForm";
 
 const Page = () => {
-
 
     return (
         <div className="mt-5">
