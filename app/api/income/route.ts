@@ -56,8 +56,29 @@ export const GET = async (req: Request) => {
         const url = new URL(req.url)
         const walletId = url.searchParams.get("wallet")
         const {sortBy, sortOrder} = getSortParamsFromUrl(url);
+        const category = url.searchParams.get("category");
+        const minAmount = parseFloat(url.searchParams.get("minAmount") || "0");
+        const maxAmount = parseFloat(url.searchParams.get("maxAmount") || "Infinity");
+        const title = url.searchParams.get("title");
+        const startDate = new Date(url.searchParams.get("startDate") || "1970-01-01");
+        const endDate = new Date(url.searchParams.get("endDate") || "9999-12-31");
 
-        const wallet = await Wallet.findOne({_id: walletId}, {incomes: 1});
+        const filters: any = {
+            "incomes.amount": {$gte: minAmount, $lte: maxAmount},
+            "incomes.date": {$gte: startDate, $lte: endDate}
+        };
+
+        if (category) {
+            filters["incomes.category"] = category;
+        }
+        if (title) {
+            filters["incomes.title"] = {$regex: title, $options: "i"};
+        }
+
+        const wallet = await Wallet.findOne(
+            {_id: walletId, ...filters},
+            {incomes: 1}
+        );
         const sortedIncomes = sortItems<Income>(wallet.incomes, sortBy as keyof Income, sortOrder)
         return NextResponse.json(sortedIncomes, {status: 200});
     } catch (error) {
