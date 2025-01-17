@@ -3,6 +3,8 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth,} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
+import {getSortParamsFromUrl, sortItems} from "@/app/utils/sort";
+import {Income} from "@/types/Income";
 
 
 export const POST = async (req: Request) => {
@@ -56,7 +58,9 @@ export const GET = async (req: Request) => {
         const walletId = url.searchParams.get("wallet")
 
         const wallet = await Wallet.findOne({_id: walletId}, {incomes: 1});
-        return NextResponse.json(wallet.incomes, {status: 200});
+        const {sortOrder, sortBy} = getSortParamsFromUrl(url)
+        const sortedIncomes = sortItems<Income>(wallet.incomes, sortBy as keyof Income, sortOrder);
+        return NextResponse.json(sortedIncomes, {status: 200});
     } catch (error) {
         return NextResponse.json({message: 'Error', error}, {status: 500});
     }
