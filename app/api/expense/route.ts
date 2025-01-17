@@ -4,6 +4,7 @@ import {auth} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
 import {Expense} from "@/types/Expense";
+import {getSortParamsFromUrl, sortItems, SortOrder} from "@/utils/sort";
 
 
 export const POST = async (req: Request) => {
@@ -52,23 +53,13 @@ export const GET = async (req: Request) => {
             return NextResponse.json({error: "Unauthorized!"}, {status: 401});
         }
         const url = new URL(req.url)
-
         const walletId = url.searchParams.get("wallet")
-        const sortBy = url.searchParams.get("sortBy") ?? 'title';
-        console.log(sortBy)
-        const order = url.searchParams.get("order") ?? 'asc';
-        console.log(order)
-
+        const {sortBy, sortOrder} = getSortParamsFromUrl(url);
 
         const wallet = await Wallet.findOne({_id: walletId}, {expenses: 1});
-        const sortedExpenses = [...wallet.expenses].sort((a, b) => {
-            const valueA = a[sortBy].toString().toLowerCase();
-            const valueB = b[sortBy].toString().toLowerCase();
-            if (order === "asc") {
-                return valueA > valueB ? 1 : -1;
-            }
-            return valueA < valueB ? 1 : -1;
-        });
+
+        const sortedExpenses = sortItems<Expense>(wallet.expenses, sortBy as keyof Expense, sortOrder)
+
         return NextResponse.json(sortedExpenses, {status: 200});
     } catch (error) {
         return NextResponse.json({message: 'Error', error}, {status: 500});
