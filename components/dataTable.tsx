@@ -22,6 +22,7 @@ import DataTableFilter from "@/components/dataTableFilter";
 
 type Props<TData, TValue> = {
     onSortingChange: (data: SortingState) => void,
+    onFilterChange?: (data: ColumnFiltersState) => void,
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
 }
@@ -29,7 +30,8 @@ type Props<TData, TValue> = {
 export function DataTable<TData, TValue>({
                                              columns,
                                              data,
-                                             onSortingChange
+                                             onSortingChange,
+                                             onFilterChange
                                          }: Props<TData, TValue>) {
     const [pagination, setPagination] = useState({pageIndex: 0, pageSize: 10});
     const [sorting, setSorting] = useState<SortingState>([])
@@ -38,6 +40,11 @@ export function DataTable<TData, TValue>({
     useEffect(() => {
         onSortingChange(sorting)
     }, [sorting])
+    useEffect(() => {
+        if (onFilterChange) {
+            onFilterChange(columnFilters)
+        }
+    }, [columnFilters]);
     const table = useReactTable({
         data,
         columns,

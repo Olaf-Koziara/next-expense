@@ -1,6 +1,6 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {Column, ColumnDef, RowData} from "@tanstack/table-core";
+import {Column, ColumnDef, ColumnFilter, RowData} from "@tanstack/table-core";
 import {Button} from "@/components/ui/button";
 import {ArrowUpDown} from "lucide-react";
 import {Expense} from "@/types/Expense";
@@ -8,7 +8,7 @@ import {Category} from "@/types/Category";
 import {DataTable} from "@/components/dataTable";
 import {Income} from "@/types/Income";
 import {useWallet} from "@/context/WalletContext";
-import {SortingState} from "@tanstack/react-table";
+import {ColumnFiltersState, SortingState} from "@tanstack/react-table";
 import useCategories from "@/hooks/useCategories";
 
 
@@ -69,6 +69,9 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
             await fetchExpenses(sorting.id, sorting.desc ? 'desc' : 'asc')
         }
     }
+    const handleFilterChange = async (data: ColumnFiltersState) => {
+      
+    }
     const sortableHeader = (column: Column<Expense>, header: string, property: keyof Expense) => {
         return (
             <Button
@@ -109,7 +112,9 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
     return (
         <div>
 
-            {columns && <DataTable columns={columns} data={data} onSortingChange={handleSortingChange}/>}
+            {columns &&
+                <DataTable columns={columns} data={data} onFilterChange={handleFilterChange}
+                           onSortingChange={handleSortingChange}/>}
 
         </div>
     );
