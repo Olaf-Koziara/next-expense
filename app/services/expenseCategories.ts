@@ -8,9 +8,9 @@ const getAll = async () => {
 const add = async (category: Category) => {
     return api.POST<Category, void>(endpoints.expenseCategory, category)
 }
-const deleteOne = async (_id: string) => {
+const remove = async (_id: string) => {
     return api.DELETE<{ _id: string }, void>(endpoints.expenseCategory, {_id})
 }
 export const expenseCategoriesService = {
-    getAll, add, deleteOne
+    getAll, add, remove
 }
