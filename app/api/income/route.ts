@@ -3,8 +3,8 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth,} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
+import {getSortParamsFromUrl, sortItems} from "@/app/utils/sort";
 import {Income} from "@/types/Income";
-import {getSortParamsFromUrl, sortItems} from "@/utils/sort";
 
 
 export const POST = async (req: Request) => {
@@ -16,7 +16,7 @@ export const POST = async (req: Request) => {
             return NextResponse.json({error: "Unauthorized!"}, {status: 401});
         }
 
-        const {selectedWalletId, ...incomeData}: { selectedWalletId: string } & Income = await req.json();
+        const {selectedWalletId, ...incomeData} = await req.json();
 
         const walletOwner = await User.findOne({
             email: session.user.email,
@@ -24,14 +24,14 @@ export const POST = async (req: Request) => {
         });
 
         if (!walletOwner) {
-            return NextResponse.json({error: "Wallet doesn't belong to user"}, {status: 404});
+            throw new Error('Wallet not found or unauthorized');
 
         }
 
 
         const wallet = await Wallet.findByIdAndUpdate(
             selectedWalletId,
-            {$push: {incomes: incomeData}, $inc: {balance: incomeData.amount}}, {new: true}
+            {$push: {incomes: incomeData}}, {new: true}
         );
 
 
@@ -54,32 +54,12 @@ export const GET = async (req: Request) => {
             return NextResponse.json({error: "Unauthorized!"}, {status: 401});
         }
         const url = new URL(req.url)
+
         const walletId = url.searchParams.get("wallet")
-        const {sortBy, sortOrder} = getSortParamsFromUrl(url);
-        const category = url.searchParams.get("category");
-        const minAmount = parseFloat(url.searchParams.get("minAmount") || "0");
-        const maxAmount = parseFloat(url.searchParams.get("maxAmount") || "Infinity");
-        const title = url.searchParams.get("title");
-        const startDate = new Date(url.searchParams.get("startDate") || "1970-01-01");
-        const endDate = new Date(url.searchParams.get("endDate") || "9999-12-31");
 
-        const filters: any = {
-            "incomes.amount": {$gte: minAmount, $lte: maxAmount},
-            "incomes.date": {$gte: startDate, $lte: endDate}
-        };
-
-        if (category) {
-            filters["incomes.category"] = category;
-        }
-        if (title) {
-            filters["incomes.title"] = {$regex: title, $options: "i"};
-        }
-
-        const wallet = await Wallet.findOne(
-            {_id: walletId, ...filters},
-            {incomes: 1}
-        );
-        const sortedIncomes = sortItems<Income>(wallet.incomes, sortBy as keyof Income, sortOrder)
+        const wallet = await Wallet.findOne({_id: walletId}, {incomes: 1});
+        const {sortOrder, sortBy} = getSortParamsFromUrl(url)
+        const sortedIncomes = sortItems<Income>(wallet.incomes, sortBy as keyof Income, sortOrder);
         return NextResponse.json(sortedIncomes, {status: 200});
     } catch (error) {
         return NextResponse.json({message: 'Error', error}, {status: 500});
