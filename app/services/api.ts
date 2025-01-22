@@ -1,5 +1,3 @@
-import {SearchParams} from "next/dist/server/request/search-params";
-
 export const BASE_URL = process.env.NEXT_PUBLIC_HOSTNAME;
 
 async function GET<T>(_url: string, params?: Record<string, string>): Promise<T> {
@@ -18,7 +16,7 @@ async function GET<T>(_url: string, params?: Record<string, string>): Promise<T>
     return res.json();
 }
 
-async function POST<T>(url: string, data: T): Promise {
+async function POST<T>(url: string, data: T): Promise<T> {
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -34,9 +32,41 @@ async function POST<T>(url: string, data: T): Promise {
     return res.json();
 }
 
-async function DELETE<T>(url: string, data: T): Promise {
+async function DELETE<T>(url: string, data: T): Promise<T> {
     const res = await fetch(url, {
         method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        throw new Error(res.statusText);
+    }
+
+    return res.json();
+}
+
+async function PATCH<T>(url: string, data: T): Promise<T> {
+    const res = await fetch(url, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        throw new Error(res.statusText);
+    }
+
+    return res.json();
+}
+
+async function PUT<T>(url: string, data: T): Promise<T> {
+    const res = await fetch(url, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json",
         },
@@ -53,5 +83,7 @@ async function DELETE<T>(url: string, data: T): Promise {
 export const api = {
     GET,
     POST,
-    DELETE
+    DELETE,
+    PATCH,
+    PUT,
 };
