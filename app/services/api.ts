@@ -1,8 +1,6 @@
-import {SearchParams} from "next/dist/server/request/search-params";
-
 export const BASE_URL = process.env.NEXT_PUBLIC_HOSTNAME;
 
-async function GET<T>(_url: string, params?: QueryParams): Promise<T> {
+async function GET<T>(_url: string, params?: Record<string, string>): Promise<T> {
     const queryString = new URLSearchParams(params).toString();
     const url = queryString ? `${_url}/?${queryString}` : _url;
     const res = await fetch(url, {
@@ -18,7 +16,7 @@ async function GET<T>(_url: string, params?: QueryParams): Promise<T> {
     return res.json();
 }
 
-async function POST<T, K>(url: string, data: T): Promise<K> {
+async function POST<T>(url: string, data: T): Promise<T> {
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -34,7 +32,7 @@ async function POST<T, K>(url: string, data: T): Promise<K> {
     return res.json();
 }
 
-async function DELETE<T, K>(url: string, data: T): Promise<K> {
+async function DELETE<T>(url: string, data: T): Promise<T> {
     const res = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -50,9 +48,42 @@ async function DELETE<T, K>(url: string, data: T): Promise<K> {
     return res.json();
 }
 
-export type QueryParams = Record<string, string>;
+async function PATCH<T>(url: string, data: T): Promise<T> {
+    const res = await fetch(url, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        throw new Error(res.statusText);
+    }
+
+    return res.json();
+}
+
+async function PUT<T>(url: string, data: T): Promise<T> {
+    const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        throw new Error(res.statusText);
+    }
+
+    return res.json();
+}
+
 export const api = {
     GET,
     POST,
-    DELETE
+    DELETE,
+    PATCH,
+    PUT,
 };
