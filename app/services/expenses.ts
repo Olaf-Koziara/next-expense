@@ -1,9 +1,10 @@
 import {Expense} from "@/types/Expense";
-import {api} from "@/app/services/api";
+import {api, QueryParams} from "@/app/services/api";
 import {endpoints} from "@/app/services/endpoints";
 
-const getAll = async (walletId: string, queryString?: string): Promise<Expense[]> => {
-    return api.GET<Expense[]>(endpoints.expense, queryString)
+const getAll = async (walletId: string, params?: QueryParams): Promise<Expense[]> => {
+
+    return api.GET<Expense[]>(endpoints.expense, {wallet: walletId, ...params})
 }
 type AddExpenseData = {
     selectedWalletId: string,
