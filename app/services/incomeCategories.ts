@@ -6,10 +6,10 @@ const getAll = async () => {
     return api.GET<Category[]>(endpoints.incomeCategory)
 }
 const add = async (category: Category) => {
-    return api.POST<Category, void>(endpoints.incomeCategory, category)
+    return api.POST<Category>(endpoints.incomeCategory, category)
 }
 const deleteOne = async (_id: string) => {
-    return api.DELETE<{ _id: string }, void>(endpoints.incomeCategory, {_id})
+    return api.DELETE<{ _id: string }>(endpoints.incomeCategory, {_id})
 }
 export const incomeCategoriesService = {
     getAll, add, deleteOne
