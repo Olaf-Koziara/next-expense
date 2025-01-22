@@ -7,6 +7,9 @@ import {Expense} from "@/types/Expense";
 import {expensesService} from "@/app/services/expenses";
 import {Income} from "@/types/Income";
 import {incomesService} from "@/app/services/incomes";
+import {statisticsService} from "@/app/services/statistics";
+import * as querystring from "node:querystring";
+import {WalletStats} from "@/types/Stats";
 
 type WalletContextType = {
     wallets: Wallet[];
@@ -14,15 +17,17 @@ type WalletContextType = {
     setSelectedWallet: (wallet: Wallet) => void;
     addWallet: (wallet: { name: string }) => Promise<void>;
     addExpense: (expense: Expense) => Promise<void>;
+    getExpenses: (queryString?: string) => Promise<Expense[]>;
     addIncome: (expense: Expense) => Promise<void>;
     deleteExpense: (_id: string) => Promise<void>;
     deleteIncome: (_id: string) => Promise<void>;
+    getStatistics: () => Promise<WalletStats>;
 };
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
-const withWalletCheck = <T, >(
+const withWalletCheck = <T, D>(
     selectedWallet: Wallet | null,
-    action: (walletId: string, data: T) => Promise<any>
+    action: (walletId: string, data: T) => Promise<D>
 ) => {
     return (data: T) => {
         if (!selectedWallet) return Promise.reject(new Error("No wallet selected"));
@@ -52,7 +57,8 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
     const addIncome = withWalletCheck(selectedWallet, incomesService.add)
     const deleteExpense = withWalletCheck(selectedWallet, expensesService.deleteOne)
     const deleteIncome = withWalletCheck(selectedWallet, incomesService.deleteOne)
-
+    const getStatistics = withWalletCheck<void, WalletStats>(selectedWallet, statisticsService.getAll)
+    const getExpenses = withWalletCheck(selectedWallet, expensesService.getAll)
     return (
         <WalletContext.Provider
             value={{
@@ -63,7 +69,9 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
                 addExpense,
                 deleteExpense,
                 addIncome,
-                deleteIncome
+                deleteIncome,
+                getStatistics,
+                getExpenses
             }}
         >
             {children}

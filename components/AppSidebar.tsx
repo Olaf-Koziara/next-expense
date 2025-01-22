@@ -16,11 +16,8 @@ import {
 } from "@/components/ui/sidebar"
 import {SignOut} from "@/components/signOutButton";
 import Link from "next/link";
-import {Button, buttonVariants} from "@/components/ui/button";
-import {auth} from "@/auth";
-import {useEffect, useState} from "react";
+import {buttonVariants} from "@/components/ui/button";
 import {useSession} from "next-auth/react";
-import {useWallet} from "@/context/WalletContext";
 import WalletList from "@/components/WalletList/WalletList";
 
 // Menu items.
@@ -28,7 +25,7 @@ const items = [
 
     {
         title: "Summary",
-        url: "#",
+        url: "/",
         icon: Home,
     },
     {
