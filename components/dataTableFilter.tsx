@@ -4,15 +4,14 @@ import DebouncedInput from "@/components/ui/debouncedInput";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Expense} from "@/types/Expense";
 import {Income} from "@/types/Income";
+import CalendarInput from "@/components/ui/datepicker";
 
 function DataTableFilter({column}: { column: Column<Expense | Income> }) {
     const columnFilterValue = column.getFilterValue()
     const {filterVariant, filterOptions, filterPlaceholder} = column.columnDef.meta ?? {}
-
     return filterVariant === 'range' ? (
         <div>
             <div className="flex space-x-2">
-                {/* See faceted column filters example for min max values functionality */}
                 <DebouncedInput
                     type="number"
                     value={(columnFilterValue as [number, number])?.[0] ?? ''}
@@ -47,16 +46,23 @@ function DataTableFilter({column}: { column: Column<Expense | Income> }) {
                                                                                               value={option}>{option}</SelectItem>)}
             </SelectContent>
         </Select>
-    ) : (
-        <DebouncedInput
-            className="w-36 border shadow rounded"
-            onChange={value => column.setFilterValue(value)}
-            placeholder={`Search...`}
-            type="text"
-            value={(columnFilterValue ?? '') as string}
-        />
-        // See faceted column filters example for datalist search suggestions
-    )
+    ) : filterVariant === 'dateRange' ? (
+        <div>
+
+            <CalendarInput mode={'range'} onChange={(event) => column.setFilterValue(event.target.value)}
+                           value={columnFilterValue as string}/>
+        </div>
+    ) : filterVariant === 'text'
+        ? (
+            <DebouncedInput
+                className="w-36 border shadow rounded"
+                onChange={value => column.setFilterValue(value)}
+                placeholder={`Search...`}
+                type="text"
+                value={(columnFilterValue ?? '') as string}
+            />
+            // See faceted column filters example for datalist search suggestions
+        ) : null
 }
 
 export default DataTableFilter;
