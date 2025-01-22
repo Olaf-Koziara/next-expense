@@ -12,7 +12,6 @@ const Page = () => {
         setTriggerFetch(prev => !prev);
     };
 
-
     return (
         <div className="mt-5">
             <div className="flex flex-col lg:flex-row gap-6">
