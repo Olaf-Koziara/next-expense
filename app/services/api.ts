@@ -18,7 +18,7 @@ async function GET<T>(_url: string, params?: Record<string, string>): Promise<T>
     return res.json();
 }
 
-async function POST<T, K>(url: string, data: T): Promise<K> {
+async function POST<T>(url: string, data: T): Promise {
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -34,7 +34,7 @@ async function POST<T, K>(url: string, data: T): Promise<K> {
     return res.json();
 }
 
-async function DELETE<T, K>(url: string, data: T): Promise<K> {
+async function DELETE<T>(url: string, data: T): Promise {
     const res = await fetch(url, {
         method: "DELETE",
         headers: {
