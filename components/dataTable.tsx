@@ -1,7 +1,7 @@
 "use client"
 
 import {
-    ColumnDef, ColumnFiltersState,
+    ColumnDef, ColumnFiltersState, ColumnSort,
     flexRender,
     getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, Header, SortingState,
     useReactTable,
@@ -19,10 +19,12 @@ import {Button} from "@/components/ui/button";
 import {ArrowLeftCircleIcon, ArrowRightCircleIcon} from "lucide-react";
 import {useEffect, useState} from "react";
 import DataTableFilter from "@/components/dataTableFilter";
+import {ColumnFilter} from "@tanstack/table-core";
 
+export type SortFilterState = (ColumnSort | ColumnFilter)[];
 type Props<TData, TValue> = {
-    onSortingChange: (data: SortingState) => void,
-    onFilterChange?: (data: ColumnFiltersState) => void,
+    onSortingChange?: (data: SortFilterState) => void,
+    onFilterChange?: (data: SortFilterState) => void,
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
 }
@@ -38,11 +40,13 @@ export function DataTable<TData, TValue>({
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const pageSizeOptions = [5, 10, 15, 20];
     useEffect(() => {
-        onSortingChange(sorting)
+        if (onSortingChange) {
+            onSortingChange([...sorting, ...columnFilters])
+        }
     }, [sorting])
     useEffect(() => {
         if (onFilterChange) {
-            onFilterChange(columnFilters)
+            onFilterChange([...sorting, ...columnFilters])
         }
     }, [columnFilters]);
     const table = useReactTable({
@@ -55,7 +59,8 @@ export function DataTable<TData, TValue>({
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
-        manualSorting: true,
+        manualSorting: !!onSortingChange,
+        manualFiltering: !!onFilterChange,
         state: {
             pagination,
             sorting,
