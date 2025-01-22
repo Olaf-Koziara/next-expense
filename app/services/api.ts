@@ -1,3 +1,4 @@
+
 export const BASE_URL = process.env.NEXT_PUBLIC_HOSTNAME;
 
 async function GET<T>(_url: string, params?: Record<string, string>): Promise<T> {
