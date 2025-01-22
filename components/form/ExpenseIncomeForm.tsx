@@ -50,7 +50,7 @@ const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
         <div>
             <Form {...form}>
                 <form className='flex flex-col gap-2' onSubmit={form.handleSubmit(onSubmit)}>
-                    <DatePicker form={form} name='date'/>
+                    <DatePicker mode='single' {...form.register('date')} />
                     <Input placeholder='Title' {...form.register('title')} />
                     <Input type='number' placeholder='Amount' {...form.register('amount')} />
                     <FormField
