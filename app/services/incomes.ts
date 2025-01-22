@@ -13,9 +13,9 @@ type AddIncomeData = {
 const add = async (walletId: string, income: Income) => {
     return api.POST<AddIncomeData>(endpoints.income, {selectedWalletId: walletId, ...income})
 }
-const deleteOne = async (walletId: string, expenseId: string) => {
-    return api.DELETE<{ walletId: string, _id: string }>(endpoints.income, {walletId: walletId, _id: expenseId})
+const remove = async (walletId: string, incomeId: string) => {
+    return api.DELETE<{ walletId: string, _id: string }>(endpoints.income, {walletId: walletId, _id: incomeId})
 }
 export const incomesService = {
-    getAll, add, deleteOne
+    getAll, add, remove
 }
