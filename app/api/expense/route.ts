@@ -3,10 +3,10 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
-import {Expense} from "@/types/Expense";
 import {getSortParamsFromUrl, sortItems, SortOrder} from "@/utils/sort";
 import mongoose, {PipelineStage} from "mongoose";
 import {expenseFilterParamConfig} from "@/app/api/expense/filter";
+import {Expense} from "@/types/Expense";
 
 // Define the filter parameter types
 
@@ -119,5 +119,65 @@ export const GET = async (req: Request) => {
         return NextResponse.json(result?.expenses || [], {status: 200});
     } catch (error) {
         return NextResponse.json({message: 'Error', error}, {status: 500});
+    }
+};
+export const DELETE = async (req: Request) => {
+    try {
+        await connectMongoDB();
+        const session = await auth();
+
+        if (!session || !session.user) {
+            return NextResponse.json({error: "Unauthorized!"}, {status: 401});
+        }
+
+        // Parse JSON body to get walletId and expenseId
+        const {walletId, _id} = await req.json();
+
+        if (!walletId || !_id) {
+            return NextResponse.json({error: "walletId and expenseId are required."}, {status: 400});
+        }
+
+        // Verify the user owns the wallet
+        const walletOwner = await User.findOne({
+            email: session.user.email,
+            wallets: walletId
+        });
+
+        if (!walletOwner) {
+            return NextResponse.json({error: "Wallet doesn't belong to user"}, {status: 404});
+        }
+
+        // Find the wallet and the specific expense
+        const wallet = await Wallet.findOne({
+            _id: new mongoose.Types.ObjectId(walletId),
+            "expenses._id": new mongoose.Types.ObjectId(_id)
+        });
+
+
+        if (!wallet) {
+            return NextResponse.json({error: "Wallet or expense not found!"}, {status: 404});
+        }
+        console.log(wallet)
+
+        // Extract the amount of the expense to be deleted
+        const expense = wallet.expenses.id(_id);
+        const amountToRestore = expense.amount;
+
+        wallet.expenses = wallet.expenses.filter((expense: Expense & {
+            _id: string
+        }) => expense._id.toString() !== _id);
+
+
+        wallet.balance += amountToRestore;
+
+        // Save the updated wallet
+        await wallet.save().catch(err => console.log(err))
+
+        return NextResponse.json(
+            {message: "Expense deleted successfully"},
+            {status: 200}
+        );
+    } catch (error) {
+        return NextResponse.json({message: "Error", error}, {status: 500});
     }
 };
