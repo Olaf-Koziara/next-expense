@@ -10,15 +10,7 @@ import {Income, Transaction, TransactionType} from "@/types/Income";
 import {useWallet} from "@/context/WalletContext";
 import useCategories from "@/hooks/useCategories";
 import {QueryParams} from "@/app/services/api";
-
-
-declare module '@tanstack/react-table' {
-    interface ColumnMeta<TData extends RowData, TValue> {
-        filterVariant?: 'text' | 'range' | 'select' | 'dateRange',
-        filterPlaceholder?: string,
-        filterOptions?: string[]
-    }
-}
+import {incomesService} from "@/app/services/incomes";
 
 
 const formatedDate = (date: Date) => <div>{date.toLocaleDateString('en-GB')}</div>;
@@ -28,8 +20,9 @@ type Props = {
     triggerFetch?: boolean,
 }
 const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
-    const {selectedWallet, getExpenses, getIncomes} = useWallet();
+    const {selectedWallet, getExpenses, getIncomes, removeExpense, removeIncome} = useWallet();
     const [data, setData] = useState<Transaction[]>([]);
+    const [filter, setFilter] = useState<SortFilterState>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [columns, setColumns] = useState<ColumnDef<Income | Expense>[]>()
@@ -57,6 +50,7 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
 
 
     const handleFilterAndSortChange = async (data: SortFilterState) => {
+        setFilter(data)
         let filterObject: QueryParams = {};
         for (let x = 0; x < data.length; x++) {
             const item = data[x];
@@ -77,7 +71,17 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
                 filterObject['sortOrder'] = item.desc ? 'desc' : 'asc'
             }
         }
+
         await fetchData(filterObject)
+    }
+    const handleItemRemove = async (_id: string) => {
+        if (type === 'income') {
+            await removeIncome(_id);
+
+        } else {
+            await removeExpense(_id);
+        }
+        await handleFilterAndSortChange(filter);
     }
     const sortableHeader = (column: Column<Expense>, header: string, property: keyof Expense) => {
         return (
@@ -90,24 +94,30 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
             </Button>
         )
     }
-    const getColumns = (categories: Category[]): ColumnDef<Income | Expense>[] => [{
-        accessorKey: 'date',
-        header: (data) => sortableHeader(data.column, 'Date', 'date'),
-        cell: ({row}) => formatedDate(new Date(row.getValue('date'))),
-        meta: {
-            filterVariant: 'dateRange'
+    const getColumns = (categories: Category[]): ColumnDef<Income | Expense>[] => [
+        {
+            accessorKey: '_id',
+            enableHiding: true,
+
         }
-    },
+        , {
+            accessorKey: 'date',
+            header: (data) => sortableHeader(data.column, 'Date', 'date'),
+            cell: ({row}) => formatedDate(new Date(row.getValue('date'))),
+            meta: {
+                filterVariant: 'dateRange'
+            }
+        },
         {
             accessorKey: 'title',
             header: (data) => sortableHeader(data.column, 'Title', 'title'),
-            meta: {filterVariant: 'text'}
+            meta: {filterVariant: 'text', editable: true}
         },
         {
             accessorKey: 'amount',
             header: (data) => sortableHeader(data.column, 'Amount', 'amount'),
             filterFn: "inNumberRange",
-            meta: {filterVariant: 'range'}
+            meta: {filterVariant: 'range', editable: true}
         },
         {
             accessorKey: 'category',
@@ -115,13 +125,15 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
             meta: {
                 filterVariant: 'select',
                 filterPlaceholder: 'Category',
-                filterOptions: categories ? categories.map(category => category.name) : []
+                filterOptions: categories ? categories.map(category => category.name) : [],
+                editable: true
             }
         },
         {
-            accessorKey: 'remove',
             header: '',
-            // cell: ({row}) => <Button onClick={}><Trash2/></Button>,
+            accessorKey: 'remove',
+            cell: ({row}) => <Button onClick={() => handleItemRemove(row.getValue('_id'))}><Trash2/></Button>,
+
 
         }];
 
