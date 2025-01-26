@@ -12,8 +12,8 @@ type AddExpenseData = {
 const add = async (walletId: string, expense: Expense) => {
     return api.POST<AddExpenseData>(endpoints.expense, {selectedWalletId: walletId, ...expense})
 }
-const remove = async (walletId: string, expenseId: string) => {
-    return api.DELETE<{ walletId: string, _id: string }>(endpoints.expense, {walletId: walletId, _id: expenseId})
+const remove = async (walletId: string, _id: string) => {
+    return api.DELETE<{ walletId: string, _id: string }>(endpoints.expense, {walletId: walletId, _id})
 }
 export const expensesService = {
     getAll, add, remove
