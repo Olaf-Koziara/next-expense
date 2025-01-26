@@ -17,11 +17,6 @@ type FormData = {
     category: Category["name"];
 };
 
-export const getCategories = async (type: 'expense' | 'income') => {
-    const response = await fetch(`/api/${type}Categories`);
-    const data = await response.json();
-    return data[`${type}Categories`];
-};
 
 type Props = {
     type: 'expense' | 'income';
@@ -50,16 +45,17 @@ const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
         <div>
             <Form {...form}>
                 <form className='flex flex-col gap-2' onSubmit={form.handleSubmit(onSubmit)}>
-                    <DatePicker mode='single' {...form.register('date')} />
-                    <Input placeholder='Title' {...form.register('title')} />
-                    <Input type='number' placeholder='Amount' {...form.register('amount')} />
+                    <DatePicker mode='single' {...form.register('date', {required: true})} />
+                    <Input placeholder='Title' {...form.register('title', {required: true})} />
+                    <Input type='number' placeholder='Amount' {...form.register('amount', {required: true})} />
                     <FormField
                         control={form.control}
                         name='category'
+                        rules={{required: true}}
                         render={({field, fieldState}) => (
                             <FormItem>
                                 <FormControl>
-                                    <Select onValueChange={field.onChange}>
+                                    <Select value={form.control._defaultValues.category} onValueChange={field.onChange}>
                                         <SelectTrigger ref={field.ref} aria-invalid={fieldState['invalid']}
                                                        className='w-full'>
                                             <SelectValue placeholder='Select category'/>
