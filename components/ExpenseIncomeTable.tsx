@@ -11,6 +11,7 @@ import {useWallet} from "@/context/WalletContext";
 import useCategories from "@/hooks/useCategories";
 import {QueryParams} from "@/app/services/api";
 import {incomesService} from "@/app/services/incomes";
+import {expensesService} from "@/app/services/expenses";
 
 
 const formatedDate = (date: Date) => <div>{date.toLocaleDateString('en-GB')}</div>;
@@ -29,60 +30,11 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
     const {categories} = useCategories({type})
 
     useEffect(() => {
-        fetchData()
-
-    }, [selectedWallet, triggerFetch]);
-    useEffect(() => {
         setColumns(getColumns(categories));
 
     }, [categories]);
-    const fetchData = async (params?: QueryParams) => {
-        if (selectedWallet) {
-            let data: Transaction[];
-            if (type === "income") {
-                data = await getIncomes(params);
-            } else {
-                data = await getExpenses(params);
-            }
-            setData(data);
-        }
-    }
 
-
-    const handleFilterAndSortChange = async (data: SortFilterState) => {
-        setFilter(data)
-        let filterObject: QueryParams = {};
-        for (let x = 0; x < data.length; x++) {
-            const item = data[x];
-            const key = data[x].id;
-            if ('value' in item) {
-                const value = String(item.value)
-                if (value.includes(',')) {
-                    const splittedValue = value.split(',');
-                    filterObject[`${key}Start`] = splittedValue[0];
-                    if (splittedValue[1]) {
-                        filterObject[`${key}End`] = splittedValue[1];
-                    }
-                } else {
-                    filterObject[key] = value;
-                }
-            } else if ('desc' in item) {
-                filterObject['sortBy'] = item.id;
-                filterObject['sortOrder'] = item.desc ? 'desc' : 'asc'
-            }
-        }
-
-        await fetchData(filterObject)
-    }
-    const handleItemRemove = async (_id: string) => {
-        if (type === 'income') {
-            await removeIncome(_id);
-
-        } else {
-            await removeExpense(_id);
-        }
-        await handleFilterAndSortChange(filter);
-    }
+   
     const sortableHeader = (column: Column<Expense>, header: string, property: keyof Expense) => {
         return (
             <Button
@@ -129,20 +81,15 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
                 editable: true
             }
         },
-        {
-            header: '',
-            accessorKey: 'remove',
-            cell: ({row}) => <Button onClick={() => handleItemRemove(row.getValue('_id'))}><Trash2/></Button>,
-
-
-        }];
+    ];
 
     return (
         <div>
 
             {columns &&
-                <DataTable columns={columns} data={data} onFilterChange={handleFilterAndSortChange}
-                           onSortingChange={handleFilterAndSortChange}/>}
+                <DataTable columns={columns} data={data}
+                           dataParentId={selectedWallet?._id}
+                           service={type === 'income' ? incomesService : expensesService}/>}
 
         </div>
     );

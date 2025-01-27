@@ -25,8 +25,8 @@ export const GET = async (req: Request) => {
     const sumIncomeCategories = sumByKey<Income>(wallet.incomes, 'amount', 'category').map(remapCategorySumData)
     let highestExpenseCategory = getHighestByKey(sumExpenseCategories, 'total');
     let highestIncomeCategory = getHighestByKey(sumIncomeCategories, 'total');
-
-    const stats = {sumExpenseCategories, sumIncomeCategories, highestExpenseCategory, highestIncomeCategory}
+    const balance = wallet.balance;
+    const stats = {sumExpenseCategories, sumIncomeCategories, highestExpenseCategory, highestIncomeCategory, balance}
 
     return NextResponse.json(stats, {status: 200})
 
