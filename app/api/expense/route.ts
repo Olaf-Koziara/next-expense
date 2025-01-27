@@ -19,11 +19,11 @@ export const POST = async (req: Request) => {
             return NextResponse.json({error: "Unauthorized!"}, {status: 401});
         }
 
-        const {selectedWalletId, ...expenseData}: { selectedWalletId: string } & Expense = await req.json();
+        const {walletId, ...expenseData}: { walletId: string } & Expense = await req.json();
 
         const walletOwner = await User.findOne({
             email: session.user.email,
-            wallets: selectedWalletId
+            wallets: walletId
         });
 
         if (!walletOwner) {
@@ -32,7 +32,7 @@ export const POST = async (req: Request) => {
 
 
         const wallet = await Wallet.findByIdAndUpdate(
-            selectedWalletId,
+            walletId,
             {$push: {expenses: expenseData}, $inc: {balance: -expenseData.amount}},
             {new: true}
         );
@@ -57,7 +57,7 @@ export const GET = async (req: Request) => {
         }
 
         const url = new URL(req.url);
-        const walletId = url.searchParams.get("wallet");
+        const walletId = url.searchParams.get("walletId");
         if (!walletId) {
             return NextResponse.json({error: 'Wallet id required',}, {status: 400});
         }
@@ -171,7 +171,7 @@ export const DELETE = async (req: Request) => {
         wallet.balance += amountToRestore;
 
         // Save the updated wallet
-        await wallet.save().catch(err => console.log(err))
+        await wallet.save()
 
         return NextResponse.json(
             {message: "Expense deleted successfully"},
@@ -179,5 +179,40 @@ export const DELETE = async (req: Request) => {
         );
     } catch (error) {
         return NextResponse.json({message: "Error", error}, {status: 500});
+    }
+};
+export const PATCH = async (req: Request) => {
+    try {
+        await connectMongoDB();
+        const session = await auth();
+
+        if (!session || !session.user) {
+            return NextResponse.json({error: "Unauthorized!"}, {status: 401});
+        }
+
+        const {walletId, _id, ...updateData}: { walletId: string, _id: string } & Partial<Expense> = await req.json();
+
+        const walletOwner = await User.findOne({
+            email: session.user.email,
+            wallets: walletId
+        });
+
+        if (!walletOwner) {
+            return NextResponse.json({error: "Wallet doesn't belong to user"}, {status: 404});
+        }
+
+        const wallet = await Wallet.findOneAndUpdate(
+            {_id: new mongoose.Types.ObjectId(walletId), "expenses._id": new mongoose.Types.ObjectId(_id)},
+            {$set: {"expenses.$": updateData}},
+            {new: false}
+        );
+
+        if (!wallet) {
+            return NextResponse.json({error: "Wallet or expense not found!"}, {status: 404});
+        }
+
+        return NextResponse.json(wallet, {status: 200});
+    } catch (error) {
+        return NextResponse.json({message: 'Error', error}, {status: 500});
     }
 };
