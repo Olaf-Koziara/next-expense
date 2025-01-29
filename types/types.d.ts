@@ -5,7 +5,8 @@ declare module '@tanstack/react-table' {
         filterVariant?: 'text' | 'range' | 'select' | 'dateRange',
         filterPlaceholder?: string,
         filterOptions?: string[],
-        fieldVariant?: 'text' | 'number' | 'select' | 'dateRange',
-        editable?: boolean
+        fieldVariant?: 'text' | 'number' | 'select' | 'date',
+        editable?: boolean,
+        sortable?: boolean
     }
 }
