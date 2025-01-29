@@ -50,10 +50,11 @@ const DataTableEditField = <TData, TValue>({column, value, onChange}: Props<TDat
                     </SelectContent>
                 </Select>
             );
-        case 'dateRange':
+        case 'date':
             return (
                 <CalendarInput
-                    mode="range"
+                    mode="single"
+                    dateFormat="yyyy-MM-dd"
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
                 />
