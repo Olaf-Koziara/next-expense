@@ -8,9 +8,14 @@ const getAll = async () => {
 const add = async (category: Category) => {
     return api.POST<Category>(endpoints.incomeCategory, category)
 }
-const deleteOne = async (_id: string) => {
+
+const remove = async (_id: string) => {
     return api.DELETE<{ _id: string }>(endpoints.incomeCategory, {_id})
 }
+const patch = async (data: Partial<Category>) => {
+    return api.PATCH<Category>(endpoints.incomeCategory, {...data});
+}
+
 export const incomeCategoriesService = {
-    getAll, add, deleteOne
+    getAll, add, remove, patch
 }
