@@ -2,13 +2,31 @@
 import React, {useEffect, useState} from 'react';
 import ExpenseIncomeCategoryForm from "@/components/form/ExpenseIncomeCategoryForm";
 import {Category} from "@/types/Category";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {Trash} from "lucide-react";
+
 import useCategories from "@/hooks/useCategories";
+import {DataTable} from "@/components/DataTable/DataTable";
+import {ColumnDef} from "@tanstack/react-table";
+import {expenseCategoriesService} from "@/app/services/expenseCategories";
 
+const columns: ColumnDef<Category>[] = [{
+    accessorKey: '_id',
+    enableHiding: true,
+}, {
+    accessorKey: 'name',
+    meta: {
+        editable: true,
+        sortable: true,
+    }
+}, {
+    accessorKey: 'createdAt',
+    meta: {
+        editable: true,
+        fieldVariant: 'date',
+        sortable: true,
+    }
+}]
 const Page = () => {
-    const {categories, deleteCategory, addCategory} = useCategories({type: 'expense'})
-
+    const {categories, addCategory} = useCategories({type: 'expense'})
     return (
         <div className='pt-3'>
             <h2 className='text-center text-3xl pb-3'>Categories</h2>
@@ -17,41 +35,8 @@ const Page = () => {
                 <div className='pb-3'>
                     <ExpenseIncomeCategoryForm type={'expense'} onSubmit={addCategory}/>
                 </div>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>
-                                Name
-                            </TableHead>
-                            <TableHead>
-                                Created At
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-
-                        {
-                            categories.length > 0 && categories.map(item =>
-                                <TableRow key={item._id}>
-                                    <TableCell>
-                                        {item.name}
-                                    </TableCell>
-                                    <TableCell>
-                                        {item.createdAt}
-                                    </TableCell>
-                                    <TableCell>
-                                        <button onClick={() => deleteCategory(item._id)}>
-                                            <Trash/>
-                                        </button>
-                                    </TableCell>
-
-                                </TableRow>
-                            )
-
-                        }
-
-                    </TableBody>
-                </Table>
+                <DataTable columns={columns} data={categories} itemRemovable={true}
+                           service={expenseCategoriesService}></DataTable>
                 {
                     !categories.length && <h4 className='text-center pt-4'>No categories</h4>
                 }
