@@ -1,10 +1,10 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 import {ColumnDef} from "@tanstack/table-core";
-import {Expense} from "@/types/Expense";
+import {Expense, TransactionType} from "@/types/Expense";
 import {Category} from "@/types/Category";
 import {DataTable,} from "@/components/DataTable/DataTable";
-import {Income, TransactionType} from "@/types/Income";
+import {Income} from "@/types/Income";
 import {useWallet} from "@/context/WalletContext";
 import useCategories from "@/hooks/useCategories";
 import {incomesService} from "@/app/services/incomes";

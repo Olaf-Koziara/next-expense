@@ -8,6 +8,7 @@ export const ExpenseCategorySchema: Schema = new Schema({
         name: {
             type: String,
             required: true,
+            unique: false,
         },
     }, {collection: 'expenseCategories', timestamps: true}
 );

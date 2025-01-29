@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Category} from "@/types/Category";
+import {Category, CategoryArraySchema, CategorySchema} from "@/types/Category";
 
 
 type TransactionType = 'income' | 'expense';
@@ -13,7 +13,7 @@ const UseCategories = <T extends TransactionType>({type}: Props<T>) => {
 
     const fetchCategories = async () => {
         const response = await fetch(`/api/${type}Categories`);
-        const data = await response.json();
+        const data: Category[] = CategoryArraySchema.parse(await response.json());
         setCategories(data);
     };
 
@@ -26,7 +26,7 @@ const UseCategories = <T extends TransactionType>({type}: Props<T>) => {
         await fetchCategories();
     };
 
-    // Dodawanie kategorii
+
     const addCategory = async (name: string) => {
         await fetch(`/api/${type}Categories`, {
             method: "POST",
