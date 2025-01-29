@@ -21,6 +21,7 @@ export const GET = async (req: NextApiRequest) => {
 
             return Response.json(user.expenseCategories, {status: 200});
         }
+        return Response.json({message: 'Unauthorized'}, {status: 401})
     } catch (error) {
         return Response.json({message: 'Error', error}, {status: 500})
     }
@@ -40,10 +41,8 @@ export const POST = async (req: Request) => {
             return Response.json({message: 'Name is required'}, {status: 400});
         }
 
-        // Create new expense category
         const newCategory = await ExpenseCategory.create({name});
 
-        // Add reference to user's expenseCategories array
         const user = await User.findOneAndUpdate(
             {email: session.user.email},
             {
@@ -107,3 +106,36 @@ export const DELETE = async (req: Request) => {
         return Response.json({message: 'Internal server error'}, {status: 500});
     }
 }
+export const PATCH = async (req: Request) => {
+    try {
+        await connectMongoDB();
+        const session = await auth();
+
+        if (!session?.user) {
+            return Response.json({message: 'Unauthorized'}, {status: 401});
+        }
+
+        const {_id, ...updateData} = await req.json();
+
+        if (!_id) {
+            return Response.json({message: 'Category ID is required'}, {status: 400});
+        }
+
+        const user = await User.findOne({email: session.user.email});
+
+        if (!user) {
+            return Response.json({message: 'User not found'}, {status: 404});
+        }
+
+        const updatedCategory = await ExpenseCategory.findByIdAndUpdate(_id, updateData, {new: true});
+
+        if (!updatedCategory) {
+            return Response.json({message: 'Category not found'}, {status: 404});
+        }
+
+        return Response.json(updatedCategory, {status: 200});
+    } catch (error) {
+        console.error('Error updating expense category:', error);
+        return Response.json({message: 'Internal server error'}, {status: 500});
+    }
+};

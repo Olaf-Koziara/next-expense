@@ -2,7 +2,6 @@ import {NextApiRequest} from "next";
 import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {User} from "@/models/user";
-import {ExpenseCategory} from "@/models/expenseCategory";
 import {IncomeCategory} from "@/models/incomeCategory";
 
 export const GET = async (req: NextApiRequest) => {
@@ -106,3 +105,36 @@ export const DELETE = async (req: Request) => {
         return Response.json({message: 'Internal server error'}, {status: 500});
     }
 }
+export const PATCH = async (req: Request) => {
+    try {
+        await connectMongoDB();
+        const session = await auth();
+
+        if (!session?.user) {
+            return Response.json({message: 'Unauthorized'}, {status: 401});
+        }
+
+        const {_id, ...updateData} = await req.json();
+
+        if (!_id) {
+            return Response.json({message: 'Category ID is required'}, {status: 400});
+        }
+
+        const user = await User.findOne({email: session.user.email});
+
+        if (!user) {
+            return Response.json({message: 'User not found'}, {status: 404});
+        }
+
+        const updatedCategory = await IncomeCategory.findByIdAndUpdate(_id, updateData, {new: true});
+
+        if (!updatedCategory) {
+            return Response.json({message: 'Category not found'}, {status: 404});
+        }
+
+        return Response.json(updatedCategory, {status: 200});
+    } catch (error) {
+        console.error('Error updating income category:', error);
+        return Response.json({message: 'Internal server error'}, {status: 500});
+    }
+};
