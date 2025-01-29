@@ -26,13 +26,25 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import {Button} from "@/components/ui/button";
-import {ArrowLeftCircleIcon, ArrowRightCircleIcon, PenIcon, Save, Trash2} from "lucide-react";
-import {useEffect, useState} from "react";
-import DataTableFilter from "@/components/dataTableFilter";
-import {ColumnFilter, RowData} from "@tanstack/table-core";
+import {
+    ArrowDown,
+    ArrowLeftCircleIcon,
+    ArrowRightCircleIcon,
+    ArrowUp,
+    ArrowUpDown, Loader2,
+    PenIcon,
+    Save,
+    Trash2
+} from "lucide-react";
+import React, {useEffect, useState} from "react";
+import DataTableFilter from "@/components/DataTable/DataTableFilter";
+import {Column, ColumnFilter, RowData} from "@tanstack/table-core";
 import {Service} from "@/types/Service";
-import {QueryParams} from "@/app/services/api";
-import DataTableEditField from "@/components/dataTableEditField";
+import DataTableEditField from "@/components/DataTable/DataTableEditField";
+import {generateFilterObject} from "@/components/DataTable/utils";
+import DataTableHeader from "@/components/DataTable/DataTableHeader";
+import useStatus from "@/hooks/useStatus";
+
 
 export type SortFilterState = (ColumnSort | ColumnFilter)[];
 
@@ -41,11 +53,29 @@ type Props<TData, TValue> = {
     onFilterChange?: (data: SortFilterState) => void,
     itemRemovable?: boolean,
     onItemRemove?: (removedItem: TData) => void,
+    onItemAdd?: (addedItem: TData) => void,
     onItemEdit?: (editedItem: TData) => void,
     service?: Service<TData>,
-    dataParentId?: string,
+    withDataParentId?: boolean,
+    dataParentId?: string | null,
     columns: ColumnDef<TData, TValue>[]
     data?: TData[]
+    triggerFetch?: boolean
+}
+
+export function SortableHeader<TData>(column: Column<TData>, header: string, property: keyof TData) {
+    return (
+        <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+            {header}
+            {column.getIsSorted() === "asc" ?
+                <ArrowDown className="ml-2 h-4 w-4"/> : column.getIsSorted() === "desc" ?
+                    <ArrowUp className="ml-2 h-4 w-4"/> : <ArrowUpDown className="ml-2 h-4 w-4"/>}
+
+        </Button>
+    )
 }
 
 export function DataTable<TData, TValue extends NonNullable<TData>>({
@@ -56,20 +86,24 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                                                                         itemRemovable = false,
                                                                         onItemRemove,
                                                                         service,
-                                                                        dataParentId, // Parent ID for fetching
+                                                                        withDataParentId = false,
+                                                                        dataParentId,
+                                                                        triggerFetch = false// Parent ID for fetching
                                                                     }: Props<TData, TValue>) {
     const [pagination, setPagination] = useState<PaginationState>({pageIndex: 0, pageSize: 10});
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [tableData, setTableData] = useState<TData[]>(data || []);
     const [rowInEditId, setRowEditId] = useState<string | null>(null);
-    const [rowInEdit, setRowInEdit] = useState<TData>(); // Local state for managing edits
+    const [rowInEdit, setRowInEdit] = useState<TData>();
+
+    const {isLoading, startLoading, stopLoading, setErrorState, resetError} = useStatus();
+
     const pageSizeOptions = [5, 10, 15, 20];
 
-    // Fetch data when `parentId` or table state changes
     useEffect(() => {
         fetchData();
-    }, [service, dataParentId, sorting, columnFilters]);
+    }, [service, dataParentId, sorting, columnFilters, triggerFetch]);
 
     useEffect(() => {
         if (data) {
@@ -101,9 +135,23 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
     });
     const fetchData = async () => {
         const filter = generateFilterObject(columnFilters, sorting, pagination);
-        if (service && dataParentId) {
-            const result = await service.getAll(filter, dataParentId);
+
+        if (service) {
+            if (!tableData || tableData.length === 0) {
+                startLoading();
+            }
+            let result: TData[] = [];
+
+            if (dataParentId) {
+                result = await service.getAll(filter, dataParentId);
+            } else {
+                if (dataParentId !== null) {
+                    result = await service.getAll(filter);
+                }
+            }
             setTableData(result)
+            stopLoading();
+
         }
 
     };
@@ -124,11 +172,13 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
             setRowInEdit(undefined);
 
             if (service) {
+                startLoading();
                 if (dataParentId) {
                     await service.patch(rowInEdit, dataParentId);
                 } else {
                     await service.patch(rowInEdit);
                 }
+                stopLoading();
             }
         }
     };
@@ -146,39 +196,19 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
     const handleItemRemove = async (item: TData) => {
         const updatedData = tableData.filter((data) => data !== item);
         setTableData(updatedData);
-
+        if (service) {
+            startLoading();
+            if (dataParentId) {
+                await service.remove((item as any)._id, dataParentId);
+            } else {
+                await service.remove((item as any)._id,);
+            }
+            stopLoading();
+        }
         if (onItemRemove) {
             onItemRemove(item);
         }
-
-        if (service && dataParentId) {
-            await service.remove((item as any)._id, dataParentId);
-        }
     };
-    const generateFilterObject = (columnFilter: ColumnFiltersState, sortingState: SortingState, paginationState: PaginationState) => {
-        let filterObject: QueryParams = {};
-        for (let x = 0; x < columnFilter.length; x++) {
-            const item = columnFilter[x];
-            const key = columnFilter[x].id;
-            const value = String(item.value)
-            if (value.includes(',')) {
-                const splittedValue = value.split(',');
-                filterObject[`${key}Start`] = splittedValue[0];
-                if (splittedValue[1]) {
-                    filterObject[`${key}End`] = splittedValue[1];
-                }
-            }
-        }
-        for (let x = 0; x < sortingState.length; x++) {
-            const item = sortingState[x];
-            filterObject['sortBy'] = item.id;
-            filterObject['sortOrder'] = item.desc ? 'desc' : 'asc'
-        }
-        filterObject['pageIndex'] = paginationState.pageIndex.toString();
-        filterObject['pageSize'] = paginationState.pageSize.toString();
-        return filterObject;
-
-    }
 
     return (
         <div className="rounded-md border">
@@ -193,66 +223,73 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                                             <DataTableFilter column={header.column}/>
                                         </div>
                                     ) : null}
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(header.column.columnDef.header, header.getContext())}
+                                    <DataTableHeader header={header}/>
                                 </TableHead>
                             ))}
                             {columns.some((column) => column.meta?.editable) && (
                                 <TableHead>Edit</TableHead>
                             )}
+                            {itemRemovable && <TableHead>Remove</TableHead>}
                         </TableRow>
                     ))}
                 </TableHeader>
                 <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow key={row.id}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                        {cell.column.columnDef.meta?.editable && rowInEditId === row.id ? (
-                                            <DataTableEditField column={cell.column} value={rowInEdit
-                                                ? rowInEdit[cell.column.id as keyof TData]
-                                                : (row.original as any)[cell.column.id]}
-                                                                onChange={(value) => handleItemInputChange(value, cell.column.id)
-                                                                }/>
-                                        ) : (
-                                            flexRender(cell.column.columnDef.cell, cell.getContext())
-                                        )}
-                                    </TableCell>
-                                ))}
-                                {columns.some((column) => column.meta?.editable) && (
-                                    <TableCell>
-                                        {rowInEditId !== row.id ? (
-                                            <Button onClick={() => handleItemEdit(row)}>
-                                                <PenIcon/>
-                                            </Button>
-                                        ) : (
-                                            <Button onClick={() => handleItemEdit(row)}>
-                                                <Save/>
-                                            </Button>
-                                        )}
-                                    </TableCell>
-                                )}
-                                {itemRemovable && (
-                                    <TableCell>
-                                        <Button onClick={() => handleItemRemove(row.original)}>
-                                            <Trash2/>
-                                        </Button>
-                                    </TableCell>
-                                )}
-                            </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
-                                No results.
+                    {isLoading
+                        ? <TableRow>
+                            <TableCell colSpan={!itemRemovable ? columns.length : columns.length + 1}
+                                       className="h-24 text-center">
+                                <Loader2 className='animate-spin m-auto' size={'64'}/>
                             </TableCell>
-                        </TableRow>
-                    )}
+                        </TableRow> :
+
+                        table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow key={row.id}>
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {cell.column.columnDef.meta?.editable && rowInEditId === row.id ? (
+                                                <DataTableEditField column={cell.column} value={rowInEdit
+                                                    ? rowInEdit[cell.column.id as keyof TData]
+                                                    : (row.original as any)[cell.column.id]}
+                                                                    onChange={(value) => handleItemInputChange(value, cell.column.id)
+                                                                    }/>
+                                            ) : (
+                                                flexRender(cell.column.columnDef.cell, cell.getContext())
+                                            )}
+                                        </TableCell>
+                                    ))}
+                                    {columns.some((column) => column.meta?.editable) && (
+                                        <TableCell>
+                                            {rowInEditId !== row.id ? (
+                                                <Button onClick={() => handleItemEdit(row)}>
+                                                    <PenIcon/>
+                                                </Button>
+                                            ) : (
+                                                <Button onClick={() => handleItemEdit(row)}>
+                                                    <Save/>
+                                                </Button>
+                                            )}
+                                        </TableCell>
+                                    )}
+                                    {itemRemovable && (
+                                        <TableCell>
+                                            <Button onClick={() => handleItemRemove(row.original)}>
+                                                <Trash2/>
+                                            </Button>
+                                        </TableCell>
+                                    )}
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    No results.
+                                </TableCell>
+                            </TableRow>
+                        )}
                 </TableBody>
             </Table>
-            <div className="flex justify-between w-full px-2 py-1">
+            {data && data.length > pagination.pageSize && <div className="flex justify-between w-full px-2 py-1">
                 <Button size={"sm"} onClick={table.previousPage}>
                     <ArrowLeftCircleIcon/>
                 </Button>
@@ -272,7 +309,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                 <Button size={"sm"} onClick={table.nextPage}>
                     <ArrowRightCircleIcon/>
                 </Button>
-            </div>
+            </div>}
         </div>
     );
 }
