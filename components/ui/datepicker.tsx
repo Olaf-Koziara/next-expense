@@ -6,6 +6,7 @@ import {Button} from "@/components/ui/button";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {SyntheticEvent} from "@/types/Event";
 import {DateRange} from "react-day-picker";
+import {FieldError} from "react-hook-form";
 
 type BaseCalendarInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
@@ -28,7 +29,8 @@ interface MultipleCalendarInputProps extends BaseCalendarInputProps {
 }
 
 type CalendarInputProps = (SingleCalendarInputProps | RangeCalendarInputProps | MultipleCalendarInputProps) & {
-    dateFormat?: string
+    dateFormat?: string,
+    error?: FieldError
 };
 type CalendarInputValue = Date | DateRange | Date[] | undefined;
 
@@ -37,6 +39,7 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
                                                                             onChange,
                                                                             mode,
                                                                             dateFormat = "PPP",
+                                                                            error,
                                                                             ...props
                                                                         }, ref) => {
     const [dateValue, setDateValue] = useState<CalendarInputValue>();
@@ -103,6 +106,8 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
 
     return (
         <div className="relative">
+            {error && <span
+                className="error-message absolute -translate-y-full top-0 text-red-600 text-sm">{error.message}</span>}
             <input
                 type="hidden"
                 ref={ref}
