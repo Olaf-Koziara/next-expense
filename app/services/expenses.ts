@@ -4,7 +4,7 @@ import {endpoints} from "@/app/services/endpoints";
 import {Service} from "@/types/Service";
 
 const getAll = async (params: QueryParams, walletId: string): Promise<Expense[]> => {
-    console.log(params)
+
     return api.GET<Expense[]>(endpoints.expense, {walletId, ...params});
 
 };
