@@ -1,15 +1,12 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {Column, ColumnDef, ColumnFilter, RowData} from "@tanstack/table-core";
-import {Button} from "@/components/ui/button";
-import {ArrowUpDown, Trash2} from "lucide-react";
+import {ColumnDef} from "@tanstack/table-core";
 import {Expense} from "@/types/Expense";
 import {Category} from "@/types/Category";
-import {DataTable, SortFilterState} from "@/components/dataTable";
-import {Income, Transaction, TransactionType} from "@/types/Income";
+import {DataTable,} from "@/components/DataTable/DataTable";
+import {Income, TransactionType} from "@/types/Income";
 import {useWallet} from "@/context/WalletContext";
 import useCategories from "@/hooks/useCategories";
-import {QueryParams} from "@/app/services/api";
 import {incomesService} from "@/app/services/incomes";
 import {expensesService} from "@/app/services/expenses";
 
@@ -20,12 +17,8 @@ type Props = {
     type: TransactionType,
     triggerFetch?: boolean,
 }
-const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
-    const {selectedWallet, getExpenses, getIncomes, removeExpense, removeIncome} = useWallet();
-    const [data, setData] = useState<Transaction[]>([]);
-    const [filter, setFilter] = useState<SortFilterState>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+const ExpenseIncomeTable = ({type, triggerFetch}: Props) => {
+    const {selectedWallet} = useWallet();
     const [columns, setColumns] = useState<ColumnDef<Income | Expense>[]>()
     const {categories} = useCategories({type})
 
@@ -34,18 +27,7 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
 
     }, [categories]);
 
-   
-    const sortableHeader = (column: Column<Expense>, header: string, property: keyof Expense) => {
-        return (
-            <Button
-                variant="ghost"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                {header}
-                <ArrowUpDown className="ml-2 h-4 w-4"/>
-            </Button>
-        )
-    }
+
     const getColumns = (categories: Category[]): ColumnDef<Income | Expense>[] => [
         {
             accessorKey: '_id',
@@ -54,31 +36,31 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
         }
         , {
             accessorKey: 'date',
-            header: (data) => sortableHeader(data.column, 'Date', 'date'),
             cell: ({row}) => formatedDate(new Date(row.getValue('date'))),
             meta: {
-                filterVariant: 'dateRange'
+                filterVariant: 'dateRange',
+                editable: true,
+                fieldVariant: 'date',
+                sortable: true
             }
         },
         {
             accessorKey: 'title',
-            header: (data) => sortableHeader(data.column, 'Title', 'title'),
-            meta: {filterVariant: 'text', editable: true}
+            meta: {filterVariant: 'text', editable: true, sortable: true}
         },
         {
             accessorKey: 'amount',
-            header: (data) => sortableHeader(data.column, 'Amount', 'amount'),
             filterFn: "inNumberRange",
-            meta: {filterVariant: 'range', editable: true}
+            meta: {filterVariant: 'range', editable: true, sortable: true}
         },
         {
             accessorKey: 'category',
-            header: (data) => sortableHeader(data.column, 'Category', 'category'),
             meta: {
                 filterVariant: 'select',
                 filterPlaceholder: 'Category',
                 filterOptions: categories ? categories.map(category => category.name) : [],
-                editable: true
+                editable: true,
+                sortable: true
             }
         },
     ];
@@ -87,8 +69,10 @@ const ExpenseIncomeTable = ({type, triggerFetch = true}: Props) => {
         <div>
 
             {columns &&
-                <DataTable columns={columns} data={data}
-                           dataParentId={selectedWallet?._id}
+                <DataTable columns={columns}
+                           dataParentId={selectedWallet ? selectedWallet._id : null}
+                           itemRemovable={true}
+                           triggerFetch={triggerFetch}
                            service={type === 'income' ? incomesService : expensesService}/>}
 
         </div>
