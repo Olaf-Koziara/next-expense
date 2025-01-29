@@ -27,22 +27,34 @@ interface MultipleCalendarInputProps extends BaseCalendarInputProps {
     onChange?: (event: SyntheticEvent) => void;
 }
 
-type CalendarInputProps = SingleCalendarInputProps | RangeCalendarInputProps | MultipleCalendarInputProps;
+type CalendarInputProps = (SingleCalendarInputProps | RangeCalendarInputProps | MultipleCalendarInputProps) & {
+    dateFormat?: string
+};
+type CalendarInputValue = Date | DateRange | Date[] | undefined;
 
 const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
                                                                             value,
                                                                             onChange,
                                                                             mode,
+                                                                            dateFormat = "PPP",
                                                                             ...props
                                                                         }, ref) => {
-    const [dateValue, setDateValue] = useState<Date | DateRange | Date[] | undefined>();
-
-    const handleDateSelect = (date: Date | DateRange | Date[] | undefined) => {
+    const [dateValue, setDateValue] = useState<CalendarInputValue>();
+    useEffect(() => {
+        if (typeof value === 'string') {
+            value && setDateValue(stringToDateValue(value));
+        } else {
+            setDateValue(value);
+        }
+    }, [])
+    const handleDateSelect = (date: CalendarInputValue) => {
         setDateValue(date);
-        if (onChange) {
+        if (onChange && date) {
+            let formattedValue = '';
+            formattedValue = dateValueToString(date);
             const syntheticEvent: SyntheticEvent = {
                 target: {
-                    value: date ? dateToString(date) : '',
+                    value: formattedValue,
                     name: props.name
                 },
                 type: 'change'
@@ -50,24 +62,34 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
             onChange(syntheticEvent);
         }
     };
-    const dateToString = (date: Date | DateRange | Date[]) => {
-        if (Array.isArray(date))
-            return date.map(d => d.toISOString()).join(',')
-        if (date instanceof Date)
-            return date.toISOString()
-        if (date.to) {
-            return `${date.from?.toISOString()},${date.to.toISOString()}`
+    const dateValueToString = (dateValue: CalendarInputValue) => {
+        if (!dateValue) return '';
+        if (Array.isArray(dateValue))
+            return dateValue.map(d => d.toISOString()).join(',')
+        if (dateValue instanceof Date)
+            return dateValue.toISOString()
+        if (dateValue.to) {
+            return `${dateValue.from?.toISOString()},${dateValue.to.toISOString()}`
 
         }
-        return `${date.from?.toISOString()}}`
+        return `${dateValue.from?.toISOString()}}`
 
+    }
+    const stringToDateValue = (value: string) => {
+        if (!value) return undefined;
+        if (Array.isArray(value)) return value.map(date => new Date(date));
+        if (value.includes(',')) {
+            const [from, to] = value.split(',');
+            return {from: new Date(from), to: to ? new Date(to) : undefined};
+        }
+        return new Date(value);
     }
 
     const getDisplayValue = () => {
         if (!dateValue) return <span>Pick a date</span>;
 
         if (dateValue instanceof Date) {
-            return format(dateValue, "PPP");
+            return format(dateValue, dateFormat);
         }
 
         if (Array.isArray(dateValue)) {
@@ -75,7 +97,7 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
         }
 
         return dateValue.from
-            ? `${format(dateValue.from, "PPP")} - ${dateValue.to ? format(dateValue.to, "PPP") : "..."}`
+            ? `${format(dateValue.from, dateFormat)} - ${dateValue.to ? format(dateValue.to, dateFormat) : "..."}`
             : "Pick a date range";
     };
 
@@ -84,7 +106,7 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
             <input
                 type="hidden"
                 ref={ref}
-                value={dateValue ? dateToString(dateValue) : ''}
+                value={dateValue ? dateValueToString(dateValue) : ''}
                 {...props}
             />
             <Popover>
