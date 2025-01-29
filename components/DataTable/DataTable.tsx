@@ -36,7 +36,7 @@ import {
     Save,
     Trash2
 } from "lucide-react";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import DataTableFilter from "@/components/DataTable/DataTableFilter";
 import {Column, ColumnFilter, RowData} from "@tanstack/table-core";
 import {Service} from "@/types/Service";
@@ -56,7 +56,6 @@ type Props<TData, TValue> = {
     onItemAdd?: (addedItem: TData) => void,
     onItemEdit?: (editedItem: TData) => void,
     service?: Service<TData>,
-    withDataParentId?: boolean,
     dataParentId?: string | null,
     columns: ColumnDef<TData, TValue>[]
     data?: TData[]
@@ -86,7 +85,6 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                                                                         itemRemovable = false,
                                                                         onItemRemove,
                                                                         service,
-                                                                        withDataParentId = false,
                                                                         dataParentId,
                                                                         triggerFetch = false// Parent ID for fetching
                                                                     }: Props<TData, TValue>) {
@@ -134,7 +132,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
         },
     });
     const fetchData = async () => {
-        const filter = generateFilterObject(columnFilters, sorting, pagination);
+        const filter = useMemo(() => generateFilterObject(columnFilters, sorting, pagination), [columnFilters, sorting, pagination]);
 
         if (service) {
             if (!tableData || tableData.length === 0) {
