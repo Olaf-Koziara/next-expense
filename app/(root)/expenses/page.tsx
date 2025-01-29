@@ -17,11 +17,12 @@ const Page = () => {
 
     return (
         <div className="mt-5">
-            <div className="flex flex-col lg:flex-row gap-6">
-                <ExpenseIncomeTable triggerFetch={triggerFetch} type={'expense'}/>
-                <div className="w-full lg:w-80">
+            <div className="mx-auto w-4/5">
+                <div className='mb-5 drop-shadow-xl shadow-white'>
                     <ExpenseIncomeForm type='expense' onFormSubmitted={handleFormSubmitted}/>
                 </div>
+                <ExpenseIncomeTable triggerFetch={triggerFetch} type={'expense'}/>
+
             </div>
         </div>
     );
