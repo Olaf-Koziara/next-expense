@@ -17,11 +17,6 @@ type FormData = {
     category: Category["name"];
 };
 
-export const getCategories = async (type: 'expense' | 'income') => {
-    const response = await fetch(`/api/${type}Categories`);
-    const data = await response.json();
-    return data[`${type}Categories`];
-};
 
 type Props = {
     type: 'expense' | 'income';
@@ -29,37 +24,39 @@ type Props = {
 };
 
 const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
-    const {selectedWallet} = useWallet();
+    const {selectedWallet, addIncome, addExpense} = useWallet();
     const form = useForm<FormData>();
     const {categories} = useCategories({type: type});
 
 
     const onSubmit: SubmitHandler<FormData> = async (data, event) => {
         event?.preventDefault();
-        await fetch(`/api/${type}`, {
-            method: 'POST',
-            body: JSON.stringify({selectedWalletId: selectedWallet?._id, ...data}),
-        });
-        if (onFormSubmitted) {
-            onFormSubmitted();
+
+        if (type === 'expense') {
+            await addExpense(data)
+        } else {
+            await addIncome(data)
         }
         form.reset();
+        onFormSubmitted?.();
     };
 
     return (
         <div>
             <Form {...form}>
-                <form className='flex flex-col gap-2' onSubmit={form.handleSubmit(onSubmit)}>
-                    <DatePicker mode='single' {...form.register('date')} />
-                    <Input placeholder='Title' {...form.register('title')} />
-                    <Input type='number' placeholder='Amount' {...form.register('amount')} />
+                <form className='flex gap-1' onSubmit={form.handleSubmit(onSubmit)}>
+                    <DatePicker mode='single' dateFormat='dd-MM-yyyy' {...form.register('date', {required: true})} />
+                    <Input placeholder='Title' {...form.register('title', {required: true})} />
+                    <Input type='number' placeholder='Amount' {...form.register('amount', {required: true})} />
                     <FormField
                         control={form.control}
                         name='category'
+                        rules={{required: true}}
                         render={({field, fieldState}) => (
                             <FormItem>
                                 <FormControl>
-                                    <Select onValueChange={field.onChange}>
+                                    <Select key={field.value} defaultValue={field.value} value={field.value}
+                                            onValueChange={field.onChange}>
                                         <SelectTrigger ref={field.ref} aria-invalid={fieldState['invalid']}
                                                        className='w-full'>
                                             <SelectValue placeholder='Select category'/>

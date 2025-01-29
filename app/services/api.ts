@@ -17,7 +17,7 @@ async function GET<T>(_url: string, params?: QueryParams): Promise<T> {
     return res.json();
 }
 
-async function POST<T>(url: string, data: T): Promise<T> {
+async function POST<T>(url: string, data: T): Promise<void> {
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -33,7 +33,8 @@ async function POST<T>(url: string, data: T): Promise<T> {
     return res.json();
 }
 
-async function DELETE<T>(url: string, data: T): Promise<T> {
+async function DELETE<T>(url: string, data: T) {
+
     const res = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -49,7 +50,7 @@ async function DELETE<T>(url: string, data: T): Promise<T> {
     return res.json();
 }
 
-async function PATCH<T>(url: string, data: T): Promise<T> {
+async function PATCH<T>(url: string, data: Partial<T> & Record<string, any>): Promise<T> {
     const res = await fetch(url, {
         method: "PATCH",
         headers: {

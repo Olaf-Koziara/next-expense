@@ -1,6 +1,7 @@
 import {api} from "@/app/services/api";
 import {Category} from "@/types/Category";
 import {endpoints} from "@/app/services/endpoints";
+import {Service} from "@/types/Service";
 
 const getAll = async () => {
     return api.GET<Category[]>(endpoints.expenseCategory)
@@ -11,6 +12,10 @@ const add = async (category: Category) => {
 const remove = async (_id: string) => {
     return api.DELETE<{ _id: string }>(endpoints.expenseCategory, {_id})
 }
-export const expenseCategoriesService = {
-    getAll, add, remove
+const patch = async (data: Partial<Category>) => {
+    return api.PATCH<Category>(endpoints.expenseCategory, {...data});
+}
+
+export const expenseCategoriesService: Service<Category> = {
+    getAll, add, remove, patch
 }
