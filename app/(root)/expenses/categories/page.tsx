@@ -1,5 +1,5 @@
 'use client'
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import ExpenseIncomeCategoryForm from "@/components/form/ExpenseIncomeCategoryForm";
 import {Category} from "@/types/Category";
 
