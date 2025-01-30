@@ -1,28 +1,24 @@
-'use client'
-import React, {createContext, useContext} from "react";
+'use server';
 import {AppSidebar} from "@/components/AppSidebar";
+import ClientProviders from "@/components/ClientProviders";
 import {SidebarProvider} from "@/components/ui/sidebar";
-import {SessionProvider} from "next-auth/react";
-import {WalletProvider} from "@/context/WalletContext";
 
-
-const layout = ({children}: Readonly<{ children: React.ReactNode }>) => {
+const Layout = ({children}: Readonly<{ children: React.ReactNode }>) => {
     return (
-        <SessionProvider>
-            <WalletProvider>
+        <div className="flex">
+            <div className='w-auto'>
                 <SidebarProvider>
-
                     <AppSidebar/>
-
-
-                    <main className='w-full pt-10 px-2'>
-                        {children}
-                    </main>
                 </SidebarProvider>
-            </WalletProvider>
-        </SessionProvider>
+            </div>
 
+            <ClientProviders>
+                <main className="w-full pt-10 px-2">
+                    {children}
+                </main>
+            </ClientProviders>
+        </div>
+    );
+};
 
-    )
-}
-export default layout;
+export default Layout;

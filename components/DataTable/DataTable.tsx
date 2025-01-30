@@ -53,40 +53,27 @@ type Props<TData, TValue> = {
     onFilterChange?: (data: SortFilterState) => void,
     itemRemovable?: boolean,
     onItemRemove?: (removedItem: TData) => void,
-    onItemAdd?: (addedItem: TData) => void,
     onItemEdit?: (editedItem: TData) => void,
     service?: Service<TData>,
     dataParentId?: string | null,
     columns: ColumnDef<TData, TValue>[]
     data?: TData[]
     triggerFetch?: boolean
+
 }
 
-export function SortableHeader<TData>(column: Column<TData>, header: string, property: keyof TData) {
-    return (
-        <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-            {header}
-            {column.getIsSorted() === "asc" ?
-                <ArrowDown className="ml-2 h-4 w-4"/> : column.getIsSorted() === "desc" ?
-                    <ArrowUp className="ml-2 h-4 w-4"/> : <ArrowUpDown className="ml-2 h-4 w-4"/>}
-
-        </Button>
-    )
-}
 
 export function DataTable<TData, TValue extends NonNullable<TData>>({
                                                                         columns,
                                                                         data,
                                                                         onSortingChange,
                                                                         onFilterChange,
+                                                                        onItemEdit,
                                                                         itemRemovable = false,
                                                                         onItemRemove,
                                                                         service,
                                                                         dataParentId,
-                                                                        triggerFetch = false// Parent ID for fetching
+                                                                        triggerFetch = false, ...rest// Parent ID for fetching
                                                                     }: Props<TData, TValue>) {
     const [pagination, setPagination] = useState<PaginationState>({pageIndex: 0, pageSize: 10});
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -108,6 +95,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
             setTableData(data);
         }
     }, [data]);
+    const filter = useMemo(() => generateFilterObject(columnFilters, sorting, pagination), [columnFilters, sorting, pagination]);
 
 
     const table = useReactTable({
@@ -132,7 +120,6 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
         },
     });
     const fetchData = async () => {
-        const filter = useMemo(() => generateFilterObject(columnFilters, sorting, pagination), [columnFilters, sorting, pagination]);
 
         if (service) {
             if (!tableData || tableData.length === 0) {
@@ -166,6 +153,9 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                 index.toString() === row.id ? rowInEdit : item
             );
             setTableData(updatedData);
+            if (onItemEdit) {
+                onItemEdit(rowInEdit);
+            }
             setRowEditId(null);
             setRowInEdit(undefined);
 
@@ -178,6 +168,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                 }
                 stopLoading();
             }
+
         }
     };
     const handleItemInputChange =

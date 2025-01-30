@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+'use client';
+import React from 'react';
 import {useWallet} from '@/context/WalletContext';
 import {Wallet} from '@/types/Wallet';
 import {PlusCircleIcon, Wallet2} from "lucide-react";
-import {Button} from "@/components/ui/button";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import WalletForm from "@/components/WalletList/WalletForm";
 import {
@@ -24,12 +24,12 @@ const WalletList = () => {
 
     return (
 
-        <div className='flex'>
-            <Wallet2/>
+        <div className=''>
+
 
             <DropdownMenu modal={false}>
-                <DropdownMenuTrigger>{selectedWallet?.name ?? 'none'}</DropdownMenuTrigger>
-                <DropdownMenuContent key={1}>
+                <DropdownMenuTrigger> <Wallet2/></DropdownMenuTrigger>
+                <DropdownMenuContent key={selectedWallet?._id}>
                     <DropdownMenuLabel>Wallets</DropdownMenuLabel>
                     <DropdownMenuSeparator/>
                     {wallets.map(wallet =>

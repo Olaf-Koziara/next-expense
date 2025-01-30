@@ -3,12 +3,15 @@ import React, {useEffect, useState} from 'react';
 
 import ExpenseIncomeForm from "@/components/form/ExpenseIncomeForm";
 import ExpenseIncomeTable from "@/components/ExpenseIncomeTable";
+import ExpenseIncomeToggle from "@/components/ExpenseIncomeToggle";
+import {TransactionType} from "@/types/Expense";
 
 // Separate the columns generation logic
 
 
 const Page = () => {
     const [triggerFetch, setTriggerFetch] = useState(false);
+    const [transactionType, setTransactionType] = useState<TransactionType>('expense');
 
     const handleFormSubmitted = () => {
         setTriggerFetch(prev => !prev);
@@ -16,12 +19,16 @@ const Page = () => {
 
 
     return (
-        <div className="mt-5">
-            <div className="mx-auto w-4/5">
-                <div className='mb-5 drop-shadow-xl shadow-white'>
-                    <ExpenseIncomeForm type='expense' onFormSubmitted={handleFormSubmitted}/>
+        <div className="mt-3">
+            <div className="mx-auto w-4/5 flex flex-col items-center">
+                <ExpenseIncomeToggle onChange={setTransactionType}/>
+                <div className='w-2/3 mt-10'>
+                    <div className='mb-5 drop-shadow-xl shadow-white flex justify-center'>
+                        <ExpenseIncomeForm type={transactionType} onFormSubmitted={handleFormSubmitted}/>
+                    </div>
+
+                    <ExpenseIncomeTable triggerFetch={triggerFetch} type={transactionType}/>
                 </div>
-                <ExpenseIncomeTable triggerFetch={triggerFetch} type={'expense'}/>
 
             </div>
         </div>
