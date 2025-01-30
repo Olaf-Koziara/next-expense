@@ -1,6 +1,5 @@
-import {Expense} from "@/types/Expense";
+import {Expense, ExpenseArraySchema, ExpenseSchema} from "@/types/Expense";
 
 export type Income = Expense;
-export type Transaction = Income | Expense;
-export type TransactionType = 'income' | 'expense';
-export type IncomeWithWalletId = Income & { walletId: string };
+export const IncomeSchema = ExpenseSchema;
+export const IncomeArraySchema = ExpenseArraySchema;

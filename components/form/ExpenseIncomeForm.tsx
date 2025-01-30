@@ -1,22 +1,25 @@
 'use client';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import DatePicker from '@/components/ui/datepicker';
 import {Input} from '@/components/ui/input';
-import {Form, FormControl, FormField, FormItem, FormLabel} from '@/components/ui/form';
+import {Form, FormControl, FormField, FormItem} from '@/components/ui/form';
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
-import {Category} from '@/types/Category';
 import {Button} from '@/components/ui/button';
-import {useWallet} from '@/context/WalletContext';
 import useCategories from "@/hooks/useCategories";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {expensesService} from "@/app/services/expenses";
+import {incomesService} from "@/app/services/incomes";
+import {useWallet} from "@/context/WalletContext";
 
-type FormData = {
-    title: string;
-    amount: number;
-    date: string;
-    category: Category["name"];
-};
-
+type FormData = z.infer<typeof FormSchema>;
+const FormSchema = z.object({
+    title: z.string().nonempty('Title is required'),
+    amount: z.coerce.number().gte(0, 'Amount must be a positive number'),
+    date: z.string().nonempty('Date is required'),
+    category: z.string().nonempty('Category is required'),
+})
 
 type Props = {
     type: 'expense' | 'income';
@@ -24,15 +27,15 @@ type Props = {
 };
 
 const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
-    const {selectedWallet, addIncome, addExpense} = useWallet();
-    const form = useForm<FormData>();
+    const form = useForm<FormData>({resolver: zodResolver(FormSchema)});
     const {categories} = useCategories({type: type});
-
+    const {addIncome, addExpense} = useWallet()
 
     const onSubmit: SubmitHandler<FormData> = async (data, event) => {
         event?.preventDefault();
 
         if (type === 'expense') {
+
             await addExpense(data)
         } else {
             await addIncome(data)
@@ -45,9 +48,12 @@ const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
         <div>
             <Form {...form}>
                 <form className='flex gap-1' onSubmit={form.handleSubmit(onSubmit)}>
-                    <DatePicker mode='single' dateFormat='dd-MM-yyyy' {...form.register('date', {required: true})} />
-                    <Input placeholder='Title' {...form.register('title', {required: true})} />
-                    <Input type='number' placeholder='Amount' {...form.register('amount', {required: true})} />
+                    <DatePicker error={form.formState.errors.date} mode='single'
+                                dateFormat='dd-MM-yyyy' {...form.register('date', {required: true})} />
+                    <Input error={form.formState.errors.title}
+                           placeholder='Title' {...form.register('title', {required: true})} />
+                    <Input error={form.formState.errors.amount} type='number'
+                           placeholder='Amount' {...form.register('amount', {required: true})} />
                     <FormField
                         control={form.control}
                         name='category'
@@ -57,10 +63,13 @@ const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
                                 <FormControl>
                                     <Select key={field.value} defaultValue={field.value} value={field.value}
                                             onValueChange={field.onChange}>
-                                        <SelectTrigger ref={field.ref} aria-invalid={fieldState['invalid']}
-                                                       className='w-full'>
-                                            <SelectValue placeholder='Select category'/>
-                                        </SelectTrigger>
+                                        <div>{form.formState.errors.category && <span
+                                            className="error-message absolute -translate-y-full top-0 text-red-600 text-sm">{form.formState.errors.category.message}</span>}
+                                            <SelectTrigger ref={field.ref} aria-invalid={fieldState['invalid']}
+                                                           className='w-full'>
+                                                <SelectValue placeholder='Select category'/>
+                                            </SelectTrigger>
+                                        </div>
                                         <SelectContent>
                                             <SelectGroup>
                                                 {categories.map((category, index) => (

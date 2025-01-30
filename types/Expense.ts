@@ -1,12 +1,20 @@
-export type Expense = {
-    _id?: string,
-    title: string,
-    amount: number,
-    category: string,
-    date: string,
-}
-export type SummedExpenseByCategory = {
-    category: string,
-    total: number
-}
+import {z} from "zod";
+
+export type Expense = z.infer<typeof ExpenseSchema>;
+export const ExpenseSchema = z.object({
+    _id: z.string().optional(),
+    title: z.string(),
+    amount: z.number(),
+    category: z.string(),
+    date: z.string(),
+})
+export const ExpenseArraySchema = z.array(ExpenseSchema);
+export const SummedExpenseByCategorySchema = z.object({
+    category: z.string(),
+    total: z.number()
+})
+export const SummedExpenseByCategoryArraySchema = z.array(SummedExpenseByCategorySchema);
+export type SummedExpenseByCategory = z.infer<typeof SummedExpenseByCategorySchema>;
+
 export type ExpenseWithWalletId = Expense & { walletId: string };
+export type TransactionType = 'expense' | 'income';
