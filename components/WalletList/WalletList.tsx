@@ -29,11 +29,12 @@ const WalletList = () => {
 
             <DropdownMenu modal={false}>
                 <DropdownMenuTrigger> <Wallet2/></DropdownMenuTrigger>
-                <DropdownMenuContent key={selectedWallet?._id}>
+                <DropdownMenuContent key='WalletListContent'>
                     <DropdownMenuLabel>Wallets</DropdownMenuLabel>
                     <DropdownMenuSeparator/>
                     {wallets.map(wallet =>
                         <DropdownMenuItem key={wallet._id}
+                                          className={selectedWallet?._id === wallet._id ? 'bg-gray-600' : ''}
                                           onClick={() => handleSelectWallet(wallet)}>{wallet.name}</DropdownMenuItem>)}
                     <DropdownMenuItem>
                         <Popover modal={true}>
