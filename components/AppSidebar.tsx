@@ -1,5 +1,5 @@
-'use client';
-import {BookOpen, DiamondMinus, DiamondPlus, DoorClosedIcon, Home, PlusCircleIcon, UserIcon, Wallet} from "lucide-react"
+'use server';
+import {BookOpen, Home, UserIcon,} from "lucide-react"
 
 import {
     Sidebar,
@@ -10,40 +10,32 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
+
 } from "@/components/ui/sidebar"
-import {SignOut} from "@/components/signOutButton";
 import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
-import {useSession} from "next-auth/react";
-import WalletList from "@/components/WalletList/WalletList";
+import {auth} from "@/auth";
+import WalletListWrapper from "@/components/WalletList/WalletListWrapper";
+import ClientProviders from "@/components/ClientProviders";
 
-// Menu items.
+
 const items = [
 
     {
-        title: "Summary",
         url: "/",
         icon: Home,
     },
     {
         title: "Expenses",
         url: "/expenses",
-        icon: DiamondMinus,
-        children: [{title: 'Categories', url: '/expenses/categories', icon: BookOpen}]
+        icon: BookOpen,
+
     },
-    {
-        title: "Incomes",
-        url: "/incomes",
-        icon: DiamondPlus,
-        children: [{title: 'Categories', url: '/incomes/categories', icon: BookOpen}]
-    },
+
 
 ]
 
-const UserInfo = ({name, email}: { name: string, email: string }) =>
+const UserInfo = async ({name, email}: { name: string, email: string }) =>
     <div>
 
         <div className="flex items-center justify-between pb-2">
@@ -51,21 +43,13 @@ const UserInfo = ({name, email}: { name: string, email: string }) =>
                 <div className="font-bold pb-2">
 
                     <div className='flex items-center gap-1 pb-2'>
-                        <Link className={buttonVariants({variant: 'outline'})} href='/user'>
-                            <UserIcon size={64}/>
-                            {name}
+                        <Link className='hover:scale-125' href='/user'>
+                            <UserIcon/>
                         </Link>
 
-                        <SignOut>
-
-                            <DoorClosedIcon
-                                className='inline'/>Sign
-                            Out
-
-                        </SignOut>
                     </div>
                 </div>
-                <WalletList/>
+                <WalletListWrapper/>
             </div>
 
         </div>
@@ -77,10 +61,10 @@ const AuthLinks = () => <div>
         className={buttonVariants({variant: 'outline'})}
         href={'/auth/signUp'}>SignUp</Link>
 </div>
-export const AppSidebar = () => {
 
+export const AppSidebar = async () => {
 
-    const {data: session} = useSession();
+    const session = await auth();
 
 
     return (
@@ -89,35 +73,26 @@ export const AppSidebar = () => {
                 <SidebarGroup>
                     <SidebarGroupLabel>Application</SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem className="p-2">
-                                {session && session.user ?
-                                    <UserInfo name={session.user.name ?? ''} email={session.user.email ?? ''}/>
-                                    : <div><AuthLinks/></div>
-                                }
+                        <SidebarMenu className='items-center'>
+                            <SidebarMenuItem key='userInfo'>
+                                <ClientProviders>
+                                    {session && session.user ?
+                                        <UserInfo name={session.user.name ?? ''} email={session.user.email ?? ''}/>
+                                        : <div><AuthLinks/></div>
+                                    }
+                                </ClientProviders>
 
                             </SidebarMenuItem>
                             {
-                                session && session.user && items.map((item) => (
+                                session && items.map((item) => (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild>
                                             <a href={item.url}>
-                                                <item.icon/>
-                                                <span>{item.title}</span>
+                                                <div>
+                                                    <item.icon className='hover:scale-125 duration-150'/>
+                                                </div>
                                             </a>
                                         </SidebarMenuButton>
-                                        {item.children ?
-                                            <SidebarMenuSub>
-                                                {item.children.map((child, index) => (
-                                                    <SidebarMenuSubItem key={index}>
-                                                        <SidebarMenuSubButton asChild>
-                                                            <a href={child.url}>
-                                                                <child.icon/>
-                                                                <span>{child.title}</span>
-                                                            </a>
-                                                        </SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>))}
-                                            </SidebarMenuSub> : null}
                                     </SidebarMenuItem>
                                 ))}
                         </SidebarMenu>

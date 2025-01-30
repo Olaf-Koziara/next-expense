@@ -8,7 +8,7 @@ import {WalletStats} from "@/types/Stats";
 import {statisticsService} from "@/app/services/statistics";
 import {QueryParams} from "@/app/services/api";
 import {Expense} from "@/types/Expense";
-import {Income} from "@/types/Income";
+import {useEvent} from "@/hooks/useEvenet";
 
 type WalletContextType = {
     wallets: Wallet[];
@@ -16,7 +16,7 @@ type WalletContextType = {
     setSelectedWallet: (wallet: Wallet) => void;
     addWallet: (wallet: { name: string }) => Promise<void>;
     addExpense: (expense: Expense) => Promise<void>;
-    getExpenses: (params?: QueryParams) => Promise<Expense[]>;
+    getExpenses: (params: QueryParams) => Promise<Expense[]>;
     getIncomes: (params?: QueryParams) => Promise<Expense[]>;
     addIncome: (expense: Expense) => Promise<void>;
     removeExpense: (_id: string) => Promise<void>;
@@ -31,7 +31,9 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
     const [wallets, setWallets] = useState<Wallet[]>([]);
     const [selectedWallet, setSelectedWalletState] = useState<Wallet | null>(null);
     const selectedWalletRef = useRef<Wallet | null>(null);
-
+    const {dispatch} = useEvent('walletChange', (wallet: Wallet) => {
+        setSelectedWallet(wallet, false)
+    });
     useEffect(() => {
         if (!session) return;
 
@@ -40,10 +42,15 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
             setSelectedWallet(data[0] || null);
         });
     }, [session]);
-    const setSelectedWallet = (wallet: Wallet) => {
+    const setSelectedWallet = (wallet: Wallet, dispatchEvent = true) => {
         setSelectedWalletState(wallet);
         selectedWalletRef.current = wallet;
+        if (dispatchEvent) {
+            dispatch(wallet)
+        }
+
     }
+
     const addWallet = async (wallet: { name: string }) => {
         if (!session) return;
         const newWallet = await walletsService.add(wallet);
@@ -62,15 +69,15 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
         };
     };
 
-    const withWallet = <K, >(
-        action: (walletId: string) => Promise<K>
+    const withWallet = <K, P extends any[]>(
+        action: (walletId: string, ...args: P) => Promise<K>
     ) => {
-        return () => {
+        return (...args: P) => {
             const currentWallet = selectedWalletRef.current;
             if (!currentWallet) {
                 return Promise.reject({message: "No wallet selected"});
             }
-            return action(currentWallet._id);
+            return action(currentWallet._id, ...args);
         };
     };
 
@@ -78,7 +85,7 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
     const addExpense = withWalletAndData(expensesService.add);
     const removeIncome = withWalletAndData(incomesService.remove);
     const getStatistics = withWallet(statisticsService.getAll);
-    const getExpenses = withWallet(expensesService.getAll);
+    const getExpenses = withWallet((walletId: string, params: QueryParams) => expensesService.getAll(params, walletId));
     const getIncomes = withWallet(incomesService.getAll);
     const removeExpense = withWalletAndData(expensesService.remove);
 
@@ -96,6 +103,7 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
                 removeIncome,
                 getStatistics,
                 getExpenses,
+
             }}
         >
             {children}
