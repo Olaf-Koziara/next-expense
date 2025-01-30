@@ -14,10 +14,7 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
-import {Session} from "next-auth";
-import {GetServerSideProps, InferGetServerSidePropsType} from "next";
 import {auth} from "@/auth";
-import dynamic from "next/dynamic";
 import WalletListWrapper from "@/components/WalletList/WalletListWrapper";
 import ClientProviders from "@/components/ClientProviders";
 
