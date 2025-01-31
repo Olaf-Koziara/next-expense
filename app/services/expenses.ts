@@ -1,7 +1,6 @@
 import {Expense, ExpenseWithWalletId} from "@/types/Expense";
 import {api, QueryParams} from "@/app/services/api";
 import {endpoints} from "@/app/services/endpoints";
-import {Service} from "@/types/Service";
 
 const getAll = async (params: QueryParams, walletId: string): Promise<Expense[]> => {
 
@@ -32,7 +31,7 @@ const put = async (data: Expense, walletId: string): Promise<Expense> => {
     return api.PUT<Expense>(endpoints.expense, {...data});
 };
 
-export const expensesService: Service<Expense> = {
+export const expensesService = {
     getAll,
     add,
     remove,

@@ -73,6 +73,8 @@ const ExpenseIncomeTable = ({type, triggerFetch}: Props) => {
                            dataParentId={selectedWallet ? selectedWallet._id : null}
                            itemRemovable={true}
                            triggerFetch={triggerFetch}
+                           manualFiltering={true}
+                           manualSorting={true}
                            service={type === 'income' ? incomesService : expensesService}/>}
 
         </div>

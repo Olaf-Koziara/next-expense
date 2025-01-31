@@ -58,6 +58,8 @@ type Props<TData, TValue> = {
     dataParentId?: string | null,
     columns: ColumnDef<TData, TValue>[]
     data?: TData[]
+    manualSorting?: boolean,
+    manualFiltering?: boolean,
     triggerFetch?: boolean
 
 }
@@ -73,6 +75,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                                                                         onItemRemove,
                                                                         service,
                                                                         dataParentId,
+                                                                        manualFiltering = false, manualSorting = false,
                                                                         triggerFetch = false, ...rest// Parent ID for fetching
                                                                     }: Props<TData, TValue>) {
     const [pagination, setPagination] = useState<PaginationState>({pageIndex: 0, pageSize: 10});
@@ -108,8 +111,8 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
-        manualSorting: !!onSortingChange,
-        manualFiltering: !!onFilterChange,
+        manualSorting,
+        manualFiltering,
         state: {
             pagination,
             sorting,
