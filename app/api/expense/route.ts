@@ -65,7 +65,6 @@ export const GET = async (req: Request) => {
         const {sortBy, sortOrder} = getSortParamsFromUrl(url);
 
         const matchStage = getFilterMatchStageFromUrl(url);
-        console.log(matchStage)
         const pipeline: PipelineStage[] = [
             {
                 $match: {_id: new mongoose.Types.ObjectId(walletId)}
