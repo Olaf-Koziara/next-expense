@@ -41,9 +41,10 @@ function DataTableFilter<TData, TValue>({column}: { column: Column<TData, TValue
     ) : filterVariant === 'select' && filterOptions ? (
         <div className='relative'>
             <Select
-
+                defaultValue=''
                 onValueChange={setFilterValue}
                 value={filterValue as string}
+                clearable={true}
             >
                 <SelectTrigger className='w-32 relative'>
                     <SelectValue placeholder={filterPlaceholder}/>
@@ -55,17 +56,7 @@ function DataTableFilter<TData, TValue>({column}: { column: Column<TData, TValue
                         value={option}>{option}</SelectItem>)}
                 </SelectContent>
             </Select>
-            {!!filterValue &&
-                <button
-                    type="button"
-                    onClick={(e) => {
-                        setFilterValue('');
-                    }}
-                    className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black"
-                >
-                    <X/>
-                </button>
-            }
+
         </div>
     ) : filterVariant === 'dateRange' ? (
         <div>
