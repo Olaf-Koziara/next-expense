@@ -33,14 +33,43 @@ export const expenseFilterParamConfig: Record<string, {
         key: 'title',
         mongoOperator: '$regex'
     },
-    startDate: {
+    dateStart: {
         key: 'dateStart',
         transform: (value: string) => new Date(value || '1970-01-01'),
         mongoOperator: '$gte'
     },
-    endDate: {
+    dateEnd: {
         key: 'dateEnd',
         transform: (value: string) => new Date(value || '9999-12-31'),
         mongoOperator: '$lte'
     }
 };
+export const getFilterMatchStageFromUrl = (url: URL) => {
+    const matchStage: Record<string, any> = {};
+    for (const [param, config] of Object.entries(expenseFilterParamConfig)) {
+        const value = url.searchParams.get(param);
+        if (value) {
+            const transformedValue = config.transform ? config.transform(value) : value;
+
+            if (param === 'title') {
+                matchStage['expenses.title'] = {
+                    $regex: transformedValue,
+                    $options: 'i'
+                };
+            } else if (param === 'dateStart' || param === 'dateEnd') {
+                matchStage['expenses.date'] = matchStage['expenses.date'] || {};
+                matchStage['expenses.date'][config.mongoOperator!] = transformedValue;
+            } else if (param === 'amountStart' || param === 'amountEnd') {
+                matchStage['expenses.amount'] = matchStage['expenses.amount'] || {};
+                matchStage['expenses.amount'][config.mongoOperator!] = transformedValue;
+            } else {
+                matchStage[`expenses.${param}`] = {
+                    [config.mongoOperator!]: transformedValue
+                };
+            }
+        }
+    }
+
+    return matchStage;
+}
+

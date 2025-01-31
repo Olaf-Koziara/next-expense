@@ -3,27 +3,34 @@ import DebouncedInput from "@/components/ui/debouncedInput";
 
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import CalendarInput from "@/components/ui/datepicker";
+import {ChevronDown, X} from "lucide-react";
+import {Button} from "@/components/ui/button";
+import {useEffect, useState} from "react";
 
 function DataTableFilter<TData, TValue>({column}: { column: Column<TData, TValue> }) {
-    const columnFilterValue = column.getFilterValue()
+    const [filterValue, setFilterValue] = useState(column.getFilterValue())
+    useEffect(() => {
+        column.setFilterValue(filterValue)
+    }, [filterValue]);
     const {filterVariant, filterOptions, filterPlaceholder} = column.columnDef.meta ?? {}
+
     return filterVariant === 'range' ? (
         <div>
             <div className="flex space-x-2">
                 <DebouncedInput
                     type="number"
-                    value={(columnFilterValue as [number, number])?.[0] ?? ''}
+                    value={(filterValue as [number, number])?.[0] ?? ''}
                     onChange={value =>
-                        column.setFilterValue((old: [number, number]) => [value, old?.[1]])
+                        setFilterValue((old: [number, number]) => [value, old?.[1]])
                     }
                     placeholder={`Min`}
                     className="w-24 border shadow rounded"
                 />
                 <DebouncedInput
                     type="number"
-                    value={(columnFilterValue as [number, number])?.[1] ?? ''}
+                    value={(filterValue as [number, number])?.[1] ?? ''}
                     onChange={value =>
-                        column.setFilterValue((old: [number, number]) => [old?.[0], value])
+                        setFilterValue((old: [number, number]) => [old?.[0], value])
                     }
                     placeholder={`Max`}
                     className="w-24 border shadow rounded"
@@ -32,35 +39,49 @@ function DataTableFilter<TData, TValue>({column}: { column: Column<TData, TValue
             <div className="h-1"/>
         </div>
     ) : filterVariant === 'select' && filterOptions ? (
-        <Select
-            onValueChange={column.setFilterValue}
-            value={columnFilterValue?.toString()}
-        >
-            <SelectTrigger>
-                <SelectValue placeholder={filterPlaceholder}></SelectValue> </SelectTrigger>
-            <SelectContent>
-                {/*<SelectItem value=''>All</SelectItem>*/}
-                {filterOptions.length > 0 && filterOptions.map((option: string, index: number) => <SelectItem
-                    key={index}
-                    value={option}>{option}</SelectItem>)}
-            </SelectContent>
-        </Select>
+        <div className='relative'>
+            <Select
+
+                onValueChange={setFilterValue}
+                value={filterValue as string}
+            >
+                <SelectTrigger className='w-32 relative'>
+                    <SelectValue placeholder={filterPlaceholder}/>
+                </SelectTrigger>
+
+                <SelectContent>
+                    {filterOptions.length > 0 && filterOptions.map((option: string, index: number) => <SelectItem
+                        key={index}
+                        value={option}>{option}</SelectItem>)}
+                </SelectContent>
+            </Select>
+            {!!filterValue &&
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        setFilterValue('');
+                    }}
+                    className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black"
+                >
+                    <X/>
+                </button>
+            }
+        </div>
     ) : filterVariant === 'dateRange' ? (
         <div>
 
-            <CalendarInput mode={'range'} onChange={(event) => column.setFilterValue(event.target.value)}
-                           value={columnFilterValue as string}/>
+            <CalendarInput mode={'range'} onChange={(event) => setFilterValue(event.target.value)}
+                           value={filterValue as string}/>
         </div>
     ) : filterVariant === 'text'
         ? (
             <DebouncedInput
                 className="w-36 border shadow rounded"
-                onChange={value => column.setFilterValue(value)}
+                onChange={value => setFilterValue(value)}
                 placeholder={`Search...`}
                 type="text"
-                value={(columnFilterValue ?? '') as string}
+                value={(filterValue ?? '') as string}
             />
-            // See faceted column filters example for datalist search suggestions
         ) : null
 }
 

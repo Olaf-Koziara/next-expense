@@ -13,6 +13,8 @@ export const generateFilterObject = (columnFilter: ColumnFiltersState, sortingSt
             if (splittedValue[1]) {
                 filterObject[`${key}End`] = splittedValue[1];
             }
+        } else {
+            filterObject[key] = value;
         }
     }
     for (let x = 0; x < sortingState.length; x++) {
