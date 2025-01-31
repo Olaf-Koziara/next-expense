@@ -22,7 +22,7 @@ const Page = () => {
         <div className="mt-3">
             <div className="mx-auto w-4/5 flex flex-col items-center">
                 <ExpenseIncomeToggle onChange={setTransactionType}/>
-                <div className='w-2/3 mt-10'>
+                <div className='w-2/3 min-w-fit mt-10'>
                     <div className='mb-5 drop-shadow-xl shadow-white flex justify-center'>
                         <ExpenseIncomeForm type={transactionType} onFormSubmitted={handleFormSubmitted}/>
                     </div>
