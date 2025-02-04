@@ -16,12 +16,12 @@ type WalletContextType = {
     setSelectedWallet: (wallet: Wallet) => void;
     addWallet: (wallet: { name: string }) => Promise<void>;
     addExpense: (expense: Expense) => Promise<void>;
-    getExpenses: (params: QueryParams) => Promise<Expense[]>;
+    getExpenses: (params?: QueryParams) => Promise<Expense[]>;
     getIncomes: (params?: QueryParams) => Promise<Expense[]>;
     addIncome: (expense: Expense) => Promise<void>;
     removeExpense: (_id: string) => Promise<void>;
     removeIncome: (_id: string) => Promise<void>;
-    getStatistics: () => Promise<WalletStats>;
+    getStatistics: (params?: QueryParams) => Promise<WalletStats>;
 };
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
@@ -84,8 +84,8 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
     const addIncome = withWalletAndData(incomesService.add);
     const addExpense = withWalletAndData(expensesService.add);
     const removeIncome = withWalletAndData(incomesService.remove);
-    const getStatistics = withWallet(statisticsService.getAll);
-    const getExpenses = withWallet((walletId: string, params: QueryParams) => expensesService.getAll(params, walletId));
+    const getStatistics = withWallet((walletId: string, params: QueryParams = {}) => statisticsService.getAll(walletId, params));
+    const getExpenses = withWallet((walletId: string, params: QueryParams = {}) => expensesService.getAll(params, walletId));
     const getIncomes = withWallet(incomesService.getAll);
     const removeExpense = withWalletAndData(expensesService.remove);
 
