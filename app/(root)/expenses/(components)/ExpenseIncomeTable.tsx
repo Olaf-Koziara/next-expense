@@ -66,7 +66,7 @@ const ExpenseIncomeTable = ({type, triggerFetch}: Props) => {
     ];
 
     return (
-        <div>
+        <div className='max-h-[70vh] overflow-auto'>
 
             {columns &&
                 <DataTable columns={columns}
@@ -75,6 +75,7 @@ const ExpenseIncomeTable = ({type, triggerFetch}: Props) => {
                            triggerFetch={triggerFetch}
                            manualFiltering={true}
                            manualSorting={true}
+                           manualPagination={true}
                            service={type === 'income' ? incomesService : expensesService}/>}
 
         </div>

@@ -4,7 +4,7 @@ import {useWallet} from '@/context/WalletContext';
 import {Wallet} from '@/types/Wallet';
 import {PlusCircleIcon, Wallet2} from "lucide-react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import WalletForm from "@/components/WalletList/WalletForm";
+import WalletForm from "@/app/(root)/(components)/WalletList/WalletForm";
 import {
     DropdownMenu,
     DropdownMenuContent,
