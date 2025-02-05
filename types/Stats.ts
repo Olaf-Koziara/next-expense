@@ -6,6 +6,6 @@ export type WalletStats = {
     summedExpenseCategoriesAndDate: CategoryDateTotal[]
     summedIncomeCategoriesAndDate: CategoryDateTotal[]
 }
-export type CategoryTotal = { category: string, total: number };
+export type CategoryTotal = { category: string };
 export type CategoryDateTotal = { category: string, date: string, amount: number };
 

@@ -1,6 +1,6 @@
-export type SyntheticEvent = {
+export type SyntheticEvent<T> = {
     target: {
-        value: string,
+        value: T,
         name: string | undefined,
     },
     type: string
