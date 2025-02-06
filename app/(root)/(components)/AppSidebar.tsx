@@ -15,8 +15,8 @@ import {
 import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
 import {auth} from "@/auth";
-import WalletListWrapper from "@/components/WalletList/WalletListWrapper";
-import ClientProviders from "@/components/ClientProviders";
+import WalletListWrapper from "@/app/(root)/(components)/WalletList/WalletListWrapper";
+import ClientProviders from "@/app/(root)/(components)/ClientProviders";
 
 
 const items = [
@@ -85,7 +85,7 @@ export const AppSidebar = async () => {
                             </SidebarMenuItem>
                             {
                                 session && items.map((item) => (
-                                    <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuItem key={item.url}>
                                         <SidebarMenuButton asChild>
                                             <a href={item.url}>
                                                 <div>

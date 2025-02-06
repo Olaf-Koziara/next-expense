@@ -2,6 +2,7 @@
 import React, {useState} from 'react';
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
+import {z} from "zod";
 
 type Props = {
     type: 'expense' | 'income';
@@ -14,6 +15,7 @@ const ExpenseIncomeCategoryForm = ({type, onSubmit}: Props) => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
+
             if (onSubmit) onSubmit(name);
 
             setName('');

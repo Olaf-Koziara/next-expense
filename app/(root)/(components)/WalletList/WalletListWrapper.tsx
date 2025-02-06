@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import {Suspense} from "react";
 
-const WalletList = dynamic(() => import('@/components/WalletList/WalletList'), {ssr: false});
+const WalletList = dynamic(() => import('@/app/(root)/(components)/WalletList/WalletList'), {ssr: false});
 
 const WalletListWrapper = () => {
     return (

@@ -1,9 +1,9 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 
-import ExpenseIncomeForm from "@/components/form/ExpenseIncomeForm";
-import ExpenseIncomeTable from "@/components/ExpenseIncomeTable";
-import ExpenseIncomeToggle from "@/components/ExpenseIncomeToggle";
+import ExpenseIncomeForm from "@/app/(root)/expenses/(components)/ExpenseIncomeForm";
+import ExpenseIncomeTable from "@/app/(root)/expenses/(components)/ExpenseIncomeTable";
+import ExpenseIncomeToggle from "@/app/(root)/expenses/(components)/ExpenseIncomeToggle";
 import {TransactionType} from "@/types/Expense";
 
 // Separate the columns generation logic
