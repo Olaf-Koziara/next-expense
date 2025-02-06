@@ -12,6 +12,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {expensesService} from "@/app/services/expenses";
 import {incomesService} from "@/app/services/incomes";
 import {useWallet} from "@/context/WalletContext";
+import {generateExpenses} from "@/utils/mock";
 
 type FormData = z.infer<typeof FormSchema>;
 const FormSchema = z.object({
@@ -30,7 +31,7 @@ const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
     const form = useForm<FormData>({resolver: zodResolver(FormSchema)});
     const {categories} = useCategories({type: type});
     const {addIncome, addExpense} = useWallet()
-
+  
     const onSubmit: SubmitHandler<FormData> = async (data, event) => {
         event?.preventDefault();
 
@@ -48,7 +49,7 @@ const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
         <div>
             <Form {...form}>
                 <form className='flex gap-1' onSubmit={form.handleSubmit(onSubmit)}>
-                    <DatePicker error={form.formState.errors.date} mode='single'
+                    <DatePicker error={form.formState.errors.date} mode='single' formatValueToString={true}
                                 dateFormat='dd-MM-yyyy' {...form.register('date', {required: true})} />
                     <Input error={form.formState.errors.title}
                            placeholder='Title' {...form.register('title', {required: true})} />

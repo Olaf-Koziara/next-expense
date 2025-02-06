@@ -1,5 +1,5 @@
 import React from 'react';
-import SignInButtonOAuth from "@/components/SignInButtonOAuth";
+import SignInButtonOAuth from "@/app/(root)/(components)/SignInButtonOAuth";
 import SignInForm from "@/app/auth/signIn/(components)/SignInForm";
 import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
