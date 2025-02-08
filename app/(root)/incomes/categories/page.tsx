@@ -1,11 +1,11 @@
 'use client'
-import React, {useEffect, useState} from 'react';
-import ExpenseIncomeCategoryForm from "@/components/form/ExpenseIncomeCategoryForm";
+import React from 'react';
 import {Category} from "@/types/Category";
 import useCategories from '@/hooks/useCategories';
 import {DataTable} from "@/components/DataTable/DataTable";
 import {ColumnDef} from "@tanstack/react-table";
 import {incomeCategoriesService} from "@/app/services/incomeCategories";
+import ExpenseIncomeCategoryForm from "@/app/(root)/expenses/categories/(components)/ExpenseIncomeCategoryForm";
 
 const Page = () => {
     const {categories, addCategory} = useCategories({type: 'income'})
@@ -18,7 +18,8 @@ const Page = () => {
                     <ExpenseIncomeCategoryForm onSubmit={addCategory} type={'income'}/>
                 </div>
                 <DataTable columns={columns} data={categories} itemRemovable={true}
-                           service={incomeCategoriesService}></DataTable>
+                           service={incomeCategoriesService}>
+                </DataTable>
             </div>
         </div>
 
