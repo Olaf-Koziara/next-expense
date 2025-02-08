@@ -13,7 +13,8 @@ const UseCategories = <T extends TransactionType>({type}: Props<T>) => {
 
     const fetchCategories = async () => {
         const response = await fetch(`/api/${type}Categories`);
-        const data: Category[] = CategoryArraySchema.parse(await response.json());
+        const responseJson = await response.json();
+        const data: Category[] = CategoryArraySchema.parse(responseJson.data);
         setCategories(data);
     };
 
