@@ -13,23 +13,24 @@ type BaseCalendarInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 
 interface SingleCalendarInputProps extends BaseCalendarInputProps {
     mode: 'single';
     value?: Date | string;
-    onChange?: (event: SyntheticEvent) => void;
+    onChange?: (event: SyntheticEvent<Date | string>) => void;
 }
 
 interface RangeCalendarInputProps extends BaseCalendarInputProps {
     mode: 'range';
     value?: DateRange | string;
-    onChange?: (event: SyntheticEvent) => void;
+    onChange?: (event: SyntheticEvent<DateRange | string>) => void;
 }
 
 interface MultipleCalendarInputProps extends BaseCalendarInputProps {
     mode: 'multiple';
     value?: Date[] | string;
-    onChange?: (event: SyntheticEvent) => void;
+    onChange?: (event: SyntheticEvent<Date[] | string>) => void;
 }
 
 type CalendarInputProps = (SingleCalendarInputProps | RangeCalendarInputProps | MultipleCalendarInputProps) & {
-    dateFormat?: string,
+    dateFormat?: string
+    formatValueToString?: boolean
     error?: FieldError
 };
 type CalendarInputValue = Date | DateRange | Date[] | undefined;
@@ -38,8 +39,8 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
                                                                             value,
                                                                             onChange,
                                                                             mode,
+                                                                            formatValueToString,
                                                                             dateFormat = "PPP",
-                                                                            error,
                                                                             ...props
                                                                         }, ref) => {
     const [dateValue, setDateValue] = useState<CalendarInputValue>();
@@ -49,20 +50,38 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
         } else {
             setDateValue(value);
         }
-    }, [])
+    }, [value])
     const handleDateSelect = (date: CalendarInputValue) => {
         setDateValue(date);
         if (onChange && date) {
-            let formattedValue = '';
-            formattedValue = dateValueToString(date);
-            const syntheticEvent: SyntheticEvent = {
-                target: {
-                    value: formattedValue,
-                    name: props.name
-                },
-                type: 'change'
-            };
-            onChange(syntheticEvent);
+            let eventValue = formatValueToString ? dateValueToString(date) : date;
+            if (mode === "single") {
+                onChange({
+                    target: {
+                        value: eventValue as Date | string,
+                        name: props.name,
+                    },
+                    type: "change",
+                });
+            } else if (mode === "range") {
+                onChange({
+                    target: {
+                        value: eventValue as DateRange | string,
+                        name: props.name,
+                    },
+                    type: "change",
+                });
+            } else {
+
+                onChange({
+                    target: {
+                        value: eventValue as Date[] | string,
+                        name: props.name,
+                    },
+                    type: "change",
+                });
+            }
+
         }
     };
     const dateValueToString = (dateValue: CalendarInputValue) => {
@@ -106,8 +125,6 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
 
     return (
         <div className="relative">
-            {error && <span
-                className="error-message absolute -translate-y-full top-0 text-red-600 text-sm">{error.message}</span>}
             <input
                 type="hidden"
                 ref={ref}

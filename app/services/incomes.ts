@@ -1,11 +1,11 @@
 import {api, QueryParams} from "@/app/services/api";
 import {Income} from "@/types/Income";
 import {endpoints} from "@/app/services/endpoints";
-import {Service} from "@/types/Service";
+import {ResponseWithArray, Service} from "@/types/Service";
 
-const getAll = async (walletId: string, params?: QueryParams): Promise<Income[]> => {
-    console.log(walletId)
-    return api.GET<Income[]>(endpoints.income, {wallet: walletId, ...params})
+const getAll = async (params: QueryParams, walletId: string): Promise<ResponseWithArray<Income>> => {
+
+    return api.GET<ResponseWithArray<Income>>(endpoints.income, {walletId, ...params})
 }
 type AddIncomeData = {
     selectedWalletId: string,

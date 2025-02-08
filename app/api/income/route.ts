@@ -7,6 +7,7 @@ import {getSortParamsFromUrl, sortItems} from "@/app/utils/sort";
 import {Income} from "@/types/Income";
 import mongoose, {PipelineStage} from "mongoose";
 import {getFilterMatchStageFromUrl} from "@/app/api/expense/filter";
+import {getPaginationFromUrl} from "@/utils/pagination";
 
 
 export const POST = async (req: Request) => {
@@ -63,34 +64,53 @@ export const GET = async (req: Request) => {
             return NextResponse.json({error: 'Wallet id required',}, {status: 400});
         }
         const {sortBy, sortOrder} = getSortParamsFromUrl(url);
+        const {skip, pageSize} = getPaginationFromUrl(url);
 
         const matchStage = getFilterMatchStageFromUrl(url);
         const pipeline: PipelineStage[] = [
             {
                 $match: {_id: new mongoose.Types.ObjectId(walletId)}
-            } as PipelineStage,
+            },
             {
                 $unwind: '$incomes'
-            } as PipelineStage,
+            },
             {
                 $match: matchStage
-            } as PipelineStage,
+            },
             {
                 $sort: {
                     [`incomes.${sortBy}`]: sortOrder === 'asc' ? 1 : -1
                 }
-            } as PipelineStage,
+            },
             {
-                $group: {
-                    _id: '$_id',
-                    incomes: {$push: '$incomes'}
+                $facet: {
+                    data: [
+                        {$skip: skip},
+                        {$limit: pageSize},
+                        {
+                            $group: {
+                                _id: '$_id',
+                                incomes: {$push: '$incomes'}
+                            }
+                        }
+                    ],
+                    totalCount: [
+                        {
+                            $count: 'count'
+                        }
+                    ]
                 }
-            } as PipelineStage
+            }
         ];
 
         const [result] = await Wallet.aggregate(pipeline);
+        const totalCount = result?.totalCount[0]?.count || 0;
+        const incomes = result?.data[0]?.incomes || [];
 
-        return NextResponse.json(result?.incomes || [], {status: 200});
+
+        return NextResponse.json({
+            data: incomes || [], totalCount
+        }, {status: 200});
     } catch (error) {
         console.error(error);
         return NextResponse.json({success: false, message: 'Internal Server Error'}, {status: 500});

@@ -39,7 +39,7 @@ import {
 import React, {useEffect, useMemo, useState} from "react";
 import DataTableFilter from "@/components/DataTable/DataTableFilter";
 import {Column, ColumnFilter, RowData} from "@tanstack/table-core";
-import {Service} from "@/types/Service";
+import {ResponseWithArray, Service} from "@/types/Service";
 import DataTableEditField from "@/components/DataTable/DataTableEditField";
 import {generateFilterObject} from "@/components/DataTable/utils";
 import DataTableHeader from "@/components/DataTable/DataTableHeader";
@@ -60,6 +60,7 @@ type Props<TData, TValue> = {
     data?: TData[]
     manualSorting?: boolean,
     manualFiltering?: boolean,
+    manualPagination?: boolean,
     triggerFetch?: boolean
 
 }
@@ -75,8 +76,11 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                                                                         onItemRemove,
                                                                         service,
                                                                         dataParentId,
-                                                                        manualFiltering = false, manualSorting = false,
-                                                                        triggerFetch = false, ...rest// Parent ID for fetching
+                                                                        manualFiltering = false,
+                                                                        manualSorting = false,
+                                                                        manualPagination = false,
+                                                                        triggerFetch = false,
+                                                                        ...rest// Parent ID for fetching
                                                                     }: Props<TData, TValue>) {
     const [pagination, setPagination] = useState<PaginationState>({pageIndex: 0, pageSize: 10});
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -84,14 +88,20 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
     const [tableData, setTableData] = useState<TData[]>(data || []);
     const [rowInEditId, setRowEditId] = useState<string | null>(null);
     const [rowInEdit, setRowInEdit] = useState<TData>();
+    const [pageCount, setPageCount] = useState(0);
 
     const {isLoading, startLoading, stopLoading, setErrorState, resetError} = useStatus();
 
     const pageSizeOptions = [5, 10, 15, 20];
 
     useEffect(() => {
-        fetchData();
-    }, [service, dataParentId, sorting, columnFilters, triggerFetch]);
+        if (!data) {
+            fetchData();
+        }
+    }, [service, dataParentId, sorting, columnFilters, pagination, triggerFetch]);
+    useEffect(() => {
+        setPagination({pageIndex: 0, pageSize: 10});
+    }, [columnFilters]);
 
     useEffect(() => {
         if (data) {
@@ -113,6 +123,8 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
         onColumnFiltersChange: setColumnFilters,
         manualSorting,
         manualFiltering,
+        manualPagination,
+        pageCount,
         state: {
             pagination,
             sorting,
@@ -128,16 +140,20 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
             if (!tableData || tableData.length === 0) {
                 startLoading();
             }
-            let result: TData[] = [];
+
+            let response: ResponseWithArray<TData> = {data: [], totalCount: 0};
 
             if (dataParentId) {
-                result = await service.getAll(filter, dataParentId);
+
+                response = await service.getAll(filter, dataParentId);
             } else {
                 if (dataParentId !== null) {
-                    result = await service.getAll(filter);
+                    response = (await service.getAll(filter));
                 }
             }
-            setTableData(result)
+            setTableData(response.data)
+
+            setPageCount(Math.ceil(response.totalCount / pagination.pageSize))
             stopLoading();
 
         }
@@ -145,7 +161,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
     };
     const handlePageSizeChange = (size: number) => {
         setPagination({...pagination, pageSize: size});
-        fetchData()
+
     }
     const handleItemEdit = async (row: Row<TData>) => {
         setRowEditId(row.id);
@@ -189,13 +205,13 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
         const updatedData = tableData.filter((data) => data !== item);
         setTableData(updatedData);
         if (service) {
-            startLoading();
+
             if (dataParentId) {
                 await service.remove((item as any)._id, dataParentId);
             } else {
                 await service.remove((item as any)._id,);
             }
-            stopLoading();
+
         }
         if (onItemRemove) {
             onItemRemove(item);
@@ -234,7 +250,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                             </TableCell>
                         </TableRow> :
 
-                        table.getRowModel().rows?.length ? (
+                        table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow key={row.id}>
                                     {row.getVisibleCells().map((cell) => (
@@ -281,7 +297,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                         )}
                 </TableBody>
             </Table>
-            {data && data.length > pagination.pageSize && <div className="flex justify-between w-full px-2 py-1">
+            {<div className="flex justify-between w-full px-2 py-1">
                 <Button size={"sm"} onClick={table.previousPage}>
                     <ArrowLeftCircleIcon/>
                 </Button>

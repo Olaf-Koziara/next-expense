@@ -17,9 +17,9 @@ export const GET = async (req: NextApiRequest) => {
             if (!user) {
                 return Response.json({message: 'User not found'}, {status: 404});
             }
+            const length = user.incomeCategories.length | 0;
 
-
-            return Response.json(user.incomeCategories, {status: 200});
+            return Response.json({data: user.incomeCategories, totalCount: length}, {status: 200});
         }
     } catch (error) {
         return Response.json({message: 'Error', error}, {status: 500})

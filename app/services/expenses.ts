@@ -1,10 +1,11 @@
 import {Expense, ExpenseWithWalletId} from "@/types/Expense";
 import {api, QueryParams} from "@/app/services/api";
 import {endpoints} from "@/app/services/endpoints";
+import {ResponseWithArray, Service} from "@/types/Service";
 
-const getAll = async (params: QueryParams, walletId: string): Promise<Expense[]> => {
+const getAll = async (params: QueryParams, walletId: string) => {
 
-    return api.GET<Expense[]>(endpoints.expense, {walletId, ...params});
+    return api.GET<ResponseWithArray<Expense>>(endpoints.expense, {walletId, ...params});
 
 };
 
@@ -31,7 +32,7 @@ const put = async (data: Expense, walletId: string): Promise<Expense> => {
     return api.PUT<Expense>(endpoints.expense, {...data});
 };
 
-export const expensesService = {
+export const expensesService: Service<Expense> = {
     getAll,
     add,
     remove,

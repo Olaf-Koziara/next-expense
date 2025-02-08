@@ -1,9 +1,10 @@
 import {api} from "@/app/services/api";
 import {Category} from "@/types/Category";
 import {endpoints} from "@/app/services/endpoints";
+import {ResponseWithArray} from "@/types/Service";
 
 const getAll = async () => {
-    return api.GET<Category[]>(endpoints.incomeCategory)
+    return api.GET<ResponseWithArray<Category>>(endpoints.incomeCategory)
 }
 const add = async (category: Category) => {
     return api.POST<Category>(endpoints.incomeCategory, category)
