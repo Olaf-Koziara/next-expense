@@ -26,8 +26,9 @@ const ExpenseIncomeCategoryForm = ({type, onSubmit}: Props) => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className='flex'>
+            <div className='flex justify-center'>
                 <Input
+                    className='w-full'
                     type="text"
                     id="name"
                     placeholder={`${type.charAt(0).toUpperCase() + type.slice(1)} Category Name`}
