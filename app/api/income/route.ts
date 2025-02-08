@@ -184,7 +184,7 @@ export const PATCH = async (req: Request) => {
             return NextResponse.json({error: "Unauthorized!"}, {status: 401});
         }
 
-        const {walletId, _id, ...updateData}: { walletId: string, _id: string } & Partial<Income> = await req.json();
+        const {walletId, ...incomeData}: { walletId: string, _id: string } & Partial<Income> = await req.json();
 
         const walletOwner = await User.findOne({
             email: session.user.email,
@@ -196,8 +196,8 @@ export const PATCH = async (req: Request) => {
         }
 
         const wallet = await Wallet.findOneAndUpdate(
-            {_id: new mongoose.Types.ObjectId(walletId), "incomes._id": new mongoose.Types.ObjectId(_id)},
-            {$set: {"incomes.$": updateData}},
+            {_id: new mongoose.Types.ObjectId(walletId), "incomes._id": new mongoose.Types.ObjectId(incomeData._id)},
+            {$set: {"incomes.$": incomeData}},
             {new: false}
         );
 

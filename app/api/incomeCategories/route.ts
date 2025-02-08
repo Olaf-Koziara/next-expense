@@ -3,6 +3,7 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {User} from "@/models/user";
 import {IncomeCategory} from "@/models/incomeCategory";
+import {Category} from "@/types/Category";
 
 export const GET = async (req: NextApiRequest) => {
     try {
@@ -114,9 +115,9 @@ export const PATCH = async (req: Request) => {
             return Response.json({message: 'Unauthorized'}, {status: 401});
         }
 
-        const {_id, ...updateData} = await req.json();
+        const categoryData: Category = await req.json();
 
-        if (!_id) {
+        if (!categoryData._id) {
             return Response.json({message: 'Category ID is required'}, {status: 400});
         }
 
@@ -126,7 +127,7 @@ export const PATCH = async (req: Request) => {
             return Response.json({message: 'User not found'}, {status: 404});
         }
 
-        const updatedCategory = await IncomeCategory.findByIdAndUpdate(_id, updateData, {new: true});
+        const updatedCategory = await IncomeCategory.findByIdAndUpdate(categoryData._id, categoryData, {new: true});
 
         if (!updatedCategory) {
             return Response.json({message: 'Category not found'}, {status: 404});
