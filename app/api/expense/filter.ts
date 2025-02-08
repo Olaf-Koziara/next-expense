@@ -1,3 +1,5 @@
+import {TransactionType} from "@/types/Expense";
+
 export type ExpenseFilterParams = {
     category?: string;
     amountStart?: number;
@@ -44,7 +46,7 @@ export const expenseFilterParamConfig: Record<string, {
         mongoOperator: '$lte'
     }
 };
-export const getFilterMatchStageFromUrl = (url: URL) => {
+export const getFilterMatchStageFromUrl = (url: URL, type: TransactionType = 'expense') => {
     const matchStage: Record<string, any> = {};
     for (const [param, config] of Object.entries(expenseFilterParamConfig)) {
         const value = url.searchParams.get(param);
@@ -52,18 +54,18 @@ export const getFilterMatchStageFromUrl = (url: URL) => {
             const transformedValue = config.transform ? config.transform(value) : value;
 
             if (param === 'title') {
-                matchStage['expenses.title'] = {
+                matchStage[`${type}s.title`] = {
                     $regex: transformedValue,
                     $options: 'i'
                 };
             } else if (param === 'dateStart' || param === 'dateEnd') {
-                matchStage['expenses.date'] = matchStage['expenses.date'] || {};
-                matchStage['expenses.date'][config.mongoOperator!] = transformedValue;
+                matchStage[`${type}s.date`] = matchStage[`${type}s.date`] || {};
+                matchStage[`${type}s.date`][config.mongoOperator!] = transformedValue;
             } else if (param === 'amountStart' || param === 'amountEnd') {
-                matchStage['expenses.amount'] = matchStage['expenses.amount'] || {};
-                matchStage['expenses.amount'][config.mongoOperator!] = transformedValue;
+                matchStage[`${type}s.amount`] = matchStage[`${type}s.amount`] || {};
+                matchStage[`${type}s.amount`][config.mongoOperator!] = transformedValue;
             } else {
-                matchStage[`expenses.${param}`] = {
+                matchStage[`${type}s.${param}`] = {
                     [config.mongoOperator!]: transformedValue
                 };
             }
