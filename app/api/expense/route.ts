@@ -197,7 +197,7 @@ export const PATCH = async (req: Request) => {
 
         const wallet = await Wallet.findOneAndUpdate(
             {_id: new mongoose.Types.ObjectId(walletId), "expenses._id": new mongoose.Types.ObjectId(_id)},
-            {$set: {"expenses.$": updateData}},
+            {$set: {"expenses.$": {_id, ...updateData}}},
             {new: false}
         );
 
