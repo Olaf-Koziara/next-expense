@@ -58,7 +58,8 @@ function AreaChart<T>({
                     dataKey={dataKeys[0]}
                     tickLine={false}
                     axisLine={false}
-                    tickMargin={8}
+                    tickMargin={1}
+                    interval={0}
                     tickFormatter={(value) => format(new Date(value), 'dd-MM')}
 
                 />
