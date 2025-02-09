@@ -6,7 +6,7 @@ interface ExpenseIncomeToggleProps {
     onChange: (type: TransactionType) => void;
 }
 
-const ExpenseIncomeToggle: React.FC<ExpenseIncomeToggleProps> = ({onChange}) => {
+const TransactionTypeToggle: React.FC<ExpenseIncomeToggleProps> = ({onChange}) => {
     const [selected, setSelected] = useState<TransactionType>('expense');
 
     const handleToggle = (type: TransactionType) => {
@@ -34,4 +34,4 @@ const ExpenseIncomeToggle: React.FC<ExpenseIncomeToggleProps> = ({onChange}) => 
     );
 };
 
-export default ExpenseIncomeToggle;
+export default TransactionTypeToggle;
