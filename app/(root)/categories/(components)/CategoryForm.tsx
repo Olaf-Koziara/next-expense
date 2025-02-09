@@ -9,7 +9,7 @@ type Props = {
     onSubmit?: (name: string) => void;
 };
 
-const ExpenseIncomeCategoryForm = ({type, onSubmit}: Props) => {
+const CategoryForm = ({type, onSubmit}: Props) => {
     const [name, setName] = useState('');
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -42,4 +42,4 @@ const ExpenseIncomeCategoryForm = ({type, onSubmit}: Props) => {
     );
 };
 
-export default ExpenseIncomeCategoryForm;
+export default CategoryForm;

@@ -252,7 +252,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
 
                         table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id}>
+                                <TableRow className='hover:shadow' key={row.id}>
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {cell.column.columnDef.meta?.editable && rowInEditId === row.id ? (
