@@ -1,15 +1,12 @@
 import {auth} from "@/auth";
-import {User} from "@/models/user";
 import {connectMongoDB} from "@/lib/mongodb";
 import {NextResponse} from "next/server";
-import {getSortParamsFromUrl, sortItems} from "@/utils/sort";
 import {Wallet} from "@/models/wallet";
-import {Expense, SummedExpenseByCategory} from "@/types/Expense";
-import {getCategoryWithBiggestSum, getHighestByKey, sumByKey, sumByKeys} from "@/utils/calculate";
+import {Expense} from "@/types/Expense";
+import {getHighestByKey, sumByKey, sumByKeys} from "@/utils/calculate";
 import {Income} from "@/types/Income";
 import {pieChartColors} from "@/utils/charts";
-import {getFilterMatchStageFromUrl} from "@/app/api/expense/filter";
-import mongoose, {PipelineStage} from "mongoose";
+import mongoose from "mongoose";
 
 export const GET = async (req: Request) => {
 
@@ -109,8 +106,8 @@ export const GET = async (req: Request) => {
     const summedExpenseCategoriesAndDate = sumByKeys(result.expenses, ['category', 'date'], 'amount');
     const summedIncomeCategoriesAndDate = sumByKeys(result.incomes, ['category', 'date'], 'amount');
 
-    let highestExpenseCategory = getHighestByKey(summedExpenseCategories, 'total');
-    let highestIncomeCategory = getHighestByKey(summedIncomeCategories, 'total');
+    const highestExpenseCategory = getHighestByKey(summedExpenseCategories, 'total');
+    const highestIncomeCategory = getHighestByKey(summedIncomeCategories, 'total');
     const balance = result.balance;
     const stats = {
         summedExpenseCategories,

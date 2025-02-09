@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {Category, CategoryArraySchema, CategorySchema} from "@/types/Category";
+import {useEffect, useState} from 'react';
+import {Category, CategoryArraySchema} from "@/types/Category";
 
 
 type TransactionType = 'income' | 'expense';

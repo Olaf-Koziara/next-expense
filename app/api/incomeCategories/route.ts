@@ -5,7 +5,7 @@ import {User} from "@/models/user";
 import {IncomeCategory} from "@/models/incomeCategory";
 import {Category} from "@/types/Category";
 
-export const GET = async (req: NextApiRequest) => {
+export const GET = async () => {
     try {
         await connectMongoDB();
         const session = await auth();

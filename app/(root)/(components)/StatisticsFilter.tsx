@@ -14,7 +14,7 @@ const StatisticsFilter = ({onChange}: Props) => {
     const [dateRange, setDateRange] = useState<StatisticsFilterValue>({from: oneMonthAgo, to: now});
     useEffect(() => {
         onChange(dateRange);
-    }, [dateRange]);
+    }, [dateRange, onChange]);
     const handleDateRangeChange = (e: SyntheticEvent<DateRange | string>) => {
         setDateRange(e.target.value as DateRange);
     }

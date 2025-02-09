@@ -1,5 +1,3 @@
-import {QueryParams} from "@/app/services/api";
-
 export type Service<T> = {
     getAll: (...args: any[]) => Promise<ResponseWithArray<T>>,
     add: (data: T, ...args: any[]) => Promise<void>,

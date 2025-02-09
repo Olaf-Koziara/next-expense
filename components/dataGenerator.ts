@@ -27,16 +27,16 @@ const titles = {
 };
 
 const amounts = {
-    "Jedzenie": { min: 10, max: 200 },
-    "Transport": { min: 20, max: 500 },
-    "Rozrywka": { min: 30, max: 300 },
-    "Rachunki": { min: 100, max: 1000 },
-    "Zakupy": { min: 50, max: 1000 },
-    "Zdrowie": { min: 50, max: 500 },
-    "Edukacja": { min: 100, max: 2000 },
-    "Sport": { min: 30, max: 400 },
-    "Podróże": { min: 200, max: 3000 },
-    "Dom": { min: 50, max: 2000 }
+    "Jedzenie": {min: 10, max: 200},
+    "Transport": {min: 20, max: 500},
+    "Rozrywka": {min: 30, max: 300},
+    "Rachunki": {min: 100, max: 1000},
+    "Zakupy": {min: 50, max: 1000},
+    "Zdrowie": {min: 50, max: 500},
+    "Edukacja": {min: 100, max: 2000},
+    "Sport": {min: 30, max: 400},
+    "Podróże": {min: 200, max: 3000},
+    "Dom": {min: 50, max: 2000}
 };
 
 function randomDate(start: Date, end: Date): Date {
@@ -53,7 +53,7 @@ export function generateExpenses(count: number): Expense[] {
         const category = categories[Math.floor(Math.random() * categories.length)];
         const titleOptions = titles[category];
         const title = titleOptions[Math.floor(Math.random() * titleOptions.length)];
-        const { min, max } = amounts[category];
+        const {min, max} = amounts[category];
         const amount = +(Math.random() * (max - min) + min).toFixed(2);
 
         expenses.push({

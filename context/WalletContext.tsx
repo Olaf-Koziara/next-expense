@@ -1,6 +1,6 @@
 import {Wallet} from "@/types/Wallet";
 import {useSession} from "next-auth/react";
-import {createContext, RefObject, useCallback, useContext, useEffect, useRef, useState} from "react";
+import {createContext, useContext, useEffect, useRef, useState} from "react";
 import {walletsService} from "@/app/services/wallets";
 import {expensesService} from "@/app/services/expenses";
 import {incomesService} from "@/app/services/incomes";
@@ -9,6 +9,8 @@ import {statisticsService} from "@/app/services/statistics";
 import {QueryParams} from "@/app/services/api";
 import {Expense} from "@/types/Expense";
 import {useEvent} from "@/hooks/useEvenet";
+import {ResponseWithArray} from "@/types/Service";
+import {Income} from "@/types/Income";
 
 type WalletContextType = {
     wallets: Wallet[];
@@ -16,8 +18,8 @@ type WalletContextType = {
     setSelectedWallet: (wallet: Wallet) => void;
     addWallet: (wallet: { name: string }) => Promise<void>;
     addExpense: (expense: Expense) => Promise<void>;
-    getExpenses: (params?: QueryParams) => Promise<Expense[]>;
-    getIncomes: (params?: QueryParams) => Promise<Expense[]>;
+    getExpenses: (params?: QueryParams) => Promise<ResponseWithArray<Expense>>;
+    getIncomes: (params?: QueryParams) => Promise<ResponseWithArray<Income>>;
     addIncome: (expense: Expense) => Promise<void>;
     removeExpense: (_id: string) => Promise<void>;
     removeIncome: (_id: string) => Promise<void>;

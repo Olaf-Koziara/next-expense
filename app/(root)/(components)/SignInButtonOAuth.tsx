@@ -5,11 +5,11 @@ import {signIn} from 'next-auth/react';
 import {BuiltInProviderType} from "next-auth/providers/index";
 
 
-const SignInButtonOAuth = ({children, providerType, options, className}: {
+const SignInButtonOAuth = ({children, providerType, className}: {
     children: ReactNode,
     providerType: BuiltInProviderType
     className?: string
-    options?: FormData | ({ redirectTo?: string, } & Record<string, any>)
+    options?: FormData | ({ redirectTo?: string, } & Record<string, string>)
 }) => {
     const handleSignIn = async (providerType: BuiltInProviderType) => {
         await signIn(providerType, {callbackUrl: '/'}).catch(err => {

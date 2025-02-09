@@ -1,11 +1,10 @@
-import {NextApiRequest} from "next";
 import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {User} from "@/models/user";
 import {ExpenseCategory} from "@/models/expenseCategory";
 import {Category} from "@/types/Category";
 
-export const GET = async (req: NextApiRequest) => {
+export const GET = async () => {
     try {
         await connectMongoDB();
         const session = await auth();

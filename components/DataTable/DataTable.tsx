@@ -1,7 +1,6 @@
 "use client"
 
 import {
-    Cell,
     ColumnDef,
     ColumnFiltersState,
     ColumnSort,
@@ -10,35 +9,18 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    Header,
     PaginationState,
     Row,
     SortingState,
     useReactTable,
 } from "@tanstack/react-table"
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {Button} from "@/components/ui/button";
-import {
-    ArrowDown,
-    ArrowLeftCircleIcon,
-    ArrowRightCircleIcon,
-    ArrowUp,
-    ArrowUpDown, Loader2,
-    PenIcon,
-    Save,
-    Trash2
-} from "lucide-react";
+import {ArrowLeftCircleIcon, ArrowRightCircleIcon, Loader2, PenIcon, Save, Trash2} from "lucide-react";
 import React, {useEffect, useMemo, useState} from "react";
 import DataTableFilter from "@/components/DataTable/DataTableFilter";
-import {Column, ColumnFilter, RowData} from "@tanstack/table-core";
+import {ColumnFilter} from "@tanstack/table-core";
 import {ResponseWithArray, Service} from "@/types/Service";
 import DataTableEditField from "@/components/DataTable/DataTableEditField";
 import {generateFilterObject} from "@/components/DataTable/utils";

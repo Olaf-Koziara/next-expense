@@ -9,10 +9,7 @@ import {Button} from '@/components/ui/button';
 import useCategories from "@/hooks/useCategories";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {expensesService} from "@/app/services/expenses";
-import {incomesService} from "@/app/services/incomes";
 import {useWallet} from "@/context/WalletContext";
-import {generateExpenses} from "@/utils/mock";
 
 type FormData = z.infer<typeof FormSchema>;
 const FormSchema = z.object({

@@ -3,8 +3,6 @@ import DebouncedInput from "@/components/ui/debouncedInput";
 
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import CalendarInput from "@/components/ui/datepicker";
-import {ChevronDown, X} from "lucide-react";
-import {Button} from "@/components/ui/button";
 import {useEffect, useState} from "react";
 
 function DataTableFilter<TData, TValue>({column}: { column: Column<TData, TValue> }) {

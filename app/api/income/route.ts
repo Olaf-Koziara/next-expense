@@ -3,7 +3,7 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth,} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
-import {getSortParamsFromUrl, sortItems} from "@/app/utils/sort";
+import {getSortParamsFromUrl} from "@/app/utils/sort";
 import {Income} from "@/types/Income";
 import mongoose, {PipelineStage} from "mongoose";
 import {getFilterMatchStageFromUrl} from "@/app/api/expense/filter";

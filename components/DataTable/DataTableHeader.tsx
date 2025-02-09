@@ -1,8 +1,7 @@
 import React from 'react';
-import {Header} from '@tanstack/react-table';
+import {flexRender, Header} from '@tanstack/react-table';
 import {Button} from '@/components/ui/button';
 import {ArrowDown, ArrowUp, ArrowUpDown} from 'lucide-react';
-import {flexRender} from '@tanstack/react-table';
 
 interface DataTableHeaderProps<TData, TValue> {
     header: Header<TData, TValue>;

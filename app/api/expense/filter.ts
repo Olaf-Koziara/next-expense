@@ -11,7 +11,7 @@ export type ExpenseFilterParams = {
 
 export const expenseFilterParamConfig: Record<string, {
     key: keyof ExpenseFilterParams,
-    transform?: (value: string) => any,
+    transform?: (value: string) => number | string | Date,
     mongoOperator?: string
 }> = {
     category: {

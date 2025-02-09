@@ -3,9 +3,9 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
-import {getSortParamsFromUrl, sortItems, SortOrder} from "@/utils/sort";
+import {getSortParamsFromUrl} from "@/utils/sort";
 import mongoose, {PipelineStage} from "mongoose";
-import {expenseFilterParamConfig, getFilterMatchStageFromUrl} from "@/app/api/expense/filter";
+import {getFilterMatchStageFromUrl} from "@/app/api/expense/filter";
 import {Expense} from "@/types/Expense";
 import {getPaginationFromUrl} from "@/utils/pagination";
 

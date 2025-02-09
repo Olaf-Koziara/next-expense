@@ -1,17 +1,17 @@
 "use client"
 
 import * as React from "react"
+import {ComponentRef} from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import {Check, ChevronDown, ChevronUp, X} from "lucide-react"
 
 import {cn} from "@/lib/utils"
-import {ComponentRef} from "react";
 
 type SelectProps = React.ComponentProps<typeof SelectPrimitive.Root> & { clearable?: boolean };
 const Select = React.forwardRef<
     ComponentRef<typeof SelectPrimitive.Root>,
     SelectProps
->(({children, clearable = false, ...props}, ref) => {
+>(({children, clearable = false, ...props}) => {
     const isClearable = clearable && props.value && props.defaultValue !== undefined && props.defaultValue !== props.value;
     return (
         <SelectPrimitive.Root  {...props}>
@@ -21,7 +21,7 @@ const Select = React.forwardRef<
                 {(isClearable) &&
                     <button
                         type="button"
-                        onClick={(e) => {
+                        onClick={() => {
 
                             if (props.defaultValue !== undefined) {
                                 props.onValueChange?.(props.defaultValue)
@@ -35,7 +35,7 @@ const Select = React.forwardRef<
         </SelectPrimitive.Root>
     )
 })
-
+Select.displayName = 'Select';
 const SelectGroup = SelectPrimitive.Group
 
 const SelectValue = SelectPrimitive.Value

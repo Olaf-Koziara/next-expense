@@ -1,16 +1,14 @@
 'use server';
-import {BookOpen, Home, LibraryIcon, List, UserIcon,} from "lucide-react"
+import {Home, LibraryIcon, List, UserIcon,} from "lucide-react"
 
 import {
     Sidebar,
     SidebarContent,
     SidebarGroup,
     SidebarGroupContent,
-    SidebarGroupLabel,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-
 } from "@/components/ui/sidebar"
 import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
@@ -42,7 +40,7 @@ const items = [
 
 ]
 
-const UserInfo = async ({name, email}: { name: string, email: string }) =>
+const UserInfo = async ({name}: { name: string, email: string }) =>
     <div>
 
         <div className="flex items-center justify-between pb-2">

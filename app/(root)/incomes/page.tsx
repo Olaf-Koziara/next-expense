@@ -1,7 +1,5 @@
 'use client';
 import React, {useState} from 'react';
-import {useWallet} from "@/context/WalletContext";
-import {Income} from "@/types/Income";
 import ExpenseIncomeTable from "@/app/(root)/expenses/(components)/ExpenseIncomeTable";
 import ExpenseIncomeForm from "@/app/(root)/expenses/(components)/ExpenseIncomeForm";
 

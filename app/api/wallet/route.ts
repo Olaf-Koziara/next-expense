@@ -5,7 +5,7 @@ import {auth} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {NextResponse} from "next/server";
 
-export const GET = async (req: NextApiRequest) => {
+export const GET = async () => {
 
     const session = await auth();
 
@@ -19,7 +19,6 @@ export const GET = async (req: NextApiRequest) => {
     if (!user) {
         throw new Error("User does not exist!");
     }
-    Wallet.schema
     const wallets = user.wallets.map((wallet: { _id: string; name: string }) => ({
         _id: wallet._id.toString(),
         name: wallet.name,

@@ -46,7 +46,9 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
     const [dateValue, setDateValue] = useState<CalendarInputValue>();
     useEffect(() => {
         if (typeof value === 'string') {
-            value && setDateValue(stringToDateValue(value));
+            if (value) {
+                setDateValue(stringToDateValue(value));
+            }
         } else {
             setDateValue(value);
         }
@@ -54,7 +56,7 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
     const handleDateSelect = (date: CalendarInputValue) => {
         setDateValue(date);
         if (onChange && date) {
-            let eventValue = formatValueToString ? dateValueToString(date) : date;
+            const eventValue = formatValueToString ? dateValueToString(date) : date;
             if (mode === "single") {
                 onChange({
                     target: {
@@ -155,6 +157,6 @@ const CalendarInput = forwardRef<HTMLInputElement, CalendarInputProps>(({
         </div>
     );
 });
-
+CalendarInput.displayName = 'CalendarInput';
 
 export default CalendarInput;

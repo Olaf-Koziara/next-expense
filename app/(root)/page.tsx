@@ -5,7 +5,7 @@ import {useWallet} from "@/context/WalletContext";
 import ChartPie from "@/components/charts/Pie";
 import {dateRangeValuesToString} from "@/utils/date";
 import Area from "@/components/charts/Area";
-import {prepareExpenseDataForAreaChart, sumByKeys} from "@/utils/calculate";
+import {prepareExpenseDataForAreaChart} from "@/utils/calculate";
 import useCategories from "@/hooks/useCategories";
 import StatisticsFilter, {StatisticsFilterValue} from "@/app/(root)/(components)/StatisticsFilter";
 
@@ -22,7 +22,7 @@ const Dashboard = () => {
         if (selectedWallet) {
             getStatistics(dateRangeValuesToString(statisticsFilter)).then(data => setStatistics(data))
         }
-    }, [selectedWallet, statisticsFilter]);
+    }, [selectedWallet, statisticsFilter, getStatistics]);
 
 
     return (

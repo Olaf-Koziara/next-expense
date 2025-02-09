@@ -1,4 +1,4 @@
-import {useCallback, useEffect, type Dispatch} from "react";
+import {type Dispatch, useCallback, useEffect} from "react";
 import {Wallet} from "@/types/Wallet";
 
 interface AppEvent<PayloadType = unknown> extends Event {
