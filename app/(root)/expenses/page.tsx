@@ -1,12 +1,10 @@
 'use client';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 
 import ExpenseIncomeForm from "@/app/(root)/expenses/(components)/ExpenseIncomeForm";
 import ExpenseIncomeTable from "@/app/(root)/expenses/(components)/ExpenseIncomeTable";
 import TransactionTypeToggle from "@/components/TransactionTypeToggle";
 import {TransactionType} from "@/types/Expense";
-
-// Separate the columns generation logic
 
 
 const Page = () => {

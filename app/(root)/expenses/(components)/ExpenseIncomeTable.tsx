@@ -20,7 +20,7 @@ type Props = {
 const ExpenseIncomeTable = ({type, triggerFetch}: Props) => {
     const {selectedWallet} = useWallet();
     const [columns, setColumns] = useState<ColumnDef<Income | Expense>[]>()
-    const {categories} = useCategories({type})
+    const {categories} = useCategories(type)
 
     useEffect(() => {
         setColumns(getColumns(categories));

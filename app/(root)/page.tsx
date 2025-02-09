@@ -12,8 +12,8 @@ import StatisticsFilter, {StatisticsFilterValue} from "@/app/(root)/(components)
 
 const Dashboard = () => {
     const {getStatistics, selectedWallet} = useWallet();
-    const {categories: expenseCategories} = useCategories({type: 'expense'});
-    const {categories: incomeCategories} = useCategories({type: 'income'});
+    const {categories: expenseCategories} = useCategories('expense');
+    const {categories: incomeCategories} = useCategories('income');
     const [statistics, setStatistics] = useState<WalletStats>();
     const [statisticsFilter, setStatisticsFilter] = useState<StatisticsFilterValue>({from: new Date(), to: new Date()});
 

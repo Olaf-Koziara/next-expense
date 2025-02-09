@@ -29,9 +29,9 @@ type Props = {
 
 const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
     const form = useForm<FormData>({resolver: zodResolver(FormSchema)});
-    const {categories} = useCategories({type: type});
+    const {categories} = useCategories(type);
     const {addIncome, addExpense} = useWallet()
-  
+
     const onSubmit: SubmitHandler<FormData> = async (data, event) => {
         event?.preventDefault();
 
