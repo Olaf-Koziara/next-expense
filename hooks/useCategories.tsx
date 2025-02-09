@@ -3,12 +3,9 @@ import {Category, CategoryArraySchema, CategorySchema} from "@/types/Category";
 
 
 type TransactionType = 'income' | 'expense';
-type Props<T extends TransactionType> = {
-    type: T;
-};
 
 
-const UseCategories = <T extends TransactionType>({type}: Props<T>) => {
+const UseCategories = (type: TransactionType) => {
     const [categories, setCategories] = useState<Category[]>([]);
 
     const fetchCategories = async () => {
@@ -39,7 +36,7 @@ const UseCategories = <T extends TransactionType>({type}: Props<T>) => {
 
     useEffect(() => {
         fetchCategories();
-    }, []);
+    }, [type]);
 
     return {
         categories,
