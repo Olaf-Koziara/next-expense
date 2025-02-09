@@ -13,6 +13,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 
 const WalletList = () => {
     const {wallets, selectedWallet, setSelectedWallet} = useWallet();
@@ -28,9 +29,22 @@ const WalletList = () => {
 
 
             <DropdownMenu modal={false}>
-                <DropdownMenuTrigger> <Wallet2/></DropdownMenuTrigger>
+                <DropdownMenuTrigger>
+                    <DropdownMenuLabel>
+                        <Wallet2/>
+                    </DropdownMenuLabel>
+                </DropdownMenuTrigger>
                 <DropdownMenuContent key='WalletListContent'>
-                    <DropdownMenuLabel>Wallets</DropdownMenuLabel>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <DropdownMenuLabel>Wallets</DropdownMenuLabel>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <div className='text-xs'>Select a wallet</div>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                     <DropdownMenuSeparator/>
                     {wallets.map(wallet =>
                         <DropdownMenuItem key={wallet._id}
