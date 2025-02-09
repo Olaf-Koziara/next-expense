@@ -1,5 +1,5 @@
 'use server';
-import {BookOpen, Home, UserIcon,} from "lucide-react"
+import {BookOpen, Home, LibraryIcon, List, UserIcon,} from "lucide-react"
 
 import {
     Sidebar,
@@ -17,6 +17,7 @@ import {buttonVariants} from "@/components/ui/button";
 import {auth} from "@/auth";
 import WalletListWrapper from "@/app/(root)/(components)/WalletList/WalletListWrapper";
 import ClientProviders from "@/app/(root)/(components)/ClientProviders";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 
 
 const items = [
@@ -24,13 +25,19 @@ const items = [
     {
         url: "/",
         icon: Home,
+        title: 'Dashboard'
     },
     {
-        title: "Expenses",
+        title: "Expenses/Incomes",
         url: "/expenses",
-        icon: BookOpen,
+        icon: List,
 
     },
+    {
+        title: "Categories",
+        url: "/categories",
+        icon: LibraryIcon,
+    }
 
 
 ]
@@ -42,9 +49,18 @@ const UserInfo = async ({name, email}: { name: string, email: string }) =>
             <div>
                 <div className="font-bold pb-2">
 
-                    <div className='flex items-center gap-1 pb-2'>
+                    <div className='flex items-center justify-center'>
                         <Link className='hover:scale-125' href='/user'>
-                            <UserIcon/>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <UserIcon/>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {name}
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </Link>
 
                     </div>
@@ -71,9 +87,8 @@ export const AppSidebar = async () => {
         <Sidebar>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Application</SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu className='items-center'>
+                        <SidebarMenu className='items-center pt-4'>
                             <SidebarMenuItem key='userInfo'>
                                 <ClientProviders>
                                     {session && session.user ?
@@ -85,13 +100,22 @@ export const AppSidebar = async () => {
                             </SidebarMenuItem>
                             {
                                 session && items.map((item) => (
-                                    <SidebarMenuItem key={item.url}>
+                                    <SidebarMenuItem key={item.url} className='pb-2'>
                                         <SidebarMenuButton asChild>
-                                            <a href={item.url}>
-                                                <div>
-                                                    <item.icon className='hover:scale-125 duration-150'/>
-                                                </div>
-                                            </a>
+                                            <TooltipProvider>
+                                                <Tooltip delayDuration={200}>
+                                                    <TooltipTrigger>
+                                                        <a href={item.url}>
+                                                            <div>
+                                                                <item.icon className='hover:scale-125 duration-150'/>
+                                                            </div>
+                                                        </a>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side={'right'} hideWhenDetached={true}>
+                                                        {item.title}
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 ))}
