@@ -108,7 +108,7 @@ export const GET = async (req: Request) => {
         const totalCount = result?.totalCount[0]?.count || 0;
 
         return NextResponse.json({
-            data: result?.data[0].expenses || [], totalCount
+            data: result?.data[0]?.expenses || [], totalCount
         }, {status: 200});
     } catch (error) {
         console.error(error);
