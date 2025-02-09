@@ -20,7 +20,7 @@ const patch = async (data: Partial<Income>, parentId: string): Promise<Income> =
     return api.PATCH<Income>(endpoints.income, {...data, walletId: parentId});
 };
 
-const put = async (data: Income, parentId: string): Promise<Income> => {
+const put = async (data: Income): Promise<Income> => {
     return api.PUT<Income>(endpoints.income, {...data});
 };
 export const incomesService: Service<Income> = {

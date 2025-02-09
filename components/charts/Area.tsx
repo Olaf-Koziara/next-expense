@@ -18,9 +18,6 @@ function AreaChart<T>({
                           data,
                           chartConfig,
                           dataKeys,
-                          valueKeys = ['value'],
-                          title,
-                          description,
 
                       }: Props<T>) {
     if (!chartConfig) {

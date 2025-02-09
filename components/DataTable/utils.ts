@@ -2,7 +2,7 @@ import {ColumnFiltersState, PaginationState, SortingState} from "@tanstack/react
 import {QueryParams} from "@/app/services/api";
 
 export const generateFilterObject = (columnFilter: ColumnFiltersState, sortingState: SortingState, paginationState: PaginationState) => {
-    let filterObject: QueryParams = {};
+    const filterObject: QueryParams = {};
     for (let x = 0; x < columnFilter.length; x++) {
         const item = columnFilter[x];
         const key = columnFilter[x].id;

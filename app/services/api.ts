@@ -1,3 +1,5 @@
+import {Dictionary} from "@/utils/global";
+
 export type QueryParams = Record<string, string>;
 export const BASE_URL = process.env.NEXT_PUBLIC_HOSTNAME;
 
@@ -50,7 +52,7 @@ async function DELETE<T>(url: string, data: T) {
     return res.json();
 }
 
-async function PATCH<T>(url: string, data: Partial<T> & Record<string, any>): Promise<T> {
+async function PATCH<T>(url: string, data: Partial<T> & Dictionary): Promise<T> {
     const res = await fetch(url, {
         method: "PATCH",
         headers: {

@@ -48,22 +48,21 @@ type Props<TData, TValue> = {
 }
 
 
-export function DataTable<TData, TValue extends NonNullable<TData>>({
-                                                                        columns,
-                                                                        data,
-                                                                        onSortingChange,
-                                                                        onFilterChange,
-                                                                        onItemEdit,
-                                                                        itemRemovable = false,
-                                                                        onItemRemove,
-                                                                        service,
-                                                                        dataParentId,
-                                                                        manualFiltering = false,
-                                                                        manualSorting = false,
-                                                                        manualPagination = false,
-                                                                        triggerFetch = false,
-                                                                        ...rest// Parent ID for fetching
-                                                                    }: Props<TData, TValue>) {
+export function DataTable<TData extends { _id: string }, TValue extends NonNullable<TData>>({
+                                                                                                columns,
+                                                                                                data,
+                                                                                                onSortingChange,
+                                                                                                onFilterChange,
+                                                                                                onItemEdit,
+                                                                                                itemRemovable = false,
+                                                                                                onItemRemove,
+                                                                                                service,
+                                                                                                dataParentId,
+                                                                                                manualFiltering = false,
+                                                                                                manualSorting = false,
+                                                                                                manualPagination = false,
+                                                                                                triggerFetch = false,
+                                                                                            }: Props<TData, TValue>) {
     const [pagination, setPagination] = useState<PaginationState>({pageIndex: 0, pageSize: 10});
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -72,13 +71,19 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
     const [rowInEdit, setRowInEdit] = useState<TData>();
     const [pageCount, setPageCount] = useState(0);
 
-    const {isLoading, startLoading, stopLoading, setErrorState, resetError} = useStatus();
+    const {isLoading, startLoading, stopLoading} = useStatus();
 
     const pageSizeOptions = [5, 10, 15, 20];
 
     useEffect(() => {
         if (!data) {
             fetchData();
+        }
+        if (onSortingChange) {
+            onSortingChange(sorting);
+        }
+        if (onFilterChange) {
+            onFilterChange(columnFilters);
         }
     }, [service, dataParentId, sorting, columnFilters, pagination, triggerFetch]);
     useEffect(() => {
@@ -189,9 +194,9 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
         if (service) {
 
             if (dataParentId) {
-                await service.remove((item as any)._id, dataParentId);
+                await service.remove((item)._id, dataParentId);
             } else {
-                await service.remove((item as any)._id,);
+                await service.remove((item)._id,);
             }
 
         }
@@ -240,7 +245,7 @@ export function DataTable<TData, TValue extends NonNullable<TData>>({
                                             {cell.column.columnDef.meta?.editable && rowInEditId === row.id ? (
                                                 <DataTableEditField column={cell.column} value={rowInEdit
                                                     ? rowInEdit[cell.column.id as keyof TData]
-                                                    : (row.original as any)[cell.column.id]}
+                                                    : (row.original as Record<string, unknown>)[cell.column.id]}
                                                                     onChange={(value) => handleItemInputChange(value, cell.column.id)
                                                                     }/>
                                             ) : (

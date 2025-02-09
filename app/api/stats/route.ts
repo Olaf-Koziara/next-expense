@@ -24,7 +24,7 @@ export const GET = async (req: Request) => {
     const dateStart = url.searchParams.get("dateFrom");
     const dateEnd = url.searchParams.get("dateTo");
 
-    const dateFilter: Record<string, any> = {};
+    const dateFilter: Record<string, Date> = {};
     if (dateStart) {
         dateFilter.$gte = new Date(dateStart);
     }

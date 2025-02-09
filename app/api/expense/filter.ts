@@ -9,6 +9,15 @@ export type ExpenseFilterParams = {
     dateEnd?: Date;
 };
 
+interface MongoQuery {
+    $regex?: string;
+    $options?: string;
+    $gte?: string | number | Date;
+    $lte?: string | number | Date;
+
+    [operator: string]: unknown;
+}
+
 export const expenseFilterParamConfig: Record<string, {
     key: keyof ExpenseFilterParams,
     transform?: (value: string) => number | string | Date,
@@ -47,7 +56,7 @@ export const expenseFilterParamConfig: Record<string, {
     }
 };
 export const getFilterMatchStageFromUrl = (url: URL, type: TransactionType = 'expense') => {
-    const matchStage: Record<string, any> = {};
+    const matchStage: Record<string, MongoQuery> = {};
     for (const [param, config] of Object.entries(expenseFilterParamConfig)) {
         const value = url.searchParams.get(param);
         if (value) {
@@ -55,7 +64,7 @@ export const getFilterMatchStageFromUrl = (url: URL, type: TransactionType = 'ex
 
             if (param === 'title') {
                 matchStage[`${type}s.title`] = {
-                    $regex: transformedValue,
+                    $regex: transformedValue as string,
                     $options: 'i'
                 };
             } else if (param === 'dateStart' || param === 'dateEnd') {

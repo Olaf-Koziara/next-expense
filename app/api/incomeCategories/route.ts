@@ -1,4 +1,3 @@
-import {NextApiRequest} from "next";
 import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {User} from "@/models/user";

@@ -2,6 +2,7 @@ import {Expense, ExpenseWithWalletId} from "@/types/Expense";
 import {api, QueryParams} from "@/app/services/api";
 import {endpoints} from "@/app/services/endpoints";
 import {ResponseWithArray, Service} from "@/types/Service";
+import {Dictionary} from "@/utils/global";
 
 const getAll = async (params: QueryParams, walletId: string) => {
 
@@ -22,12 +23,12 @@ const remove = async (_id: string, walletId: string): Promise<void> => {
     });
 };
 
-const patch = async (data: Partial<Expense>, walletId: string): Promise<Expense> => {
+const patch = async (data: Partial<Expense> & Dictionary, walletId: string): Promise<Expense> => {
 
     return api.PATCH<Expense>(endpoints.expense, {...data, walletId});
 };
 
-const put = async (data: Expense, walletId: string): Promise<Expense> => {
+const put = async (data: Expense): Promise<Expense> => {
 
     return api.PUT<Expense>(endpoints.expense, {...data});
 };

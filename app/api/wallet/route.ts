@@ -1,6 +1,5 @@
 import {connectMongoDB} from "@/lib/mongodb";
 import {User} from "@/models/user";
-import {NextApiRequest} from "next";
 import {auth} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {NextResponse} from "next/server";

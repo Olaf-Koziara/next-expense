@@ -13,7 +13,7 @@ export const sortItems = <T, >(items: T[], sortBy: keyof T, order: SortOrder = '
 export const getSortParamsFromUrl = (url: URL) => {
     const sortBy: string = url.searchParams.get("sortBy") ?? 'title';
     const orderParam = url.searchParams.get("sortOrder") ?? '';
-    let sortOrder: SortOrder = orderParam === 'asc' || 'desc' ? orderParam as SortOrder : 'asc';
+    const sortOrder: SortOrder = orderParam === 'asc' || 'desc' ? orderParam as SortOrder : 'asc';
     return {
         sortOrder,
         sortBy

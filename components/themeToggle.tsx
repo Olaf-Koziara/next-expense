@@ -15,7 +15,9 @@ const ThemeToggle = () => {
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
         setMounted(true);
-        window.matchMedia('(prefers-color-scheme: dark)').matches && setTheme('dark');
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            setTheme('dark')
+        }
     }, []);
 
 

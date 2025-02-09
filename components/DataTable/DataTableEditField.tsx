@@ -7,8 +7,8 @@ import CalendarInput from '@/components/ui/datepicker';
 
 type Props<TData, TValue> = {
     column: Column<TData, TValue>;
-    value: any;
-    onChange: (value: any) => void;
+    value: TValue;
+    onChange: (value: TValue) => void;
 }
 
 const DataTableEditField = <TData, TValue>({column, value, onChange}: Props<TData, TValue>) => {
@@ -20,23 +20,23 @@ const DataTableEditField = <TData, TValue>({column, value, onChange}: Props<TDat
             return (
                 <Input
                     type="text"
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
+                    value={value as string}
+                    onChange={(e) => onChange(e.target.value as TValue)}
                 />
             );
         case 'number':
             return (
                 <Input
                     type="number"
-                    value={value}
-                    onChange={(e) => onChange(Number(e.target.value))}
+                    value={value as number}
+                    onChange={(e) => onChange(Number(e.target.value) as TValue)}
                 />
             );
         case 'select':
             return (
                 <Select
-                    value={value}
-                    onValueChange={onChange}
+                    value={value as string}
+                    onValueChange={(value) => onChange(value as TValue)}
                 >
                     <SelectTrigger>
                         <SelectValue placeholder="Select an option"/>
@@ -55,16 +55,16 @@ const DataTableEditField = <TData, TValue>({column, value, onChange}: Props<TDat
                 <CalendarInput
                     mode="single"
                     dateFormat="yyyy-MM-dd"
-                    value={value}
-                    onChange={(event) => onChange(event.target.value)}
+                    value={value as string}
+                    onChange={(event) => onChange(event.target.value as TValue)}
                 />
             );
         default:
             return (
                 <Input
                     type="text"
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
+                    value={value as string}
+                    onChange={(e) => onChange(e.target.value as TValue)}
                 />
             );
     }
