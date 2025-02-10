@@ -11,8 +11,10 @@ financial insights.
 ## Features
 
 - **Expense & Income Tracking**: Add, edit, and delete transactions categorized as income or expenses.
+![Screenshot 2025-02-10 at 17 00 22 (2)](https://github.com/user-attachments/assets/e57b5622-930f-4242-9f6b-7b965bc0acc8)
 - **Date-Based Filtering**: Filter transactions by date range to analyze specific periods.
 - **Transaction Grouping**: Organize transactions into categories (e.g., food, travel, rent, salary).
+- ![Screenshot 2025-02-10 at 17 02 30 (2)](https://github.com/user-attachments/assets/794562cc-1058-4021-bb7c-88119cb6246d)
 - **Data Visualization**: Charts and graphs for financial insights.
 - **Balance Calculation**: View real-time balance updates based on income vs. expenses.
 - **Multi-Currency Support**: Convert and track expenses in different currencies.
