@@ -1,17 +1,12 @@
 "use server"
-import {getServerSession} from 'next-auth/next'
 import {Profile} from "next-auth"
 import {redirect} from "next/navigation"
 import bcrypt from "bcryptjs"
 import {User} from "@/models/user"
 import {connectMongoDB} from "@/lib/mongodb";
-import {authOptions} from "@/auth";
-import {OAuthProviderType} from "next-auth/providers/oauth";
+import {auth} from "@/auth";
+import {OAuthProviderType} from "@auth/core/providers";
 
-
-export async function getUserSession() {
-    return await getServerSession(authOptions)
-}
 
 interface ExtendedProfile extends Profile {
     picture?: string
@@ -19,7 +14,7 @@ interface ExtendedProfile extends Profile {
 
 export async function signInWithOauth(profile: ExtendedProfile, provider: OAuthProviderType) {
     await connectMongoDB()
-
+    if (!profile.email) return Promise.reject();
     const user = await getUserByEmail(profile.email)
 
     if (!user) {
@@ -63,7 +58,7 @@ export interface UpdateUserProfileParams {
 export async function updateUserProfile({
                                             name
                                         }: UpdateUserProfileParams) {
-    const session = await getUserSession();
+    const session = await auth();
     await connectMongoDB()
 
     try {
@@ -96,7 +91,9 @@ export async function signUpWithCredentials({
                                                 email,
                                                 password
                                             }: SignUpWithCredentialsParams) {
+    console.log(email)
     await connectMongoDB()
+
 
     try {
         const user = await User.findOne({email})
@@ -124,12 +121,17 @@ export async function signUpWithCredentials({
 
 type Credentials = Record<"email" | "password", string> | undefined;
 
-export async function signInWithCredentials(credentials: Credentials) {
+export async function signInWithCredentials(credentials: Partial<Record<"email" | "password", string>>) {
 
-    if (!credentials) {
+    if (!credentials || !credentials.password || !credentials.email) {
         throw new Error("Invalid credentials")
     }
     const {email, password} = credentials;
+    console.log(email)
+    if (!email) {
+        throw new Error("Invalid email")
+
+    }
     await connectMongoDB()
     const user = await getUserByEmail(email)
 
@@ -159,7 +161,7 @@ export async function changeUserPassword({
                                              oldPassword,
                                              newPassword
                                          }: ChangeUserPasswordParams) {
-    const session = await getServerSession(authOptions)
+    const session = await auth();
 
     await connectMongoDB()
 
