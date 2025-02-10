@@ -26,11 +26,11 @@ financial insights.
 ## Tech Stack
 
 - **Frontend**: Next.js, React, TypeScript, Tailwind CSS
-- **State Management**: React Context API / Zustand (Optional: Redux Toolkit)
+- **State Management**: React Context API 
 - **Database**: MongoDB with Mongoose
-- **Backend API**: Next.js API Routes (or Express.js if separated backend)
-- **Charting Library**: Recharts / Chart.js
-- **Authentication**: NextAuth.js / Firebase Auth
+- **Backend API**: Next.js API Routes 
+- **Charting Library**: Recharts 
+- **Authentication**: NextAuth.js 
 
 ## Installation & Setup
 
