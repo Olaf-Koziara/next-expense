@@ -1,18 +1,17 @@
-import {NextAuthOptions} from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
-import {GetServerSidePropsContext, NextApiRequest, NextApiResponse} from "next";
-import {getServerSession} from "next-auth/next";
+import NextAuth, {NextAuthConfig} from "next-auth";
 import {signInWithCredentials, signInWithOauth} from "@/actions/auth.actions";
+import Google from "next-auth/providers/google"
+import Credentials from "next-auth/providers/credentials"
 
-export const authOptions: NextAuthOptions = {
+
+export const authConfig: NextAuthConfig = {
     providers: [
-        GoogleProvider({
+        Google({
             clientId: process.env.AUTH_GOOGLE_ID as string,
             clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
             profile: (profile) => signInWithOauth(profile, 'google'),
         }),
-        CredentialsProvider({
+        Credentials({
                 name: "Credentials",
                 id: "credentials",
                 credentials: {
@@ -20,7 +19,7 @@ export const authOptions: NextAuthOptions = {
                     password: {label: "Password", type: "password"},
                 },
 
-                authorize: (credentials) => signInWithCredentials(credentials)
+                authorize: (credentials) => signInWithCredentials(credentials as Partial<Record<"email" | "password", string>>)
             }
         ),
     ],
@@ -32,6 +31,7 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
+    secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
 
         async jwt({token, session, trigger}) {
@@ -47,7 +47,7 @@ export const authOptions: NextAuthOptions = {
             return token;
         },
         async session({session, token}) {
-            if (token) {
+            if (token.email) {
                 session.user = {
                     ...session.user,
                     name: token.name,
@@ -56,14 +56,8 @@ export const authOptions: NextAuthOptions = {
             }
             return session;
         },
+
     },
 };
 
-export function auth(
-    ...args:
-        | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
-        | [NextApiRequest, NextApiResponse]
-        | []
-) {
-    return getServerSession(...args, authOptions)
-}
+export const {auth, handlers: {GET, POST}, signIn, signOut} = NextAuth(authConfig)

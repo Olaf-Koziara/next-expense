@@ -29,7 +29,6 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 
 export const WalletProvider = ({children}: { children: React.ReactNode }) => {
-    const {data: session} = useSession();
     const [wallets, setWallets] = useState<Wallet[]>([]);
     const [selectedWallet, setSelectedWalletState] = useState<Wallet | null>(null);
     const selectedWalletRef = useRef<Wallet | null>(null);
@@ -37,13 +36,13 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
         setSelectedWallet(wallet, false)
     });
     useEffect(() => {
-        if (!session) return;
+
 
         walletsService.getAll().then((data) => {
             setWallets(data);
             setSelectedWallet(data[0] || null);
         });
-    }, [session]);
+    }, []);
     const setSelectedWallet = (wallet: Wallet, dispatchEvent = true) => {
         setSelectedWalletState(wallet);
         selectedWalletRef.current = wallet;
