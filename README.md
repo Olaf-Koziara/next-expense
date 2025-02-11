@@ -1,5 +1,6 @@
 # In production
-
+Trial version: https://next-expense.netlify.app/ 
+Account for testing: test@gmail.com 12test34
 # Budget Management App (Next.js)
 
 ## Overview
