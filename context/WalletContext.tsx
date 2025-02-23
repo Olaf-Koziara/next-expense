@@ -36,24 +36,38 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
         setSelectedWallet(wallet, false)
     });
     useEffect(() => {
-
+        selectedWalletRef.current = selectedWallet;
+    }, [selectedWallet]);
+    useEffect(() => {
 
         walletsService.getAll().then((data) => {
             setWallets(data);
-            setSelectedWallet(data[0] || null);
+            const storedWallet = JSON.parse(localStorage.getItem("selectedWallet") ?? '{}') as Wallet;
+            if (storedWallet) {
+                const wallet = data.find((wallet) => wallet._id === storedWallet._id);
+                if (wallet) {
+                    setSelectedWallet(wallet, true);
+                } else {
+                    setSelectedWallet(data[0] || null);
+                }
+            }
+
+
         });
     }, []);
     const setSelectedWallet = (wallet: Wallet, dispatchEvent = true) => {
         setSelectedWalletState(wallet);
-        selectedWalletRef.current = wallet;
+        storeSelectedWallet(wallet);
         if (dispatchEvent) {
             dispatch(wallet)
         }
 
     }
+    const storeSelectedWallet = (wallet: Wallet) => {
+        localStorage.setItem("selectedWallet", JSON.stringify(wallet));
+    }
 
     const addWallet = async (wallet: { name: string }) => {
-        if (!session) return;
         const newWallet = await walletsService.add(wallet);
         setWallets((prevWallets) => [...prevWallets, newWallet]);
     };
@@ -64,6 +78,7 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
         return (data: T) => {
             const currentWallet = selectedWalletRef.current;
             if (!currentWallet) {
+                alert("No wallet selected");
                 return Promise.reject({message: "No wallet selected"});
             }
             return action(data, currentWallet._id);
