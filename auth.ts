@@ -10,6 +10,7 @@ export const authConfig: NextAuthConfig = {
             clientId: process.env.AUTH_GOOGLE_ID as string,
             clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
             profile: (profile) => signInWithOauth(profile, 'google'),
+
         }),
         Credentials({
                 name: "Credentials",
@@ -34,7 +35,7 @@ export const authConfig: NextAuthConfig = {
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
 
-        async jwt({token, session, trigger}) {
+        async jwt({token, session, trigger, account}) {
             if (trigger === "update" && session?.name) {
                 token.name = session.name;
             }
@@ -42,18 +43,26 @@ export const authConfig: NextAuthConfig = {
             if (trigger === "update" && session?.email) {
                 token.email = session.email;
             }
+            if (account?.provider) {
+                token.provider = account.provider;
 
+            }
 
             return token;
         },
         async session({session, token}) {
+
             if (token.email) {
                 session.user = {
                     ...session.user,
                     name: token.name,
                     email: token.email,
+                    provider: token.provider as string
+
                 };
+
             }
+
             return session;
         },
 

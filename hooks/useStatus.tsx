@@ -1,21 +1,33 @@
-import {useCallback, useState} from "react";
+import {use, useCallback, useState} from "react";
+
+type StatusType = "idle" | "pending" | "success" | "error";
+
+interface StatusState {
+    status: StatusType;
+    error: Error | null;
+    message: string;
+}
 
 const useStatus = () => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
+    const [state, setState] = useState<StatusState>({
+        status: "idle",
+        error: null,
+        message: "",
+    });
 
-    const startLoading = useCallback(() => setIsLoading(true), []);
-    const stopLoading = useCallback(() => setIsLoading(false), []);
-    const resetError = useCallback(() => setError(null), []);
-    const setErrorState = useCallback((err: Error) => setError(err), []);
+    const setStatus = useCallback((status: StatusType) => {
+        setState((prevState) => ({...prevState, status}))
+    }, [])
+    const setMessage = useCallback((message: string) => {
+        setState((prevState) => ({...prevState, message}))
+    }, [])
 
     return {
-        isLoading,
-        error,
-        startLoading,
-        stopLoading,
-        resetError,
-        setErrorState,
+        status: state.status,
+        error: state.error,
+        message: state.message,
+        setStatus,
+        setMessage
     };
 };
 

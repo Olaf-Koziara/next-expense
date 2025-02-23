@@ -16,7 +16,7 @@ const UserSchema = new Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: false,
     },
     expenseCategories: [
         {type: Schema.Types.ObjectId, ref: 'ExpenseCategory'}
