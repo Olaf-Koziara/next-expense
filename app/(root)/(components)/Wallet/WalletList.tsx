@@ -4,7 +4,7 @@ import {useWallet} from '@/context/WalletContext';
 import {Wallet} from '@/types/Wallet';
 import {PlusCircleIcon, Wallet2} from "lucide-react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import WalletForm from "@/app/(root)/(components)/WalletList/WalletForm";
+import WalletForm from "@/app/(root)/(components)/Wallet/WalletForm";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,6 +14,8 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
+import WalletInfo from "@/app/(root)/(components)/Wallet/WalletInfo";
+
 
 const WalletList = () => {
     const {wallets, selectedWallet, setSelectedWallet} = useWallet();
@@ -29,12 +31,13 @@ const WalletList = () => {
 
 
             <DropdownMenu modal={false}>
-                <DropdownMenuTrigger>
-                    <DropdownMenuLabel>
+                <DropdownMenuTrigger className='w-full bg-blue-950 rounded-md hover:bg-gray-700 '>
+                    <DropdownMenuLabel className=' mx-auto w-full flex flex-col items-center'>
                         <Wallet2/>
+                        <WalletInfo/>
                     </DropdownMenuLabel>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent key='WalletListContent'>
+                <DropdownMenuContent>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>

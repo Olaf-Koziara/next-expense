@@ -26,6 +26,7 @@ import DataTableEditField from "@/components/DataTable/DataTableEditField";
 import {generateFilterObject} from "@/components/DataTable/utils";
 import DataTableHeader from "@/components/DataTable/DataTableHeader";
 import useStatus from "@/hooks/useStatus";
+import {cn} from "@/lib/utils";
 
 
 export type SortFilterState = (ColumnSort | ColumnFilter)[];
@@ -71,7 +72,7 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
     const [rowInEdit, setRowInEdit] = useState<TData>();
     const [pageCount, setPageCount] = useState(0);
 
-    const {isLoading, startLoading, stopLoading} = useStatus();
+    const {status, setStatus, isLoading} = useStatus();
 
     const pageSizeOptions = [5, 10, 15, 20];
 
@@ -125,7 +126,7 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
 
         if (service) {
             if (!tableData || tableData.length === 0) {
-                startLoading();
+                setStatus('pending');
             }
 
             let response: ResponseWithArray<TData> = {data: [], totalCount: 0};
@@ -141,7 +142,7 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
             setTableData(response.data)
 
             setPageCount(Math.ceil(response.totalCount / pagination.pageSize))
-            stopLoading();
+            setStatus('success');
 
         }
 
@@ -166,13 +167,13 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
             setRowInEdit(undefined);
 
             if (service) {
-                startLoading();
+                setStatus('pending');
                 if (dataParentId) {
-                    await service.patch(rowInEdit, dataParentId);
+                    await service.patch(rowInEdit, dataParentId).catch(() => setStatus('error'));
                 } else {
-                    await service.patch(rowInEdit);
+                    await service.patch(rowInEdit).catch(() => setStatus('error'));
                 }
-                stopLoading();
+                setStatus('success');
             }
 
         }
@@ -238,15 +239,17 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
                         </TableRow> :
 
                         table.getRowModel().rows.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow className='hover:shadow' key={row.id}>
+                            table.getRowModel().rows.map((row, index) => (
+                                <TableRow className={cn('hover:shadow', 'animate-fade')}
+                                          style={{animationDelay: `${index * 100}ms`}}
+                                          key={row.id}>
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {cell.column.columnDef.meta?.editable && rowInEditId === row.id ? (
                                                 <DataTableEditField column={cell.column} value={rowInEdit
                                                     ? rowInEdit[cell.column.id as keyof TData]
                                                     : (row.original as Record<string, unknown>)[cell.column.id]}
-                                                                    onChange={(value) => handleItemInputChange(value, cell.column.id)
+                                                                    onChange={(value) => handleItemInputChange(value as TValue, cell.column.id)
                                                                     }/>
                                             ) : (
                                                 flexRender(cell.column.columnDef.cell, cell.getContext())
@@ -277,7 +280,8 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                <TableCell colSpan={!itemRemovable ? columns.length : columns.length + 1}
+                                           className="h-24 text-center">
                                     No results.
                                 </TableCell>
                             </TableRow>

@@ -7,6 +7,7 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {OAuthProviderType} from "@auth/core/providers";
 import {ActionResult} from "@/types/types";
+import {Wallet} from "@/models/wallet";
 
 
 interface ExtendedProfile extends Profile {
@@ -93,11 +94,8 @@ export async function signUpWithCredentials({
                                                 name,
                                                 email,
                                                 password
-                                            }: SignUpWithCredentialsParams) {
-    console.log(email)
+                                            }: SignUpWithCredentialsParams): Promise<ActionResult> {
     await connectMongoDB()
-
-
     try {
         const user = await User.findOne({email})
 
@@ -107,18 +105,25 @@ export async function signUpWithCredentials({
 
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
-
+        const wallet = new Wallet({
+            name: "Default",
+            balance: 0
+        })
+        await wallet.save();
         const newUser = new User({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            wallets: [wallet]
+
         })
+
 
         await newUser.save()
 
         return {success: true}
     } catch (error) {
-        redirect(`/error?error=${(error as Error).message}`)
+        return {success: false, message: (error as Error).message}
     }
 }
 
