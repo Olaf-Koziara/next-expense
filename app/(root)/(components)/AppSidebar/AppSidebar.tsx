@@ -13,9 +13,9 @@ import {
 import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
 import {auth} from "@/auth";
-import WalletListWrapper from "@/app/(root)/(components)/WalletList/WalletListWrapper";
 import ClientProviders from "@/app/(root)/(components)/ClientProviders";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
+import {UserPanel} from "@/app/(root)/(components)/AppSidebar/(components)/UserPanel";
 
 
 const items = [
@@ -40,34 +40,6 @@ const items = [
 
 ]
 
-const UserInfo = async ({name}: { name: string, email: string }) =>
-    <div>
-
-        <div className="flex items-center justify-between pb-2">
-            <div>
-                <div className="font-bold pb-2">
-
-                    <div className='flex items-center justify-center'>
-                        <Link className='hover:scale-125' href='/user'>
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <UserIcon/>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        {name}
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                        </Link>
-
-                    </div>
-                </div>
-                <WalletListWrapper/>
-            </div>
-
-        </div>
-    </div>
 const AuthLinks = () => <div>
     <Link className={buttonVariants({variant: 'outline'})}
           href={'/auth/signIn'}>SignIn</Link>
@@ -90,7 +62,7 @@ export const AppSidebar = async () => {
                             <SidebarMenuItem key='userInfo'>
                                 <ClientProviders>
                                     {session && session.user ?
-                                        <UserInfo name={session.user.name ?? ''} email={session.user.email ?? ''}/>
+                                        <UserPanel name={session.user.name ?? ''} email={session.user.email ?? ''}/>
                                         : <div><AuthLinks/></div>
                                     }
                                 </ClientProviders>
