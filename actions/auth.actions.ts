@@ -6,26 +6,28 @@ import {User} from "@/models/user"
 import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {OAuthProviderType} from "@auth/core/providers";
+import {ActionResult} from "@/types/types";
 
 
 interface ExtendedProfile extends Profile {
     picture?: string
 }
 
+
 export async function signInWithOauth(profile: ExtendedProfile, provider: OAuthProviderType) {
     await connectMongoDB()
     if (!profile.email) return Promise.reject();
-    const user = await getUserByEmail(profile.email)
+    let user = await getUserByEmail(profile.email)
 
     if (!user) {
-        const newUser = new User({
+        user = new User({
             name: profile.name,
             email: profile.email,
             image: profile.picture,
             provider
         })
 
-        await newUser.save()
+        await user.save()
     }
 
     return {
@@ -33,6 +35,7 @@ export async function signInWithOauth(profile: ExtendedProfile, provider: OAuthP
         name: user.name,
         email: user.email,
         image: user.image,
+        provider
     };
 
 }
@@ -127,7 +130,6 @@ export async function signInWithCredentials(credentials: Partial<Record<"email" 
         throw new Error("Invalid credentials")
     }
     const {email, password} = credentials;
-    console.log(email)
     if (!email) {
         throw new Error("Invalid email")
 
@@ -157,10 +159,11 @@ export interface ChangeUserPasswordParams {
     newPassword: string
 }
 
+
 export async function changeUserPassword({
                                              oldPassword,
                                              newPassword
-                                         }: ChangeUserPasswordParams) {
+                                         }: ChangeUserPasswordParams): Promise<ActionResult> {
     const session = await auth();
 
     await connectMongoDB()
@@ -170,11 +173,13 @@ export async function changeUserPassword({
             throw new Error("Unauthorization!")
         }
 
+
         if (session?.user?.provider !== "credentials") {
             throw new Error(`Signed in via ${session?.user?.provider}. Changes not allowed with this method.`)
         }
 
-        const user = await User.findById(session?.user?._id)
+        const {email} = session.user;
+        const user = await User.findOne({email})
 
         if (!user) {
             throw new Error("User does not exist!")
@@ -198,6 +203,27 @@ export async function changeUserPassword({
 
         return {success: true}
     } catch (error) {
-        redirect(`/error?error=${(error as Error).message}`)
+        return {
+            success: false,
+            message: (error as Error).message
+        }
+    }
+}
+
+export const removeUserAccount = async (): Promise<ActionResult> => {
+    const session = await auth();
+
+    await connectMongoDB()
+
+    try {
+        if (!session) {
+            throw new Error("Unauthorization!")
+        }
+        const {email} = session.user;
+        await User.findOneAndDelete({email})
+        return {success: true}
+
+    } catch (error) {
+        return {success: false, message: (error as Error).message}
     }
 }
