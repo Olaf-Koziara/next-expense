@@ -1,5 +1,5 @@
 'use server';
-import {AppSidebar} from "@/app/(root)/(components)/AppSidebar";
+import {AppSidebar} from "@/app/(root)/(components)/AppSidebar/AppSidebar";
 import ClientProviders from "@/app/(root)/(components)/ClientProviders";
 import {SidebarProvider} from "@/components/ui/sidebar";
 
