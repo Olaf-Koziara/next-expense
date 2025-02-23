@@ -6,6 +6,7 @@ interface StatusState {
     status: StatusType;
     error: Error | null;
     message: string;
+    isLoading: boolean;
 }
 
 const useStatus = () => {
@@ -13,10 +14,12 @@ const useStatus = () => {
         status: "idle",
         error: null,
         message: "",
+        isLoading: false,
     });
 
     const setStatus = useCallback((status: StatusType) => {
-        setState((prevState) => ({...prevState, status}))
+        setState((prevState) => ({...prevState, status, isLoading: status === 'pending'}))
+
     }, [])
     const setMessage = useCallback((message: string) => {
         setState((prevState) => ({...prevState, message}))
@@ -26,8 +29,10 @@ const useStatus = () => {
         status: state.status,
         error: state.error,
         message: state.message,
+        isLoading: state.isLoading,
         setStatus,
-        setMessage
+        setMessage,
+
     };
 };
 
