@@ -12,7 +12,7 @@ const SignInButtonOAuth = ({children, providerType, className}: {
     options?: FormData | ({ redirectTo?: string, } & Record<string, string>)
 }) => {
     const handleSignIn = async (providerType: BuiltInProviderType) => {
-        await signIn(providerType, {callbackUrl: '/'}).catch(err => {
+        await signIn(providerType, {redirectTo: '/'}).catch(err => {
             console.error(err);
         })
     }
