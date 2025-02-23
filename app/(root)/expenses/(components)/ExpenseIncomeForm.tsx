@@ -10,6 +10,7 @@ import useCategories from "@/hooks/useCategories";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useWallet} from "@/context/WalletContext";
+import CategoryForm from "@/app/(root)/expenses/(components)/CategoryForm";
 
 type FormData = z.infer<typeof FormSchema>;
 const FormSchema = z.object({
@@ -26,7 +27,7 @@ type Props = {
 
 const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
     const form = useForm<FormData>({resolver: zodResolver(FormSchema)});
-    const {categories} = useCategories(type);
+    const {categories, addCategory} = useCategories(type);
     const {addIncome, addExpense} = useWallet()
 
     const onSubmit: SubmitHandler<FormData> = async (data, event) => {
@@ -75,6 +76,7 @@ const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
                                                         {category.name}
                                                     </SelectItem>
                                                 ))}
+                                                <CategoryForm addCategory={addCategory}/>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
