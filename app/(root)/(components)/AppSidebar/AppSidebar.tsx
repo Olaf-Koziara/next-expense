@@ -59,7 +59,7 @@ export const AppSidebar = async () => {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu className='items-center pt-4'>
-                            <SidebarMenuItem key='userInfo'>
+                            <SidebarMenuItem className='w-full flex-col items-center' key='userInfo'>
                                 <ClientProviders>
                                     {session && session.user ?
                                         <UserPanel name={session.user.name ?? ''} email={session.user.email ?? ''}/>
