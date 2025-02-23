@@ -1,4 +1,6 @@
-import type {Config} from "tailwindcss";
+import {Config} from "tailwindcss";
+import plugin from "tailwindcss/plugin";
+import {range} from "d3-array";
 
 export default {
     darkMode: ["class"],
@@ -65,8 +67,39 @@ export default {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
                 sm: 'calc(var(--radius) - 4px)'
-            }
+            },
+            animation: {
+                fade: 'fadeIn .5s ease-in-out',
+            },
+
+            keyframes: {
+                fadeIn: {
+                    from: {opacity: '0'},
+                    to: {opacity: '1'},
+                },
+            },
         }
     },
-    plugins: [require("tailwindcss-animate")],
+    plugins: [require("tailwindcss-animate"),
+        plugin(({matchUtilities, theme}) => {
+            matchUtilities(
+                {
+                    "animation-delay": (value) => {
+                        console.log(value)
+                        return {
+                            "animation-delay": value,
+                        };
+                    },
+                },
+                {
+                    values: range(20).reduce((a, b) => {
+
+                        const value = b * 100 + 'ms';
+                        return ({
+                            ...a, [b]: value
+                        })
+                    }, {})
+                }
+            );
+        }),],
 } satisfies Config;
