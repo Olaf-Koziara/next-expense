@@ -7,7 +7,7 @@ export const SignOut = ({children}: { children: ReactNode }) => {
     return (
         <form
             action={async () => {
-                await signOut({redirect: true})
+                await signOut({redirect: true, redirectTo: '/auth/signIn'})
             }}
         >
             <Button type="submit">{children}</Button>
