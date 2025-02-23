@@ -10,3 +10,7 @@ declare module '@tanstack/react-table' {
         sortable?: boolean
     }
 }
+export type ActionResult = {
+    success: boolean,
+    message?: string
+}
