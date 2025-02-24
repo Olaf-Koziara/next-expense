@@ -18,8 +18,8 @@ export const GET = async () => {
                 return Response.json({message: 'User not found'}, {status: 404});
             }
             const length = user.expenseCategories.length | 0;
-
-            return Response.json({data: user.expenseCategories, totalCount: length}, {status: 200});
+            const expenseCategories = user.expenseCategories || [];
+            return Response.json({data: expenseCategories, totalCount: length}, {status: 200});
 
 
         }
@@ -58,7 +58,7 @@ export const POST = async (req: Request) => {
         ).populate('expenseCategories');
 
         if (!user) {
-            // Cleanup the created category if user update fails
+
             await ExpenseCategory.findByIdAndDelete(newCategory._id);
             return Response.json({message: 'User not found'}, {status: 404});
         }
