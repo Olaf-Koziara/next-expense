@@ -11,11 +11,11 @@ type SelectProps = React.ComponentProps<typeof SelectPrimitive.Root> & { clearab
 const Select = React.forwardRef<
     ComponentRef<typeof SelectPrimitive.Root>,
     SelectProps
->(({children, clearable = false, ...props}) => {
+>(({children, clearable = false, ...props}, ref) => {
     const isClearable = clearable && props.value && props.defaultValue !== undefined && props.defaultValue !== props.value;
     return (
-        <SelectPrimitive.Root  {...props}>
-            <div className={`flex w-fit ${!isClearable && clearable ? 'pr-6' : ''}`}>
+        <SelectPrimitive.Root   {...props} >
+            <div ref={ref} className={`flex w-fit ${!isClearable && clearable ? 'pr-6' : ''}`}>
 
                 {children}
                 {(isClearable) &&

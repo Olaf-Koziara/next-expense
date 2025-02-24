@@ -14,15 +14,8 @@ type Props<T> = {
     title?: string,
     description?: string
 }
-type DataItem<T> = {
-    [key: string]: string | number;
-} & {
-    [K in string]: keyof T;
-} & {
-    [K in string]: number
-}
 
-const ChartPie = <T extends DataItem<T>>({data, chartConfig, dataKey, nameKey}: Props<T>) => {
+const ChartPie = <T, >({data, chartConfig, dataKey, nameKey}: Props<T>) => {
     const total = React.useMemo(() => {
         return data.reduce((acc, curr) => acc + (curr[dataKey] as number), 0).toFixed(2)
     }, [data])

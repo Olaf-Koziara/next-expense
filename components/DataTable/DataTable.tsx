@@ -72,7 +72,7 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
     const [rowInEdit, setRowInEdit] = useState<TData>();
     const [pageCount, setPageCount] = useState(0);
 
-    const {status, setStatus, isLoading} = useStatus();
+    const {setStatus, isLoading} = useStatus();
 
     const pageSizeOptions = [5, 10, 15, 20];
 
