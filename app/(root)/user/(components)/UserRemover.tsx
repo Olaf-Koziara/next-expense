@@ -2,17 +2,16 @@
 import React from 'react';
 import {Dialog, DialogClose, DialogContent, DialogTrigger} from "@/components/ui/dialog";
 import {Trash} from "lucide-react";
-import {removeUserAccount} from "@/actions/auth.actions";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
 import useStatus from "@/hooks/useStatus";
 import {signOut} from "@/auth";
 import {userService} from "@/app/services/user";
 
 const UserRemover = () => {
-    const {message, setMessage, status, setStatus} = useStatus();
+    const {message, status, setStatus} = useStatus();
     const handleUserAccountRemove = async () => {
         setStatus('pending')
-        await userService.remove().then(res => {
+        await userService.remove().then(() => {
             setStatus('success');
             signOut({redirectTo: '/auth/signIn'})
         })

@@ -1,5 +1,5 @@
 'use server';
-import {Home, LibraryIcon, List, UserIcon,} from "lucide-react"
+import {Home, LibraryIcon, List} from "lucide-react"
 
 import {
     Sidebar,

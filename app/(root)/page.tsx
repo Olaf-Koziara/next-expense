@@ -27,9 +27,9 @@ const Dashboard = () => {
             getStatistics(dateRangeValuesToString(statisticsFilter)).then(data => {
                 setStatistics(data)
                 setStatus('success');
-            }).catch(err => setStatus('error'))
+            }).catch(() => setStatus('error'))
         }
-    }, [selectedWallet, statisticsFilter, getStatistics]);
+    }, [selectedWallet, statisticsFilter, getStatistics, setStatus]);
 
 
     return (

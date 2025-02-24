@@ -18,7 +18,7 @@ export async function PUT(request: Request) {
         }
 
         return NextResponse.json({message: "Password updated successfully."});
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || "Something went wrong."}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: (error as Error).message || "Something went wrong."}, {status: 500});
     }
 }

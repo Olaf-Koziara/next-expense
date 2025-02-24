@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
 import {Button} from "@/components/ui/button";
-import {changeUserPassword} from "@/actions/auth.actions";
 import {Dialog, DialogContent, DialogTrigger} from "@/components/ui/dialog";
 import {Input} from "@/components/ui/input";
 import {SubmitHandler, useForm} from "react-hook-form";
@@ -15,8 +14,8 @@ const UserPasswordChanger = () => {
     const {handleSubmit, register, setError, formState: {errors}} = useForm<PasswordChangeForm>({
         resolver: zodResolver(passwordChangeScheme)
     })
-    const {setStatus, status, setMessage, message, error} = useStatus();
-    const handlePasswordChange: SubmitHandler<PasswordChangeForm> = async (data, event) => {
+    const {setStatus, status, setMessage, message} = useStatus();
+    const handlePasswordChange: SubmitHandler<PasswordChangeForm> = async (data) => {
         setStatus('pending');
         await fetch('/api/auth/account/password', {
             method: 'PUT',
