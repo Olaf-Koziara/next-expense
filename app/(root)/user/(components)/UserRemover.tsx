@@ -6,21 +6,15 @@ import {removeUserAccount} from "@/actions/auth.actions";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
 import useStatus from "@/hooks/useStatus";
 import {signOut} from "@/auth";
+import {userService} from "@/app/services/user";
 
 const UserRemover = () => {
     const {message, setMessage, status, setStatus} = useStatus();
     const handleUserAccountRemove = async () => {
         setStatus('pending')
-        removeUserAccount().then(res => {
-            if (res.success) {
-                setStatus('success')
-                signOut();
-            } else {
-                setStatus('error')
-            }
-            if (res.message) {
-                setMessage(res.message)
-            }
+        await userService.remove().then(res => {
+            setStatus('success');
+            signOut({redirectTo: '/auth/signIn'})
         })
 
     }

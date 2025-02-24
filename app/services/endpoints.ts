@@ -4,5 +4,6 @@ export const endpoints = {
     expenseCategory: '/api/expenseCategories',
     income: '/api/income',
     incomeCategory: '/api/incomeCategories',
-    stats: '/api/stats'
+    stats: '/api/stats',
+    user: '/api/auth/account'
 };

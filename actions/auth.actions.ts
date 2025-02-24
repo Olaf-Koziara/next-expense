@@ -1,6 +1,5 @@
 "use server"
 import {Profile} from "next-auth"
-import {redirect} from "next/navigation"
 import bcrypt from "bcryptjs"
 import {User} from "@/models/user"
 import {connectMongoDB} from "@/lib/mongodb";
@@ -43,6 +42,7 @@ export async function signInWithOauth(profile: ExtendedProfile, provider: OAuthP
 
 
 export async function getUserByEmail(email?: string, select = '') {
+
     if (!email) return;
     await connectMongoDB()
 
@@ -59,36 +59,13 @@ export interface UpdateUserProfileParams {
     name: string
 }
 
-export async function updateUserProfile({
-                                            name
-                                        }: UpdateUserProfileParams) {
-    const session = await auth();
-    await connectMongoDB()
-
-    try {
-        if (!session) {
-            throw new Error("Unauthorization!")
-        }
-
-        const user = await User.findByIdAndUpdate(session?.user?._id, {
-            name
-        }, {new: true}).select("-password")
-
-        if (!user) {
-            throw new Error("User does not exist!")
-        }
-
-        return {success: true}
-    } catch (error) {
-        redirect(`/error?error=${(error as Error).message}`)
-    }
-}
 
 export interface SignUpWithCredentialsParams {
     name: string,
     email: string,
     password: string
 }
+
 
 export async function signUpWithCredentials({
                                                 name,
@@ -127,7 +104,6 @@ export async function signUpWithCredentials({
     }
 }
 
-type Credentials = Record<"email" | "password", string> | undefined;
 
 export async function signInWithCredentials(credentials: Partial<Record<"email" | "password", string>>) {
 
@@ -214,6 +190,7 @@ export async function changeUserPassword({
         }
     }
 }
+
 
 export const removeUserAccount = async (): Promise<ActionResult> => {
     const session = await auth();

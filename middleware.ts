@@ -1,17 +1,21 @@
-import {auth} from "@/auth";
-import {NextRequest, NextResponse} from "next/server";
+import {NextResponse} from 'next/server';
+import {getToken} from 'next-auth/jwt';
 
-export default auth((req) => {
-    console.log(req.nextUrl.pathname)
-    if (!req.auth && !req.nextUrl.pathname.includes('auth')) {
+export async function middleware(req: Request) {
+    const secret = process.env.NEXTAUTH_SECRET;
 
-        return NextResponse.redirect(new URL('/auth/signIn', req.url))
+    const token = await getToken({req, secret});
+    if (!token) {
+        return NextResponse.redirect(new URL('/auth/signIn', req.url));
     }
+
     return NextResponse.next();
-})
+}
+
 
 export const config = {
     matcher: [
         '/((?!api|auth|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
     ],
+
 }

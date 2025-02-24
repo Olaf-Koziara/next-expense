@@ -18,15 +18,25 @@ const UserPasswordChanger = () => {
     const {setStatus, status, setMessage, message, error} = useStatus();
     const handlePasswordChange: SubmitHandler<PasswordChangeForm> = async (data, event) => {
         setStatus('pending');
-        await changeUserPassword(data).then((res) => {
-            console.log(res)
-            if (res.success) {
-                setStatus('success')
+        await fetch('/api/auth/account/password', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then(res => res.json()).then(res => {
+            if (res.error) {
+                setError('oldPassword', {message: res.error});
+                setStatus('error');
+                setMessage(res.error);
             } else {
-                setStatus('error')
-                setMessage(res.message ?? '')
+                setStatus('success');
             }
+        }).catch(error => {
+            setStatus('error');
+            setMessage(error.message);
         })
+
     }
     return (
         <div>
