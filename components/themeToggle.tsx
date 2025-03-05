@@ -15,9 +15,17 @@ const ThemeToggle = () => {
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
         setMounted(true);
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            setTheme('dark')
+        const initialTheme = localStorage.getItem('theme');
+        if (!initialTheme) {
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                setTheme('dark')
+            } else {
+                setTheme('light')
+            }
+            return;
         }
+        setTheme(initialTheme);
+
     }, []);
 
 
