@@ -17,7 +17,8 @@ const Page = () => {
                         </SignInButtonOAuth>
                     </div>
                     <div className='pt-3 '>
-                        <Link href='/auth/signUp' className={buttonVariants({variant: "outline"}) + ' w-full'}>
+                        <Link href='/app/auth/signUp'
+                              className={buttonVariants({variant: "outline"}) + ' w-full'}>
                             Sign Up
                         </Link>
                     </div>
