@@ -1,33 +1,39 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {ColumnDef} from "@tanstack/table-core";
+import {ColumnDef} from "@tanstack/react-table";
+import {DataTable} from "@/components/DataTable/DataTable";
 import {Expense, TransactionType} from "@/types/Expense";
-import {Category} from "@/types/Category";
-import {DataTable,} from "@/components/DataTable/DataTable";
-import {Income} from "@/types/Income";
-import {useWallet} from "@/context/WalletContext";
+import {Service} from "@/types/Service";
+import ExpenseIncomeTotals from './ExpenseIncomeTotals';
+import { useExpense } from '@/context/ExpenseContext';
+import { useWallet } from '@/context/WalletContext';
 import useCategories from "@/hooks/useCategories";
-import {incomesService} from "@/app/services/incomes";
-import {expensesService} from "@/app/services/expenses";
+import { expensesService } from "@/app/services/expenses";
+import { incomesService } from "@/app/services/incomes";
+import { Category } from '@/types/Category';
+import { Income } from '@/types/Income';
 
-
+interface Props {
+    type: TransactionType;
+    triggerFetch: boolean;
+    onFetch?: (data: Expense[]) => void;
+}
 const formatedDate = (date: Date) => <div>{date.toLocaleDateString('en-GB')}</div>;
 
-type Props = {
-    type: TransactionType,
-    triggerFetch?: boolean,
-}
-const ExpenseIncomeTable = ({type, triggerFetch}: Props) => {
-    const {selectedWallet} = useWallet();
-    const [columns, setColumns] = useState<ColumnDef<Income | Expense>[]>()
-    const {categories} = useCategories(type)
 
+const ExpenseIncomeTable = ({type, triggerFetch, onFetch}: Props) => {
+    const {selectedWallet} = useWallet();
+    const [columns, setColumns] = useState<ColumnDef<Expense, Expense>[]>()
+    const { setExpenses } = useExpense();
+    const {categories} = useCategories(type)
     useEffect(() => {
         setColumns(getColumns(categories));
+    }, []);
+    const service: Service<Expense> = type === 'income' ? incomesService : expensesService;
 
-    }, [categories]);
-
-
+    const handleFetch = (data: Expense[]) => {
+       setExpenses(data);
+    };
     const getColumns = (categories: Category[]): ColumnDef<Income | Expense>[] => [
         {
             accessorKey: '_id',
@@ -66,20 +72,20 @@ const ExpenseIncomeTable = ({type, triggerFetch}: Props) => {
     ];
 
     return (
-        <div className='max-h-[70vh] overflow-auto'>
-
-            {columns &&
-                <DataTable columns={columns}
-                           dataParentId={selectedWallet ? selectedWallet._id : null}
-                           itemRemovable={true}
-                           triggerFetch={triggerFetch}
-                           manualFiltering={true}
-                           manualSorting={true}
-                           manualPagination={true}
-                           service={type === 'income' ? incomesService : expensesService}/>}
-
+        <div className="space-y-4">
+     
+            <div className='max-h-[70vh] overflow-auto'>
+                {columns &&
+                    <DataTable
+                        columns={columns}
+                        dataParentId={selectedWallet ? selectedWallet._id : null}
+                        manualPagination={true}
+                        service={service}
+                        onFetch={handleFetch}
+                    />}
+            </div>
         </div>
     );
-};
+}
 
 export default ExpenseIncomeTable;

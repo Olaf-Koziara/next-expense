@@ -34,7 +34,8 @@ export const POST = async (req: Request) => {
 
         const wallet = await Wallet.findByIdAndUpdate(
             selectedWalletId,
-            {$push: {incomes: incomeData}}, {new: true}
+            {$push: {incomes: incomeData}, $inc: {balance: incomeData.amount}},
+            {new: true}
         );
 
 
@@ -195,17 +196,31 @@ export const PATCH = async (req: Request) => {
             return NextResponse.json({error: "Wallet doesn't belong to user"}, {status: 404});
         }
 
-        const wallet = await Wallet.findOneAndUpdate(
-            {_id: new mongoose.Types.ObjectId(walletId), "incomes._id": new mongoose.Types.ObjectId(incomeData._id)},
-            {$set: {"incomes.$": incomeData}},
-            {new: false}
-        );
+        const wallet = await Wallet.findOne({
+            _id: new mongoose.Types.ObjectId(walletId),
+            "incomes._id": new mongoose.Types.ObjectId(incomeData._id)
+        });
 
         if (!wallet) {
             return NextResponse.json({error: "Wallet or income not found!"}, {status: 404});
         }
 
-        return NextResponse.json(wallet, {status: 200});
+        // Get the old income amount
+        const oldIncome = wallet.incomes.id(incomeData._id);
+        const oldAmount = oldIncome.amount;
+        const newAmount = incomeData.amount || oldAmount;
+
+        // Update the income and adjust the balance
+        await Wallet.findOneAndUpdate(
+            {_id: new mongoose.Types.ObjectId(walletId), "incomes._id": new mongoose.Types.ObjectId(incomeData._id)},
+            {
+                $set: {"incomes.$": incomeData},
+                $inc: {balance: newAmount - oldAmount}
+            },
+            {new: true}
+        );
+
+        return NextResponse.json({message: "Income updated successfully"}, {status: 200});
     } catch (error) {
         return NextResponse.json({message: 'Error', error}, {status: 500});
     }

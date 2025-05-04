@@ -18,6 +18,10 @@ const ExpenseSchema = new Schema({
     title: {
         type: String,
         required: [true, "Title is required"]
+    },
+    currency: {
+        type: String,
+        default: 'USD'
     }
 });
 const IncomeSchema = new Schema({
@@ -38,6 +42,10 @@ const IncomeSchema = new Schema({
     title: {
         type: String,
         required: [true, "Title is required"]
+    },
+    currency: {
+        type: String,
+        default: 'USD'
     }
 });
 const WalletSchema = new Schema({
@@ -50,6 +58,11 @@ const WalletSchema = new Schema({
     balance: {
         type: Number,
         default: 0
+    },
+    currency: {
+        type: String,
+        default: 'USD',
+        required: true
     }
 }, {collection: 'wallets', timestamps: true});
 

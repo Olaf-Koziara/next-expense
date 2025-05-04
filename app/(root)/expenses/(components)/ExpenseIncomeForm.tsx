@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import DatePicker from '@/components/ui/datepicker';
 import {Input} from '@/components/ui/input';
@@ -10,6 +10,7 @@ import useCategories from "@/hooks/useCategories";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useWallet} from "@/context/WalletContext";
+import { PlusCircle } from 'lucide-react';
 
 type FormData = z.infer<typeof FormSchema>;
 const FormSchema = z.object({
@@ -26,24 +27,39 @@ type Props = {
 
 const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
     const form = useForm<FormData>({resolver: zodResolver(FormSchema)});
-    const {categories} = useCategories(type);
-    const {addIncome, addExpense} = useWallet()
+    const {categories, addCategory} = useCategories(type);
+    const {addIncome, addExpense, selectedWallet} = useWallet();
+    const [newCategory, setNewCategory] = useState('');
+    const [isAddingCategory, setIsAddingCategory] = useState(false);
+
+    const handleAddCategory = () => {
+        if (newCategory.trim()) {
+            addCategory(newCategory.trim());
+            form.setValue('category', newCategory.trim());
+            setNewCategory('');
+            setIsAddingCategory(false);
+        }
+    };
 
     const onSubmit: SubmitHandler<FormData> = async (data, event) => {
         event?.preventDefault();
 
-        if (type === 'expense') {
+        const formData = {
+            ...data,
+            currency: selectedWallet?.currency || 'USD'
+        };
 
-            await addExpense(data)
+        if (type === 'expense') {
+            await addExpense(formData)
         } else {
-            await addIncome(data)
+            await addIncome(formData)
         }
         form.reset();
         onFormSubmitted?.();
     };
 
     return (
-        <div>
+        <div className='border-2 border-gray-600 rounded-md p-2 h-full'>
             <Form {...form}>
                 <form className='flex gap-1' onSubmit={form.handleSubmit(onSubmit)}>
                     <DatePicker error={form.formState.errors.date} mode='single' formatValueToString={true}
@@ -69,12 +85,45 @@ const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
                                             </SelectTrigger>
                                         </div>
                                         <SelectContent>
-                                            <SelectGroup>
-                                                {categories.map((category, index) => (
-                                                    <SelectItem key={index} value={category.name}>
+                                            <SelectGroup key="category-group">
+                                                {categories.map((category) => (
+                                                    <SelectItem key={`category-${category.name}`} value={category.name}>
                                                         {category.name}
                                                     </SelectItem>
                                                 ))}
+                                                <div key="add-category" className="px-2 py-1.5">
+                                                    {isAddingCategory ? (
+                                                        <div className="flex gap-1">
+                                                            <Input
+                                                                value={newCategory}
+                                                                onChange={(e) => setNewCategory(e.target.value)}
+                                                                placeholder="New category name"
+                                                                className="h-8"
+                                                                autoFocus
+                                                            />
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={handleAddCategory}
+                                                                className="h-8"
+                                                            >
+                                                                Add
+                                                            </Button>
+                                                        </div>
+                                                    ) : (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="w-full justify-start gap-2"
+                                                            onClick={() => setIsAddingCategory(true)}
+                                                        >
+                                                            <PlusCircle size={16} />
+                                                            Add new category
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>

@@ -3,11 +3,10 @@ import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
 import {Wallet} from "@/models/wallet";
 import {User} from "@/models/user";
-import {getSortParamsFromUrl} from "@/utils/sort";
 import mongoose, {PipelineStage} from "mongoose";
-import {getFilterMatchStageFromUrl} from "@/app/api/expense/filter";
 import {Expense} from "@/types/Expense";
-import {getPaginationFromUrl} from "@/utils/pagination";
+import {NextRequest} from "next/server";
+
 
 // Define the filter parameter types
 
@@ -49,24 +48,25 @@ export const POST = async (req: Request) => {
     }
 };
 
-export const GET = async (req: Request) => {
+export async function GET(request: NextRequest) {
     try {
-        await connectMongoDB();
         const session = await auth();
-
-        if (!session || !session.user) {
-            return NextResponse.json({error: "Unauthorized!"}, {status: 401});
+        await connectMongoDB();
+        if (!session?.user?.email) {
+            return NextResponse.json({error: 'Unauthorized'}, {status: 401});
         }
 
-        const url = new URL(req.url);
-        const walletId = url.searchParams.get("walletId");
+        const {searchParams} = new URL(request.url);
+        const walletId = searchParams.get('walletId');
+
         if (!walletId) {
-            return NextResponse.json({error: 'Wallet id required',}, {status: 400});
+            return NextResponse.json({error: 'Wallet ID is required'}, {status: 400});
         }
-        const {skip, pageSize} = getPaginationFromUrl(url);
-        const {sortBy, sortOrder} = getSortParamsFromUrl(url);
 
-        const matchStage = getFilterMatchStageFromUrl(url);
+        if (!mongoose.Types.ObjectId.isValid(walletId)) {
+            return NextResponse.json({error: 'Invalid wallet ID format'}, {status: 400});
+        }
+
         const pipeline: PipelineStage[] = [
             {
                 $match: {_id: new mongoose.Types.ObjectId(walletId)}
@@ -75,46 +75,25 @@ export const GET = async (req: Request) => {
                 $unwind: '$expenses'
             },
             {
-                $match: matchStage
-            },
-            {
-                $sort: {
-                    [`expenses.${sortBy}`]: sortOrder === 'asc' ? 1 : -1
+                $project: {
+                    _id: '$expenses._id',
+                    title: '$expenses.title',
+                    amount: '$expenses.amount',
+                    category: '$expenses.category',
+                    date: '$expenses.date',
+                    currency: '$expenses.currency'
                 }
-            },
-            {
-                $facet: {
-                    data: [
-                        {$skip: skip},
-                        {$limit: pageSize},
-                        {
-                            $group: {
-                                _id: '$_id',
-                                expenses: {$push: '$expenses'}
-                            }
-                        }
-                    ],
-                    totalCount: [
-                        {
-                            $count: 'count'
-                        }
-                    ]
-                }
-            },
-
+            }
         ];
 
-        const [result] = await Wallet.aggregate(pipeline);
-        const totalCount = result?.totalCount[0]?.count || 0;
-
-        return NextResponse.json({
-            data: result?.data[0]?.expenses || [], totalCount
-        }, {status: 200});
+        const expenses = await Wallet.aggregate(pipeline);
+        return NextResponse.json(expenses);
     } catch (error) {
-        console.error(error);
-        return NextResponse.json({success: false, message: 'Internal Server Error'}, {status: 500});
+        console.error('Error fetching expenses:', error);
+        return NextResponse.json({error: 'Internal server error'}, {status: 500});
     }
-};
+}
+
 export const DELETE = async (req: Request) => {
     try {
         await connectMongoDB();
@@ -151,7 +130,6 @@ export const DELETE = async (req: Request) => {
         if (!wallet) {
             return NextResponse.json({error: "Wallet or expense not found!"}, {status: 404});
         }
-        console.log(wallet)
 
         // Extract the amount of the expense to be deleted
         const expense = wallet.expenses.id(_id);
@@ -195,17 +173,31 @@ export const PATCH = async (req: Request) => {
             return NextResponse.json({error: "Wallet doesn't belong to user"}, {status: 404});
         }
 
-        const wallet = await Wallet.findOneAndUpdate(
-            {_id: new mongoose.Types.ObjectId(walletId), "expenses._id": new mongoose.Types.ObjectId(_id)},
-            {$set: {"expenses.$": {_id, ...updateData}}},
-            {new: false}
-        );
+        const wallet = await Wallet.findOne({
+            _id: new mongoose.Types.ObjectId(walletId),
+            "expenses._id": new mongoose.Types.ObjectId(_id)
+        });
 
         if (!wallet) {
             return NextResponse.json({error: "Wallet or expense not found!"}, {status: 404});
         }
 
-        return NextResponse.json(wallet, {status: 200});
+        // Get the old expense amount
+        const oldExpense = wallet.expenses.id(_id);
+        const oldAmount = oldExpense.amount;
+        const newAmount = updateData.amount || oldAmount;
+
+        // Update the expense and adjust the balance
+        await Wallet.findOneAndUpdate(
+            {_id: new mongoose.Types.ObjectId(walletId), "expenses._id": new mongoose.Types.ObjectId(_id)},
+            {
+                $set: {"expenses.$": {_id, ...updateData}},
+                $inc: {balance: oldAmount - newAmount} // Subtract the difference
+            },
+            {new: true}
+        );
+
+        return NextResponse.json({message: "Expense updated successfully"}, {status: 200});
     } catch (error) {
         return NextResponse.json({message: 'Error', error}, {status: 500});
     }
