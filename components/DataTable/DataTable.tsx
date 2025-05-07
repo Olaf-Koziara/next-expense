@@ -2,110 +2,96 @@
 
 import {
     ColumnDef,
-    ColumnFiltersState,
-    ColumnSort,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    PaginationState,
-    Row,
-    SortingState,
     useReactTable,
 } from "@tanstack/react-table"
 
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {Button} from "@/components/ui/button";
-import {ArrowLeftCircleIcon, ArrowRightCircleIcon, Loader2, PenIcon, Save, Trash2} from "lucide-react";
-import React, {useEffect, useMemo, useState} from "react";
+import {Loader2, PenIcon, Save, Trash2} from "lucide-react";
+import React, {useMemo} from "react";
 import DataTableFilter from "@/components/DataTable/DataTableFilter";
-import {ColumnFilter} from "@tanstack/table-core";
-import {ResponseWithArray, Service} from "@/types/Service";
+import {Service} from "@/types/Service";
 import DataTableEditField from "@/components/DataTable/DataTableEditField";
-import {generateFilterObject} from "@/components/DataTable/utils";
 import DataTableHeader from "@/components/DataTable/DataTableHeader";
-import useStatus from "@/hooks/useStatus";
-import {cn} from "@/lib/utils";
-import {useCurrencies} from "@/hooks/useCurrencies";
-import { DataTablePagination } from "./DataTablePagination";
-import { DataTableToolbar } from "./DataTableToolbar";
+import {DataTablePagination} from "@/components/DataTable/DataTablePagination";
+import {DataTableToolbar} from "@/components/DataTable/DataTableToolbar";
+import { useDataTable } from './hooks/useDataTable';
+import { useRowEdit } from './hooks/useRowEdit';
+import { useItemRemove } from './hooks/useItemRemove';
 
-
-export type SortFilterState = (ColumnSort | ColumnFilter)[];
-
-type Props<TData, TValue> = {
-    onSortingChange?: (data: SortFilterState) => void,
-    onFilterChange?: (data: SortFilterState) => void,
-    itemRemovable?: boolean,
-    onItemRemove?: (removedItem: TData) => void,
-    onItemEdit?: (editedItem: TData) => void,
-    service?: Service<TData>,
-    dataParentId?: string | null,
-    columns: ColumnDef<TData, TValue>[],
-    data?: TData[],
-    manualSorting?: boolean,
-    manualFiltering?: boolean,
-    manualPagination?: boolean,
-    triggerFetch?: boolean,
-    defaultCurrency?: string,
-    onFetch?: (data: TData[]) => void;
+type SchemaField = {
+    type: 'text' | 'number' | 'date' | 'select' | 'currency';
+    label: string;
+    options?: string[];
+    editable?: boolean;
+    sortable?: boolean;
+    filterable?: boolean;
+    filterVariant?: 'text' | 'range' | 'dateRange' | 'select';
 }
 
-export function DataTable<TData extends { _id: string }, TValue extends NonNullable<TData>>({
-                                                                                                columns,
-                                                                                                data,
-                                                                                                onSortingChange,
-                                                                                                onFilterChange,
-                                                                                                onItemEdit,
-                                                                                                itemRemovable = false,
-                                                                                                onItemRemove,
-                                                                                                service,
-                                                                                                dataParentId,
-                                                                                                manualFiltering = false,
-                                                                                                manualSorting = false,
-                                                                                                manualPagination = false,
-                                                                                                triggerFetch = false,
-                                                                                                defaultCurrency = 'USD',
-                                                                                                onFetch
-                                                                                            }: Props<TData, TValue>) {
-    const [pagination, setPagination] = useState<PaginationState>({pageIndex: 0, pageSize: 10});
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [tableData, setTableData] = useState<TData[]>(data || []);
-    const [rowInEditId, setRowEditId] = useState<string | null>(null);
-    const [rowInEdit, setRowInEdit] = useState<TData>();
-    const [pageCount, setPageCount] = useState(0);
-    const {currencies} = useCurrencies();
+type Schema = {
+    [key: string]: SchemaField;
+}
 
-    const {setStatus, isLoading} = useStatus();
+type Props<TData> = {
+    service: Service<TData>;
+    schema: Schema;
+    dataParentId?: string | null;
+    itemRemovable?: boolean;
+    defaultCurrency?: string;
+}
 
-    const pageSizeOptions = [5, 10, 15, 20];
+export function DataTable<TData extends { _id: string }>({
+    service,
+    schema,
+    dataParentId,
+    itemRemovable = false,
+    defaultCurrency = 'USD',
+}: Props<TData>) {
+    const {
+        data,
+        pageCount,
+        isLoading,
+        pagination,
+        setPagination,
+        sorting,
+        setSorting,
+        columnFilters,
+        setColumnFilters,
+        fetchData
+    } = useDataTable(service, dataParentId);
 
-    useEffect(() => {
-        if (!data) {
-            fetchData();
-        }
-        if (onSortingChange) {
-            onSortingChange(sorting);
-        }
-        if (onFilterChange) {
-            onFilterChange(columnFilters);
-        }
-    }, [service, dataParentId, sorting, columnFilters, pagination, triggerFetch]);
-    useEffect(() => {
-        setPagination({pageIndex: 0, pageSize: 10});
-    }, [columnFilters]);
+    const {
+        rowInEditId,
+        rowInEdit,
+        handleItemEdit,
+        handleItemInputChange
+    } = useRowEdit(service, dataParentId, fetchData);
 
-    useEffect(() => {
-        if (data) {
-            setTableData(data);
-        }
-    }, [data]);
-    const filter = useMemo(() => generateFilterObject(columnFilters, sorting, pagination), [columnFilters, sorting, pagination]);
+    const { handleItemRemove } = useItemRemove(service, dataParentId, fetchData);
+
+    const columns = useMemo(() => {
+        return Object.entries(schema).map(([key, field]) => ({
+            accessorKey: key,
+            header: field.label,
+            meta: {
+                filterVariant: field.filterVariant,
+                editable: field.editable,
+                fieldVariant: field.type,
+                sortable: field.sortable,
+                filterOptions: field.options,
+                filterable: field.filterable
+            }
+        })) as ColumnDef<TData, any>[];
+    }, [schema]);
 
     const table = useReactTable({
-        data: tableData||[],
+        data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -114,9 +100,9 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
-        manualSorting,
-        manualFiltering,
-        manualPagination,
+        manualSorting: true,
+        manualFiltering: true,
+        manualPagination: true,
         pageCount,
         state: {
             pagination,
@@ -127,90 +113,6 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
             }
         },
     });
-    const fetchData = async () => {
-        if (service) {
-            if (!tableData || tableData.length === 0) {
-                setStatus('pending');
-            }
-
-            let response: ResponseWithArray<TData> = {data: [], totalCount: 0};
-
-            if (dataParentId) {
-                response = await service.getAll(filter, dataParentId);
-            } else {
-                if (dataParentId !== null) {
-                    response = (await service.getAll(filter));
-                }
-            }
-            setTableData(response.data)
-
-            setPageCount(Math.ceil(response.totalCount / pagination.pageSize))
-            setStatus('success');
-            onFetch?.(response.data);
-        }
-    };
-    const handlePageSizeChange = (size: number) => {
-        setPagination({...pagination, pageSize: size});
-    }
-    const handleItemEdit = async (row: Row<TData>) => {
-        setRowEditId(row.id);
-        setRowInEdit(row.original);
-
-        if (rowInEditId === row.id && rowInEdit) {
-            const updatedData = tableData.map((item, index) =>
-                index.toString() === row.id ? rowInEdit : item
-            );
-            setTableData(updatedData);
-            if (onItemEdit) {
-                onItemEdit(rowInEdit);
-            }
-            setRowEditId(null);
-            setRowInEdit(undefined);
-
-            if (service) {
-                setStatus('pending');
-                if (dataParentId) {
-                    await service.patch(rowInEdit, dataParentId).catch(() => setStatus('error'));
-                } else {
-                    await service.patch(rowInEdit).catch(() => setStatus('error'));
-                }
-                setStatus('success');
-            }
-        }
-    };
-    const handleItemInputChange = (value: TValue, columnId: string) => {
-        setRowInEdit((prev) =>
-            prev
-                ? {
-                    ...prev,
-                    [columnId]: value,
-                }
-                : undefined
-        );
-    };
-
-    const handleItemRemove = async (item: TData) => {
-        const updatedData = tableData.filter((data) => data !== item);
-        setTableData(updatedData);
-        if (service) {
-            if (dataParentId) {
-                await service.remove((item)._id, dataParentId);
-            } else {
-                await service.remove((item)._id,);
-            }
-        }
-        if (onItemRemove) {
-            onItemRemove(item);
-        }
-    };
-
-    const formatCurrency = (value: number, currencyCode: string) => {
-        const currency = currencies.find(c => c.currencyCode === currencyCode) || { currencyCode: defaultCurrency, name: 'US Dollar' };
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: currency.currencyCode,
-        }).format(value);
-    };
 
     return (
         <div className="space-y-4">
@@ -246,15 +148,15 @@ export function DataTable<TData extends { _id: string }, TValue extends NonNulla
                                 </TableCell>
                             </TableRow> :
 
-                            tableData &&tableData.length > 0 ? (
-                                table.getRowModel().rows.map((row, index) => (
+                            table && table.getRowModel().rows.length ? (
+                                table.getRowModel().rows.map((row) => (
                                     <TableRow key={row.id}>
                                         {row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id}>
                                                 {rowInEditId === row.id ? (
                                                     <DataTableEditField
                                                         column={cell.column}
-                                                        value={rowInEdit?.[cell.column.id as keyof TData] as TValue}
+                                                        value={rowInEdit?.[cell.column.id as keyof TData]}
                                                         onChange={(value) => handleItemInputChange(value, cell.column.id)}
                                                     />
                                                 ) : (

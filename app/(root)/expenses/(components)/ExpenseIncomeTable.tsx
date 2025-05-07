@@ -1,91 +1,88 @@
 'use client';
-import React, {useEffect, useState} from 'react';
-import {ColumnDef} from "@tanstack/react-table";
+import React from 'react';
 import {DataTable} from "@/components/DataTable/DataTable";
 import {Expense, TransactionType} from "@/types/Expense";
-import {Service} from "@/types/Service";
-import ExpenseIncomeTotals from './ExpenseIncomeTotals';
-import { useExpense } from '@/context/ExpenseContext';
 import { useWallet } from '@/context/WalletContext';
 import useCategories from "@/hooks/useCategories";
+import { Income } from '@/types/Income';
 import { expensesService } from "@/app/services/expenses";
 import { incomesService } from "@/app/services/incomes";
-import { Category } from '@/types/Category';
-import { Income } from '@/types/Income';
+import { Service } from '@/types/Service';
 
 interface Props {
     type: TransactionType;
-    triggerFetch: boolean;
-    onFetch?: (data: Expense[]) => void;
 }
-const formatedDate = (date: Date) => <div>{date.toLocaleDateString('en-GB')}</div>;
 
+type Transaction = (Expense | Income) & { _id: string };
 
-const ExpenseIncomeTable = ({type, triggerFetch, onFetch}: Props) => {
-    const {selectedWallet} = useWallet();
-    const [columns, setColumns] = useState<ColumnDef<Expense, Expense>[]>()
-    const { setExpenses } = useExpense();
-    const {categories} = useCategories(type)
-    useEffect(() => {
-        setColumns(getColumns(categories));
-    }, []);
-    const service: Service<Expense> = type === 'income' ? incomesService : expensesService;
+const ExpenseIncomeTable = ({type}: Props) => {
+    const { selectedWallet } = useWallet();
+    const {categories} = useCategories(type);
+    const service = (type === 'income' ? incomesService : expensesService) as Service<Transaction>;
 
-    const handleFetch = (data: Expense[]) => {
-       setExpenses(data);
-    };
-    const getColumns = (categories: Category[]): ColumnDef<Income | Expense>[] => [
-        {
-            accessorKey: '_id',
-            enableHiding: true,
-
+    const schema = {
+        _id: {
+            type: 'text' as const,
+            label: 'ID',
+            editable: false,
+            sortable: false,
+            filterable: false
+        },
+        date: {
+            type: 'date' as const,
+            label: 'Date',
+            editable: true,
+            sortable: true,
+            filterable: true,
+            filterVariant: 'dateRange' as const
+        },
+        title: {
+            type: 'text' as const,
+            label: 'Title',
+            editable: true,
+            sortable: true,
+            filterable: true,
+            filterVariant: 'text' as const
+        },
+        amount: {
+            type: 'number' as const,
+            label: 'Amount',
+            editable: true,
+            sortable: true,
+            filterable: true,
+            filterVariant: 'range' as const
+        },
+        category: {
+            type: 'select' as const,
+            label: 'Category',
+            editable: true,
+            sortable: true,
+            filterable: true,
+            filterVariant: 'select' as const,
+            options: categories?.map(category => category.name) || []
         }
-        , {
-            accessorKey: 'date',
-            cell: ({row}) => formatedDate(new Date(row.getValue('date'))),
-            meta: {
-                filterVariant: 'dateRange',
-                editable: true,
-                fieldVariant: 'date',
-                sortable: true
-            }
-        },
-        {
-            accessorKey: 'title',
-            meta: {filterVariant: 'text', editable: true, sortable: true}
-        },
-        {
-            accessorKey: 'amount',
-            filterFn: "inNumberRange",
-            meta: {filterVariant: 'range', editable: true, sortable: true}
-        },
-        {
-            accessorKey: 'category',
-            meta: {
-                filterVariant: 'select',
-                filterPlaceholder: 'Category',
-                filterOptions: categories ? categories.map(category => category.name) : [],
-                editable: true,
-                sortable: true
-            }
-        },
-    ];
+    };
+
+    if (!selectedWallet?._id) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <p className="text-gray-500">Please select a wallet to view transactions</p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-4">
-     
             <div className='max-h-[70vh] overflow-auto'>
-                {columns &&
-                    <DataTable
-                        columns={columns}
-                        dataParentId={selectedWallet ? selectedWallet._id : null}
-                        manualPagination={true}
-                        service={service}
-                        onFetch={handleFetch}
-                    />}
+                <DataTable<Transaction>
+                    service={service}
+                    schema={schema}
+                    dataParentId={selectedWallet._id}
+                    itemRemovable={true}
+                />
             </div>
         </div>
     );
-}
+};
 
 export default ExpenseIncomeTable;
