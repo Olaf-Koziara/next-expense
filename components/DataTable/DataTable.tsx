@@ -13,7 +13,7 @@ import {
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {Button} from "@/components/ui/button";
 import {Loader2, PenIcon, Save, Trash2} from "lucide-react";
-import React, {useMemo} from "react";
+import React, {useEffect, useMemo} from "react";
 import DataTableFilter from "@/components/DataTable/DataTableFilter";
 import {Service} from "@/types/Service";
 import DataTableEditField from "@/components/DataTable/DataTableEditField";
@@ -23,8 +23,20 @@ import {DataTableToolbar} from "@/components/DataTable/DataTableToolbar";
 import { useDataTable } from './hooks/useDataTable';
 import { useRowEdit } from './hooks/useRowEdit';
 import { useItemRemove } from './hooks/useItemRemove';
+import { DataTableForm } from './DataTableForm';
+import { useWallet } from '@/context/WalletContext';
 
-type SchemaField = {
+const formatDate = (date: string | Date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    }).replace(/\//g, '-');
+};
+
+export type SchemaField = {
     type: 'text' | 'number' | 'date' | 'select' | 'currency';
     label: string;
     options?: string[];
@@ -34,7 +46,7 @@ type SchemaField = {
     filterVariant?: 'text' | 'range' | 'dateRange' | 'select';
 }
 
-type Schema = {
+export type Schema = {
     [key: string]: SchemaField;
 }
 
@@ -44,6 +56,17 @@ type Props<TData> = {
     dataParentId?: string | null;
     itemRemovable?: boolean;
     defaultCurrency?: string;
+    onFetchData?: (data: TData[]) => void;
+    form?: boolean;
+    initialData?: TData[];
+    initialSorting?: { id: string; desc: boolean }[];
+    initialFilters?: { id: string; value: any }[];
+    initialPageSize?: number;
+    onDataChange?: (data: TData[]) => void;
+    onSortingChange?: (sorting: { id: string; desc: boolean }[]) => void;
+    onFiltersChange?: (filters: { id: string; value: any }[]) => void;
+    onPaginationChange?: (pagination: { pageIndex: number; pageSize: number }) => void;
+    data?: TData[];
 }
 
 export function DataTable<TData extends { _id: string }>({
@@ -51,7 +74,17 @@ export function DataTable<TData extends { _id: string }>({
     schema,
     dataParentId,
     itemRemovable = false,
-    defaultCurrency = 'USD',
+    onFetchData,
+    form = false,
+    initialData,
+    initialSorting,
+    initialFilters,
+    initialPageSize = 10,
+    onDataChange,
+    onSortingChange,
+    onFiltersChange,
+    onPaginationChange,
+    data: externalData
 }: Props<TData>) {
     const {
         data,
@@ -63,8 +96,45 @@ export function DataTable<TData extends { _id: string }>({
         setSorting,
         columnFilters,
         setColumnFilters,
-        fetchData
-    } = useDataTable(service, dataParentId);
+        fetchData,
+    } = useDataTable(service, dataParentId, {
+        initialData: externalData || initialData,
+        initialSorting,
+        initialFilters,
+        initialPageSize,
+        externalData
+    });
+
+    useEffect(() => {
+
+        if(onFetchData){
+          
+            onFetchData(data);
+        }
+   
+        if(onDataChange) {
+            onDataChange(data);
+        }
+    
+    }, [data, onFetchData, onDataChange]);
+
+    useEffect(() => {
+        if(onSortingChange) {
+            onSortingChange(sorting);
+        }
+    }, [sorting, onSortingChange]);
+
+    useEffect(() => {
+        if(onFiltersChange) {
+            onFiltersChange(columnFilters);
+        }
+    }, [columnFilters, onFiltersChange]);
+
+    useEffect(() => {
+        if(onPaginationChange) {
+            onPaginationChange(pagination);
+        }
+    }, [pagination, onPaginationChange]);
 
     const {
         rowInEditId,
@@ -116,6 +186,14 @@ export function DataTable<TData extends { _id: string }>({
 
     return (
         <div className="space-y-4">
+            {form && (
+                <DataTableForm
+                    service={service}
+                    schema={schema}
+                    dataParentId={dataParentId}
+                    onSuccess={fetchData}
+                />
+            )}
             <DataTableToolbar table={table}/>
             <div className="rounded-md border">
                 <Table>
@@ -160,7 +238,9 @@ export function DataTable<TData extends { _id: string }>({
                                                         onChange={(value) => handleItemInputChange(value, cell.column.id)}
                                                     />
                                                 ) : (
-                                                    flexRender(cell.column.columnDef.cell, cell.getContext())
+                                                    cell.column.columnDef.meta?.fieldVariant === 'date' 
+                                                        ? formatDate(cell.getValue() as string)
+                                                        : flexRender(cell.column.columnDef.cell, cell.getContext())
                                                 )}
                                             </TableCell>
                                         ))}

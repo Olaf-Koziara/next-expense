@@ -1,122 +1,127 @@
-import {Wallet} from "@/types/Wallet";
-import {createContext, useContext, useEffect, useRef, useState, useCallback} from "react";
-import {walletsService} from "@/app/services/wallets";
-import {expensesService} from "@/app/services/expenses";
-import {incomesService} from "@/app/services/incomes";
-import {WalletStats} from "@/types/Stats";
-import {statisticsService} from "@/app/services/statistics";
-import {QueryParams} from "@/app/services/api";
-import {Expense} from "@/types/Expense";
-import {useEvent} from "@/hooks/useEvenet";
-import {ResponseWithArray} from "@/types/Service";
-import {Income} from "@/types/Income";
+'use client';
 
-type WalletContextType = {
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Wallet } from '@/types/Wallet';
+import { walletsService } from '@/app/services/wallets';
+import { expensesService } from "@/app/services/expenses";
+import { incomesService } from "@/app/services/incomes";
+import { Expense } from "@/types/Expense";
+import { Income } from "@/types/Income";
+import { ResponseWithArray } from "@/types/Service";
+
+interface WalletContextType {
     wallets: Wallet[];
     selectedWallet: Wallet | null;
+    isLoading: boolean;
+    error: string | null;
+    transactionType: 'expense' | 'income';
+    setTransactionType: (type: 'expense' | 'income') => void;
     setSelectedWallet: (wallet: Wallet | null) => void;
-    addWallet: (wallet: Omit<Wallet, '_id'|'balance'>) => Promise<void>;
+    refreshWallets: () => Promise<void>;
+    createWallet: (wallet: Omit<Wallet, '_id'>) => Promise<void>;
+    updateWallet: (wallet: Wallet) => Promise<void>;
+    deleteWallet: (walletId: string) => Promise<void>;
     addExpense: (expense: Expense) => Promise<void>;
-    getExpenses: (params?: QueryParams) => Promise<ResponseWithArray<Expense>>;
-    getIncomes: (params?: QueryParams) => Promise<ResponseWithArray<Income>>;
+    getExpenses: (params?: any) => Promise<ResponseWithArray<Expense>>;
+    getIncomes: (params?: any) => Promise<ResponseWithArray<Income>>;
     addIncome: (expense: Expense) => Promise<void>;
     removeExpense: (_id: string) => Promise<void>;
     removeIncome: (_id: string) => Promise<void>;
-    getStatistics: (params?: QueryParams) => Promise<WalletStats>;
-    removeWallet: (walletId: string) => Promise<void>;
-    updateWallet: (walletId: string, data: Partial<Wallet>) => Promise<void>;
-};
+    transactions: (Expense | Income)[];
+    setTransactions: (transactions: (Expense | Income)[]) => void;
+    refetchTrigger: number;
+    triggerRefetch: () => void;
+}
 
-const defaultContext: WalletContextType = {
-    wallets: [],
-    selectedWallet: null,
-    setSelectedWallet: () => {},
-    addWallet: async () => {},
-    removeWallet: async () => {},
-    updateWallet: async () => {},
-    addExpense: async () => {},
-    getExpenses: async () => ({ data: [], totalCount: 0, total: 0 }),
-    getIncomes: async () => ({ data: [], totalCount: 0, total: 0 }),
-    addIncome: async () => {},
-    removeExpense: async () => {},
-    removeIncome: async () => {},
-    getStatistics: async () => ({
-        highestExpenseCategory: { category: '', total: 0 },
-        highestIncomeCategory: { category: '', total: 0 },
-        summedExpenseCategories: [],
-        summedIncomeCategories: [],
-        summedExpenseCategoriesAndDate: [],
-        summedIncomeCategoriesAndDate: []
-    })
-};
+const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
-const WalletContext = createContext<WalletContextType>(defaultContext);
-
-export const WalletProvider = ({children}: { children: React.ReactNode }) => {
+export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [wallets, setWallets] = useState<Wallet[]>([]);
-    const [selectedWallet, setSelectedWalletState] = useState<Wallet | null>(null);
-    const selectedWalletRef = useRef<Wallet | null>(null);
+    const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [transactionType, setTransactionType] = useState<'expense' | 'income'>('expense');
+    const [transactions, setTransactions] = useState<(Expense | Income)[]>([]);
+    const [refetchTrigger, setRefetchTrigger] = useState(0);
 
-    const {dispatch} = useEvent('walletChange', (wallet: Wallet) => {
-        setSelectedWalletState(wallet);
-    });
+    const triggerRefetch = () => {
+        setRefetchTrigger(prev => prev + 1);
+    };
+
+    const fetchWallets = async () => {
+        try {
+            setIsLoading(true);
+            const response = await walletsService.getAll();
+            setWallets(response);
+            setSelectedWallet(response[0]);
+            setError(null);
+        } catch (err) {
+            setError('Failed to fetch wallets');
+            console.error('Error fetching wallets:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        selectedWalletRef.current = selectedWallet;
-    }, [selectedWallet]);
+        fetchWallets()
 
-    useEffect(() => {
-        walletsService.getAll().then((data) => {
-            setWallets(data);
-            const storedWallet = JSON.parse(localStorage.getItem("selectedWallet") ?? '{}') as Wallet;
-            if (storedWallet) {
-                const wallet = data.find((wallet) => wallet._id === storedWallet._id);
-                if (wallet) {
-                    setSelectedWalletState(wallet);
-                } else {
-                    setSelectedWalletState(data[0] || null);
-                }
+    }, []);
+ 
+    const createWallet = async (wallet: Omit<Wallet, '_id'>) => {
+        try {
+            const newWallet = await walletsService.add(wallet);
+            setWallets(prev => [...prev, newWallet]);
+            setError(null);
+        } catch (err) {
+            setError('Failed to create wallet');
+            console.error('Error creating wallet:', err);
+        }
+    };
+
+    const updateWallet = async (wallet: Wallet) => {
+        try {
+            await walletsService.patch(wallet._id, wallet);
+            setWallets(prev => prev.map(w => w._id === wallet._id ? wallet : w));
+            if (selectedWallet?._id === wallet._id) {
+                setSelectedWallet(wallet);
             }
-        });
-    }, []);
-
-    const setSelectedWallet = useCallback((wallet: Wallet | null) => {
-        setSelectedWalletState(wallet);
-        if (wallet) {
-            localStorage.setItem("selectedWallet", JSON.stringify(wallet));
-        } else {
-            localStorage.removeItem("selectedWallet");
+            setError(null);
+        } catch (err) {
+            setError('Failed to update wallet');
+            console.error('Error updating wallet:', err);
         }
-    }, []);
+    };
 
-    const addWallet = useCallback(async (wallet: Omit<Wallet, '_id'|'balance'>) => {
-        const newWallet = await walletsService.add(wallet);
-        setWallets(prevWallets => [...prevWallets, newWallet] as Wallet[]);
-    }, []);
-
-    const removeWallet = useCallback(async (walletId: string) => {
-        await walletsService.remove(walletId);
-        setWallets((prevWallets) => prevWallets.filter(wallet => wallet._id !== walletId));
-        if (selectedWallet?._id === walletId) {
-            setSelectedWalletState(null);
+    const deleteWallet = async (walletId: string) => {
+        try {
+            await walletsService.remove(walletId);
+            setWallets(prev => prev.filter(w => w._id !== walletId));
+            if (selectedWallet?._id === walletId) {
+                setSelectedWallet(null);
+            }
+            setError(null);
+        } catch (err) {
+            setError('Failed to delete wallet');
+            console.error('Error deleting wallet:', err);
         }
-    }, [selectedWallet]);
-
-    const updateWallet = useCallback(async (walletId: string, data: Partial<Wallet>) => {
-        const updatedWallet = await walletsService.patch(walletId, data);
-        setWallets((prevWallets) => prevWallets.map(wallet => 
-            wallet._id === walletId ? updatedWallet : wallet
-        ));
-        if (selectedWallet?._id === walletId) {
-            setSelectedWalletState(updatedWallet);
+    };
+    const fetchTransactions = async (params?:Record<string,any>) => {
+        let response:ResponseWithArray<Expense | Income>;
+        if(params){
+            response = transactionType === 'expense' ? await expensesService.getAll(params,selectedWallet?._id) : await incomesService.getAll(params,selectedWallet?._id);
+        }else{
+            response = transactionType === 'expense' ? await expensesService.getAll(selectedWallet?._id) : await incomesService.getAll(selectedWallet?._id);
         }
-    }, [selectedWallet]);
+    
+        setTransactions(response.data);
+    }
 
     const withWalletAndData = <T, K>(
         action: (data: T, walletId: string) => Promise<K>
     ) => {
         return (data: T) => {
-            const currentWallet = selectedWalletRef.current;
+            const currentWallet = selectedWallet;
             if (!currentWallet) {
                 alert("No wallet selected");
                 return Promise.reject({message: "No wallet selected"});
@@ -129,7 +134,7 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
         action: (walletId: string, ...args: P) => Promise<K>
     ) => {
         return (...args: P) => {
-            const currentWallet = selectedWalletRef.current;
+            const currentWallet = selectedWallet;
             if (!currentWallet) {
                 return Promise.reject({message: "No wallet selected"});
             }
@@ -137,11 +142,17 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
         };
     };
 
-    const addIncome = withWalletAndData(incomesService.add);
-    const addExpense = withWalletAndData(expensesService.add);
-    const removeIncome = withWalletAndData(incomesService.remove);
-    const getStatistics = withWallet((walletId: string, params: QueryParams = {}) => statisticsService.getAll(walletId, params));
-    const getExpenses = withWallet((walletId: string, params: QueryParams = {}) => expensesService.getAll(params, walletId));
+    const addIncome = (data:Income) => {
+        setTransactions(prev => [...prev, data]);
+        return withWalletAndData(incomesService.add)(data);
+    };
+    const addExpense = (data:Expense) => {
+        setTransactions(prev => [...prev, data]);
+        return withWalletAndData(expensesService.add)(data);
+    };
+    const removeIncome =withWalletAndData(incomesService.remove);
+
+    const getExpenses = withWallet((walletId: string, params: any = {}) => expensesService.getAll(params, walletId));
     const getIncomes = withWallet(incomesService.getAll);
     const removeExpense = withWalletAndData(expensesService.remove);
 
@@ -150,28 +161,36 @@ export const WalletProvider = ({children}: { children: React.ReactNode }) => {
             value={{
                 wallets,
                 selectedWallet,
+                isLoading,
+                error,
                 setSelectedWallet,
-                addWallet,
-                addExpense,
-                removeExpense,
-                addIncome,
-                getIncomes,
-                removeIncome,
-                getStatistics,
-                getExpenses,
-                removeWallet,
+                refreshWallets: fetchWallets,
+                createWallet,
                 updateWallet,
+                deleteWallet,
+                addExpense,
+                getExpenses,
+                getIncomes,
+                addIncome,
+                removeExpense,
+                removeIncome,
+                transactionType,
+                setTransactions,
+                setTransactionType,
+                transactions,
+                refetchTrigger,
+                triggerRefetch
             }}
         >
             {children}
         </WalletContext.Provider>
     );
-};
+}
 
-export const useWallet = () => {
+export function useWallet() {
     const context = useContext(WalletContext);
     if (context === undefined) {
-        throw new Error("useWallet must be used within a WalletProvider");
+        throw new Error('useWallet must be used within a WalletProvider');
     }
     return context;
-};
+}
