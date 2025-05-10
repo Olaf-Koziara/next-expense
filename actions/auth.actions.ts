@@ -13,6 +13,34 @@ interface ExtendedProfile extends Profile {
     picture?: string
 }
 
+export async function signInWithCredentials(credentials: Partial<Record<"email" | "password", string>>) {
+    if (!credentials || !credentials.password || !credentials.email) {
+        throw new Error("Invalid credentials")
+    }
+    const {email, password} = credentials;
+    if (!email) {
+        throw new Error("Invalid email")
+
+    }
+    await connectMongoDB()
+    const user = await getUserByEmail(email)
+
+    if (!user) {
+        throw new Error("No user found")
+    }
+
+
+    const passwordIsValid = await bcrypt.compare(
+        password,
+        user.password
+    )
+
+    if (!passwordIsValid) {
+        throw new Error("Invalid password")
+    }
+
+    return {email: user.email, name: user.name, _id: user._id.toString()}
+}
 
 export async function signInWithOauth(profile: ExtendedProfile, provider: OAuthProviderType) {
     await connectMongoDB()
@@ -104,36 +132,6 @@ export async function signUpWithCredentials({
     }
 }
 
-
-export async function signInWithCredentials(credentials: Partial<Record<"email" | "password", string>>) {
-
-    if (!credentials || !credentials.password || !credentials.email) {
-        throw new Error("Invalid credentials")
-    }
-    const {email, password} = credentials;
-    if (!email) {
-        throw new Error("Invalid email")
-
-    }
-    await connectMongoDB()
-    const user = await getUserByEmail(email)
-
-    if (!user) {
-        throw new Error("Invalid email")
-    }
-
-
-    const passwordIsValid = await bcrypt.compare(
-        password,
-        user.password
-    )
-
-    if (!passwordIsValid) {
-        throw new Error("Invalid password2")
-    }
-
-    return {email: user.email, name: user.name, _id: user._id.toString()}
-}
 
 export interface ChangeUserPasswordParams {
     oldPassword: string,
