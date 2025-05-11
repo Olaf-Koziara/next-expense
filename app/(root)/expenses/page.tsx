@@ -1,36 +1,42 @@
 'use client';
 import React, {useState} from 'react';
-
 import ExpenseIncomeForm from "@/app/(root)/expenses/(components)/ExpenseIncomeForm";
 import ExpenseIncomeTable from "@/app/(root)/expenses/(components)/ExpenseIncomeTable";
-import TransactionTypeToggle from "@/components/TransactionTypeToggle";
-import {TransactionType} from "@/types/Expense";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import ExpenseIncomeTotals from './(components)/ExpenseIncomeTotals';
+import { useWallet } from '@/context/WalletContext';
 
+export default function ExpensesPage() {
+    const {transactionType,setTransactionType} = useWallet();
 
-const Page = () => {
-    const [triggerFetch, setTriggerFetch] = useState(false);
-    const [transactionType, setTransactionType] = useState<TransactionType>('expense');
-
-    const handleFormSubmitted = () => {
-        setTriggerFetch(prev => !prev);
-    };
 
 
     return (
-        <div className="mt-3">
-            <div className="mx-auto w-4/5 flex flex-col items-center">
-                <TransactionTypeToggle onChange={setTransactionType}/>
-                <div className='w-2/3 min-w-fit mt-10'>
-                    <div className='mb-5 drop-shadow-xl shadow-white flex justify-center'>
-                        <ExpenseIncomeForm type={transactionType} onFormSubmitted={handleFormSubmitted}/>
+        <div className="container mx-auto py-6">
+            <div className="mb-6">
+                <RadioGroup
+                    defaultValue="expense"
+                    className="flex gap-4"
+                    onValueChange={(value) => setTransactionType(value as 'expense' | 'income')}
+                >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="expense" id="expense" />
+                        <Label htmlFor="expense">Expenses</Label>
                     </div>
-
-                    <ExpenseIncomeTable triggerFetch={triggerFetch} type={transactionType}/>
-                </div>
-
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="income" id="income" />
+                        <Label htmlFor="income">Income</Label>
+                    </div>
+                </RadioGroup>
             </div>
+
+       
+               <div className='mb-4 flex justify-around items-center'>
+                 <ExpenseIncomeForm type={transactionType}/>
+                 <ExpenseIncomeTotals type={transactionType}  />
+                 </div>
+                <ExpenseIncomeTable  />
         </div>
     );
-};
-
-export default Page;
+}

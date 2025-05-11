@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import {DataTable} from "@/components/DataTable/DataTable";
-import {Expense, TransactionType} from "@/types/Expense";
+import {Expense} from "@/types/Expense";
 import { useWallet } from '@/context/WalletContext';
 import useCategories from "@/hooks/useCategories";
 import { Income } from '@/types/Income';
@@ -9,16 +9,13 @@ import { expensesService } from "@/app/services/expenses";
 import { incomesService } from "@/app/services/incomes";
 import { Service } from '@/types/Service';
 
-interface Props {
-    type: TransactionType;
-}
 
-type Transaction = (Expense | Income) & { _id: string };
+type Transaction = (Expense | Income) ;
 
-const ExpenseIncomeTable = ({type}: Props) => {
-    const { selectedWallet } = useWallet();
-    const {categories} = useCategories(type);
-    const service = (type === 'income' ? incomesService : expensesService) as Service<Transaction>;
+const ExpenseIncomeTable = () => {
+    const { selectedWallet,setTransactions,transactionType } = useWallet();
+    const {categories} = useCategories(transactionType);
+    const service = (transactionType === 'income' ? incomesService : expensesService) as Service<Transaction>;
 
     const schema = {
         _id: {
@@ -74,11 +71,12 @@ const ExpenseIncomeTable = ({type}: Props) => {
     return (
         <div className="space-y-4">
             <div className='max-h-[70vh] overflow-auto'>
-                <DataTable<Transaction>
+                <DataTable
                     service={service}
                     schema={schema}
                     dataParentId={selectedWallet._id}
                     itemRemovable={true}
+                    onFetchData={(data) => setTransactions(data as Transaction[])}
                 />
             </div>
         </div>

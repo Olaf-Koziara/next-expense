@@ -10,8 +10,9 @@ const ClientProviders = ({children}: { children: React.ReactNode }) => {
             <WalletProvider>
                 <CurrencyProvider>
                     {children}
+               
                 </CurrencyProvider>
-            </WalletProvider>
+                </WalletProvider>
         </SessionProvider>
     );
 };

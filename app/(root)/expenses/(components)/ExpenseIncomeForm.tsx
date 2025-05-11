@@ -25,7 +25,7 @@ type Props = {
     onFormSubmitted?: () => void;
 };
 
-const ExpenseIncomeForm = ({type, onFormSubmitted}: Props) => {
+const ExpenseIncomeForm = ({type, onFormSubmitted=()=>{}}: Props) => {
     const form = useForm<FormData>({resolver: zodResolver(FormSchema)});
     const {categories, addCategory} = useCategories(type);
     const {addIncome, addExpense, selectedWallet} = useWallet();

@@ -1,10 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@/context/WalletContext';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useExpense } from '@/context/ExpenseContext';
 import { formatCurrency } from '@/utils/global';
 type Props = {
     type: 'expense' | 'income';
@@ -14,22 +12,21 @@ type Props = {
 
 
 const ExpenseIncomeTotals = ({ type }: Props) => {
-    const { selectedWallet } = useWallet();
-    const { expenses } = useExpense();
+    const { selectedWallet, transactions } = useWallet();
     const [total, setTotal] = useState(0);
     const [displayTotal, setDisplayTotal] = useState(0);
     const [displayBalance, setDisplayBalance] = useState(0);
 
     useEffect(() => {
-        if(expenses){
-        const newTotal = expenses.reduce((sum, item) => sum + item.amount, 0);
+        if(transactions){
+        const newTotal = transactions.reduce((sum, item) => sum + item.amount, 0);
         setTotal(newTotal);
         }
-    }, [expenses]);
+    }, [transactions]);
 
     useEffect(() => {
-        const duration = 1; // Animation duration in seconds
-        const steps = 60; // Number of steps in the animation
+        const duration = 1;
+        const steps = 60; 
         const stepDuration = (duration * 1000) / steps;
         const increment = total / steps;
 

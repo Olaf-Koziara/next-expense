@@ -60,13 +60,10 @@ export const AppSidebar = async () => {
                     <SidebarGroupContent>
                         <SidebarMenu className='items-center pt-4'>
                             <SidebarMenuItem className='w-full flex-col items-center' key='userInfo'>
-                                <ClientProviders>
-                                    {session && session.user ?
-                                        <UserPanel name={session.user.name ?? ''} email={session.user.email ?? ''}/>
-                                        : <div><AuthLinks/></div>
-                                    }
-                                </ClientProviders>
-
+                                {session && session.user ?
+                                    <UserPanel name={session.user.name ?? ''} email={session.user.email ?? ''}/>
+                                    : <div><AuthLinks/></div>
+                                }
                             </SidebarMenuItem>
                             {
                                 session && items.map((item) => (

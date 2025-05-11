@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const WalletManagementPage = () => {
-    const { wallets, removeWallet, updateWallet, addWallet } = useWallet();
+    const { wallets, removeWallet, updateWallet, createWallet } = useWallet();
     const [newWalletName, setNewWalletName] = useState('');
     const [newWalletCurrency, setNewWalletCurrency] = useState('USD');
 
@@ -27,7 +27,7 @@ const WalletManagementPage = () => {
         e.preventDefault();
         if (!newWalletName.trim()) return;
         
-        await addWallet({
+        await createWallet({
             name: newWalletName,
             currency: newWalletCurrency,
             balance: 0
