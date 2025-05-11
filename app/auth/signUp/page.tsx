@@ -1,7 +1,8 @@
+'use server';
 import React from 'react';
 import SignUpForm from "@/app/auth/signUp/(components)/SignUpForm";
 
-const Page = () => {
+const Page = async () => {
     return (
         <div className="h-screen flex justify-center items-center">
             <div className="w-1/3 py-32  mb-64 ">
