@@ -21,7 +21,7 @@ const SignInForm = () => {
         const result = await signIn('credentials', {
             email: data.email,
             password: data.password,
-            callbackUrl: '/',
+            redirectTo: '/',
             redirect: false
         });
         if (result?.error) {

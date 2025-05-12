@@ -1,16 +1,16 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import {Suspense} from "react";
+import {  memo } from "react";
+import WalletList from "./WalletList";
 
-const WalletList = dynamic(() => import('@/app/(root)/(components)/Wallet/WalletList'), {ssr: false});
 
-const WalletListWrapper = () => {
+
+const WalletListWrapper = memo(() => {
     return (
-        <Suspense fallback={<div>Loading Wallets...</div>}>
-            <WalletList/>
-        </Suspense>
-    )
-};
+            <WalletList />
+    );
+});
+
+WalletListWrapper.displayName = 'WalletListWrapper';
 
 export default WalletListWrapper;

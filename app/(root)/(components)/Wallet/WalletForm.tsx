@@ -2,7 +2,11 @@ import React, {useState} from 'react';
 import {useWallet} from '@/context/WalletContext';
 import {Button} from '@/components/ui/button';
 
-const WalletForm = () => {
+type WalletFormProps = {
+    onSuccess?: () => void;
+}
+
+const WalletForm = ({ onSuccess }: WalletFormProps) => {
     const {addWallet} = useWallet();
     const [walletName, setWalletName] = useState('');
 
@@ -12,6 +16,7 @@ const WalletForm = () => {
 
         await addWallet({name: walletName});
         setWalletName('');
+        onSuccess?.();
     };
 
     return (

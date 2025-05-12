@@ -42,10 +42,10 @@ const items = [
 
 const AuthLinks = () => <div>
     <Link className={buttonVariants({variant: 'outline'})}
-          href={'/auth/signIn'}>SignIn</Link>
+          href={'/app/auth/signIn'}>SignIn</Link>
     <Link
         className={buttonVariants({variant: 'outline'})}
-        href={'/auth/signUp'}>SignUp</Link>
+        href={'/app/auth/signUp'}>SignUp</Link>
 </div>
 
 export const AppSidebar = async () => {
@@ -60,13 +60,10 @@ export const AppSidebar = async () => {
                     <SidebarGroupContent>
                         <SidebarMenu className='items-center pt-4'>
                             <SidebarMenuItem className='w-full flex-col items-center' key='userInfo'>
-                                <ClientProviders>
-                                    {session && session.user ?
-                                        <UserPanel name={session.user.name ?? ''} email={session.user.email ?? ''}/>
-                                        : <div><AuthLinks/></div>
-                                    }
-                                </ClientProviders>
-
+                                {session && session.user ?
+                                    <UserPanel name={session.user.name ?? ''} email={session.user.email ?? ''}/>
+                                    : <div><AuthLinks/></div>
+                                }
                             </SidebarMenuItem>
                             {
                                 session && items.map((item) => (

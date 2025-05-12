@@ -6,13 +6,13 @@ import {SidebarProvider} from "@/components/ui/sidebar";
 const Layout = ({children}: Readonly<{ children: React.ReactNode }>) => {
     return (
         <div className="flex">
-            <div className='w-auto'>
-                <SidebarProvider>
-                    <AppSidebar/>
-                </SidebarProvider>
-            </div>
-
             <ClientProviders>
+                <div className='w-auto'>
+                    <SidebarProvider>
+                        <AppSidebar/>
+                    </SidebarProvider>
+                </div>
+
                 <main className="w-full pt-10 px-2">
                     {children}
                 </main>

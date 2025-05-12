@@ -1,9 +1,9 @@
 'use client';
-import React from 'react';
-import {useWallet} from '@/context/WalletContext';
-import {Wallet} from '@/types/Wallet';
-import {PlusCircleIcon, Wallet2} from "lucide-react";
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import React, { useCallback, memo, useState } from 'react';
+import { useWallet } from '@/context/WalletContext';
+import { Wallet } from '@/types/Wallet';
+import { PlusCircleIcon, Wallet2, Settings2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import WalletForm from "@/app/(root)/(components)/Wallet/WalletForm";
 import {
     DropdownMenu,
@@ -13,28 +13,30 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import WalletInfo from "@/app/(root)/(components)/Wallet/WalletInfo";
+import Link from 'next/link';
 
+const WalletList = memo(() => {
+    const { wallets, selectedWallet, setSelectedWallet } = useWallet();
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-const WalletList = () => {
-    const {wallets, selectedWallet, setSelectedWallet} = useWallet();
-
-    const handleSelectWallet = (wallet: Wallet) => {
+    const handleSelectWallet = useCallback((wallet: Wallet) => {
         setSelectedWallet(wallet);
-    };
+    }, [setSelectedWallet]);
 
+    const handleAddWallet = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsPopoverOpen(true);
+    }, []);
 
     return (
-
-        <div className=''>
-
-
+        <div className='flex flex-col gap-2'>
             <DropdownMenu modal={false}>
-                <DropdownMenuTrigger className='w-full bg-blue-950 rounded-md hover:bg-gray-700 '>
-                    <DropdownMenuLabel className=' mx-auto w-full flex flex-col items-center'>
-                        <Wallet2/>
-                        <WalletInfo/>
+                <DropdownMenuTrigger className='w-full bg-blue-950 rounded-md hover:bg-gray-700'>
+                    <DropdownMenuLabel className='mx-auto w-full flex flex-col items-center'>
+                        <Wallet2 />
+                        <WalletInfo />
                     </DropdownMenuLabel>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -48,24 +50,41 @@ const WalletList = () => {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    <DropdownMenuSeparator/>
-                    {wallets.map(wallet =>
-                        <DropdownMenuItem key={wallet._id}
-                                          className={selectedWallet?._id === wallet._id ? 'bg-gray-600' : ''}
-                                          onClick={() => handleSelectWallet(wallet)}>{wallet.name}</DropdownMenuItem>)}
+                    <DropdownMenuSeparator />
+                    {wallets.length > 0 ?wallets.map(wallet => (
+                        <DropdownMenuItem 
+                            key={wallet._id}
+                            className={selectedWallet?._id === wallet._id ? 'bg-gray-600' : ''}
+                            onClick={() => handleSelectWallet(wallet)}
+                        >
+                            {wallet.name}
+                        </DropdownMenuItem>
+                    )):    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                    <PopoverTrigger 
+                        onClick={handleAddWallet}
+                        className='w-full bg-blue-950 rounded-md hover:bg-gray-700 p-2 flex items-center justify-center gap-2'
+                    >
+                        Add new <PlusCircleIcon className='inline' />
+                    </PopoverTrigger>
+                    <PopoverContent>
+                        <WalletForm onSuccess={() => setIsPopoverOpen(false)} />
+                    </PopoverContent>
+                </Popover>}
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem>
-                        <Popover modal={true}>
-                            <PopoverTrigger onClick={(e) => e.stopPropagation()} className='w-full'>Add
-                                new <PlusCircleIcon
-                                    className='inline'/></PopoverTrigger>
-                            <PopoverContent onClick={(e) => e.stopPropagation()}><WalletForm/></PopoverContent>
-                        </Popover>
+                        <Link href="/wallet-management" className="flex items-center gap-2 w-full">
+                            <Settings2 className="h-4 w-4" />
+                            <span>Manage Wallets</span>
+                        </Link>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-
+            
+        
         </div>
     );
-};
+});
+
+WalletList.displayName = 'WalletList';
 
 export default WalletList;

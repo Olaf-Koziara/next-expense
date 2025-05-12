@@ -7,6 +7,7 @@ export const ExpenseSchema = z.object({
     amount: z.number(),
     category: z.string(),
     date: z.string(),
+    currency: z.string().optional(),
 })
 export const ExpenseArraySchema = z.array(ExpenseSchema);
 export const SummedExpenseByCategorySchema = z.object({

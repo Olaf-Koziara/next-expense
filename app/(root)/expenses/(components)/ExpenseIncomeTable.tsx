@@ -1,83 +1,84 @@
 'use client';
-import React, {useEffect, useState} from 'react';
-import {ColumnDef} from "@tanstack/table-core";
-import {Expense, TransactionType} from "@/types/Expense";
-import {Category} from "@/types/Category";
-import {DataTable,} from "@/components/DataTable/DataTable";
-import {Income} from "@/types/Income";
-import {useWallet} from "@/context/WalletContext";
+import React from 'react';
+import {DataTable} from "@/components/DataTable/DataTable";
+import {Expense} from "@/types/Expense";
+import { useWallet } from '@/context/WalletContext';
 import useCategories from "@/hooks/useCategories";
-import {incomesService} from "@/app/services/incomes";
-import {expensesService} from "@/app/services/expenses";
+import { Income } from '@/types/Income';
+import { expensesService } from "@/app/services/expenses";
+import { incomesService } from "@/app/services/incomes";
+import { Service } from '@/types/Service';
 
 
-const formatedDate = (date: Date) => <div>{date.toLocaleDateString('en-GB')}</div>;
+type Transaction = (Expense | Income) ;
 
-type Props = {
-    type: TransactionType,
-    triggerFetch?: boolean,
-}
-const ExpenseIncomeTable = ({type, triggerFetch}: Props) => {
-    const {selectedWallet} = useWallet();
-    const [columns, setColumns] = useState<ColumnDef<Income | Expense>[]>()
-    const {categories} = useCategories(type)
+const ExpenseIncomeTable = () => {
+    const { selectedWallet,setTransactions,transactionType } = useWallet();
+    const {categories} = useCategories(transactionType);
+    const service = (transactionType === 'income' ? incomesService : expensesService) as Service<Transaction>;
 
-    useEffect(() => {
-        setColumns(getColumns(categories));
-
-    }, [categories]);
-
-
-    const getColumns = (categories: Category[]): ColumnDef<Income | Expense>[] => [
-        {
-            accessorKey: '_id',
-            enableHiding: true,
-
+    const schema = {
+        _id: {
+            type: 'text' as const,
+            label: 'ID',
+            editable: false,
+            sortable: false,
+            filterable: false
+        },
+        date: {
+            type: 'date' as const,
+            label: 'Date',
+            editable: true,
+            sortable: true,
+            filterable: true,
+            filterVariant: 'dateRange' as const
+        },
+        title: {
+            type: 'text' as const,
+            label: 'Title',
+            editable: true,
+            sortable: true,
+            filterable: true,
+            filterVariant: 'text' as const
+        },
+        amount: {
+            type: 'number' as const,
+            label: 'Amount',
+            editable: true,
+            sortable: true,
+            filterable: true,
+            filterVariant: 'range' as const
+        },
+        category: {
+            type: 'select' as const,
+            label: 'Category',
+            editable: true,
+            sortable: true,
+            filterable: true,
+            filterVariant: 'select' as const,
+            options: categories?.map(category => category.name) || []
         }
-        , {
-            accessorKey: 'date',
-            cell: ({row}) => formatedDate(new Date(row.getValue('date'))),
-            meta: {
-                filterVariant: 'dateRange',
-                editable: true,
-                fieldVariant: 'date',
-                sortable: true
-            }
-        },
-        {
-            accessorKey: 'title',
-            meta: {filterVariant: 'text', editable: true, sortable: true}
-        },
-        {
-            accessorKey: 'amount',
-            filterFn: "inNumberRange",
-            meta: {filterVariant: 'range', editable: true, sortable: true}
-        },
-        {
-            accessorKey: 'category',
-            meta: {
-                filterVariant: 'select',
-                filterPlaceholder: 'Category',
-                filterOptions: categories ? categories.map(category => category.name) : [],
-                editable: true,
-                sortable: true
-            }
-        },
-    ];
+    };
+
+    if (!selectedWallet?._id) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <p className="text-gray-500">Please select a wallet to view transactions</p>
+            </div>
+        );
+    }
 
     return (
-        <div className='max-h-[70vh] overflow-auto'>
-
-            {columns &&
-                <DataTable columns={columns}
-                           dataParentId={selectedWallet ? selectedWallet._id : null}
-                           itemRemovable={true}
-                           triggerFetch={triggerFetch}
-                           manualFiltering={true}
-                           manualSorting={true}
-                           manualPagination={true}
-                           service={type === 'income' ? incomesService : expensesService}/>}
-
+        <div className="space-y-4">
+            <div className='max-h-[70vh] overflow-auto'>
+                <DataTable
+                    service={service}
+                    schema={schema}
+                    dataParentId={selectedWallet._id}
+                    itemRemovable={true}
+                    onFetchData={(data) => setTransactions(data as Transaction[])}
+                />
+            </div>
         </div>
     );
 };

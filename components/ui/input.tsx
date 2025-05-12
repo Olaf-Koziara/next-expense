@@ -3,10 +3,10 @@ import * as React from "react"
 import {cn} from "@/lib/utils"
 import {FieldError} from "react-hook-form";
 
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input"> & { error?: FieldError }>(
-    ({className, error, type, ...props}, ref) => {
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input"> & { error?: FieldError,wrapperClassName?: string }>(
+    ({className, error, type, wrapperClassName, ...props}, ref) => {
         return (
-            <div>
+            <div className={wrapperClassName}>
                 <input
                     type={type}
                     className={cn(
