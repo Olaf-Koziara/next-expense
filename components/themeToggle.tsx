@@ -9,23 +9,35 @@ const ThemeToggleWrapper = styled.div`
     position: fixed;
     top: 1rem;
     right: 1rem;
+    z-index: 50;
 `
 const ThemeToggle = () => {
     const {theme, setTheme} = useTheme();
     const [mounted, setMounted] = useState(false);
+
     useEffect(() => {
         setMounted(true);
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            setTheme('dark')
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark && theme === 'system') {
+            setTheme('dark');
         }
-    }, []);
+    }, [theme, setTheme]);
 
+    if (!mounted) return null;
 
-    const handleThemeChange = () => theme === 'light' ? setTheme('dark') : setTheme('light');
+    const handleThemeChange = () => {
+        setTheme(theme === 'light' ? 'dark' : 'light');
+    };
+
     return (
         <ThemeToggleWrapper>
-            <Button variant={'ghost'} onClick={handleThemeChange}>
-                {theme === "light" && mounted ? <MoonIcon/> : <SunIcon/>}
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleThemeChange}
+                aria-label="Toggle theme"
+            >
+                {theme === "light" ? <MoonIcon size={20} /> : <SunIcon size={20} />}
             </Button>
         </ThemeToggleWrapper>
     );
