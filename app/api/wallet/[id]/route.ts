@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {connectMongoDB} from "@/lib/mongodb";
 import {auth} from "@/auth";
-import {User} from "@/models/user";
+import { User} from "@/models/user";
 import {Wallet} from "@/models/wallet";
 
 export const DELETE = async (req: Request,{params}: {params:Promise<{id: string}>}) => {
@@ -31,7 +31,7 @@ export const DELETE = async (req: Request,{params}: {params:Promise<{id: string}
         }
 
         // Remove wallet from user's wallets array
-        user.wallets = user.wallets.filter((walletId: any) => walletId.toString() !== _id);
+        user.wallets = user.wallets.filter((walletId: string | number) => walletId.toString() !== _id);
         await user.save();
 
         // Delete the wallet
