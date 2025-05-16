@@ -22,7 +22,7 @@ export function DataTableForm<TData>({ service, schema, dataParentId, onSuccess 
     const [isLoading, setIsLoading] = useState(false);
     const { triggerRefetch } = useWallet();
 
-    const handleInputChange = (key: string, value: any) => {
+    const handleInputChange = (key: string, value: TData[keyof TData]) => {
         setFormData(prev => ({
             ...prev,
             [key]: value

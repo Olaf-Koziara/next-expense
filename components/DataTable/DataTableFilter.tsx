@@ -8,7 +8,7 @@ function DataTableFilter<TData, TValue>({column}: { column: Column<TData, TValue
     const [filterValue, setFilterValue] = useState(column.getFilterValue())
     useEffect(() => {
         column.setFilterValue(filterValue)
-    }, [filterValue]);
+    }, [filterValue, column]);
     const {filterVariant, filterOptions, filterPlaceholder} = column.columnDef.meta ?? {}
 
     return filterVariant === 'range' ? (

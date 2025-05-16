@@ -18,7 +18,7 @@ type Props<T> = {
 const ChartPie = <T, >({data, chartConfig, dataKey, nameKey}: Props<T>) => {
     const total = React.useMemo(() => {
         return data.reduce((acc, curr) => acc + (curr[dataKey] as number), 0).toFixed(2)
-    }, [data])
+    }, [data, dataKey])
     return (
 
         <ChartContainer

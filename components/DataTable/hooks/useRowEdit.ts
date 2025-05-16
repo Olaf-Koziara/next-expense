@@ -30,7 +30,7 @@ export function useRowEdit<TData extends { _id: string }>(
         }
     };
 
-    const handleItemInputChange = (value: any, columnId: string) => {
+    const handleItemInputChange = (value: TData[keyof TData], columnId: string) => {
         setRowInEdit((prev) =>
             prev
                 ? {

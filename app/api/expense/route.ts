@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
         ];
 
         const expenses = await Wallet.aggregate(pipeline);
-        return NextResponse.json(expenses);
+        return NextResponse.json({data:expenses,totalCount:expenses.length});
     } catch (error) {
         console.error('Error fetching expenses:', error);
         return NextResponse.json({error: 'Internal server error'}, {status: 500});
