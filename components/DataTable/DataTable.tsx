@@ -115,7 +115,7 @@ export function DataTable<TData extends { _id: string }>({
             onDataChange(data);
         }
     
-    }, [data, onFetchData, onDataChange]);
+    }, [onFetchData, onDataChange]);
 
     useEffect(() => {
         if(onSortingChange) {
