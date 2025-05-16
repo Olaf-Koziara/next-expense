@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react';
 import { PaginationState, SortingState, ColumnFiltersState } from '@tanstack/react-table';
 import { Service, ResponseWithArray } from '@/types/Service';
 import { generateFilterObject } from '../utils';
-import { useWallet } from '@/context/WalletContext';
 
 type UseDataTableOptions = {
-    initialData?: any[];
+    initialData?: unknown[];
     initialSorting?: SortingState;
     initialFilters?: ColumnFiltersState;
     initialPageSize?: number;
-    externalData?: any[];
+    externalData?: unknown[];
     refetchTrigger?: boolean;
 }
 
@@ -48,8 +47,6 @@ export function useDataTable<TData extends { _id: string }>(
             setIsLoading(false);
         }
     };
-
-
 
     useEffect(() => {
         fetchData();
