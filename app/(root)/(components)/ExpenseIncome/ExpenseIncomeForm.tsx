@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useFinance } from '@/context/FinanceContext';
+import { useWallet } from '@/context/WalletContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,18 +12,24 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { CurrencySelect } from '@/app/(root)/(components)/Currency/CurrencySelect';
-import { useWallet } from '@/context/WalletContext';
+
+interface TransactionData {
+    title: string;
+    amount: number;
+    category: string;
+    date: string;
+    currency: string;
+}
 
 export const ExpenseIncomeForm = () => {
-
-    const {selectedWallet,addExpense,addIncome,transactionType} = useWallet();
+    const {selectedWallet, addExpense, addIncome, transactionType, setTransactionType} = useWallet();
 
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [date, setDate] = useState<Date>(new Date());
     const [category, setCategory] = useState('');
     const [currency, setCurrency] = useState(selectedWallet?.currency || 'USD');
-    const addTransaction = (transactionData:any) => {
+    const addTransaction = (transactionData: TransactionData) => {
         if(transactionType === 'expense'){
             addExpense(transactionData);
         }else{
