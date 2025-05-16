@@ -6,20 +6,20 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Settings2, Plus } from 'lucide-react';
 import { CurrencySelect } from '@/app/(root)/(components)/Currency/CurrencySelect';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 const WalletManagementPage = () => {
-    const { wallets, removeWallet, updateWallet, createWallet } = useWallet();
+    const { wallets, deleteWallet, createWallet } = useWallet();
     const [newWalletName, setNewWalletName] = useState('');
     const [newWalletCurrency, setNewWalletCurrency] = useState('USD');
-
+//todo: add currency change
     const handleCurrencyChange = async (walletId: string, currency: string) => {
-        await updateWallet(walletId, { currency: currency });
+     
     };
 
-    const handleRemoveWallet = async (walletId: string) => {
+    const handleDeleteWallet = async (walletId: string) => {
         if (confirm('Are you sure you want to remove this wallet? This action cannot be undone.')) {
-            await removeWallet(walletId);
+            await deleteWallet(walletId);
         }
     };
 
@@ -109,7 +109,7 @@ const WalletManagementPage = () => {
                                     <Button
                                         variant="destructive"
                                         size="icon"
-                                        onClick={() => handleRemoveWallet(wallet._id)}
+                                        onClick={() => handleDeleteWallet(wallet._id)}
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
