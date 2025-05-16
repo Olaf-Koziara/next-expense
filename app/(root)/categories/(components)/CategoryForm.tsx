@@ -25,8 +25,9 @@ const CategoryForm = ({type, onSubmit}: Props) => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className='flex justify-center'>
+            <div className='flex'>
                 <Input
+                wrapperClassName='w-3/4'
                     className='w-full'
                     type="text"
                     id="name"

@@ -24,7 +24,6 @@ import { useDataTable } from './hooks/useDataTable';
 import { useRowEdit } from './hooks/useRowEdit';
 import { useItemRemove } from './hooks/useItemRemove';
 import { DataTableForm } from './DataTableForm';
-import { useWallet } from '@/context/WalletContext';
 
 const formatDate = (date: string | Date) => {
     if (!date) return '';
@@ -60,11 +59,11 @@ type Props<TData> = {
     form?: boolean;
     initialData?: TData[];
     initialSorting?: { id: string; desc: boolean }[];
-    initialFilters?: { id: string; value: any }[];
+    initialFilters?: { id: string; value: unknown }[];
     initialPageSize?: number;
     onDataChange?: (data: TData[]) => void;
     onSortingChange?: (sorting: { id: string; desc: boolean }[]) => void;
-    onFiltersChange?: (filters: { id: string; value: any }[]) => void;
+    onFiltersChange?: (filters: { id: string; value: unknown }[]) => void;
     onPaginationChange?: (pagination: { pageIndex: number; pageSize: number }) => void;
     data?: TData[];
 }
@@ -157,7 +156,7 @@ export function DataTable<TData extends { _id: string }>({
                 filterOptions: field.options,
                 filterable: field.filterable
             }
-        })) as ColumnDef<TData, any>[];
+        })) as ColumnDef<TData, unknown>[];
     }, [schema]);
 
     const table = useReactTable({

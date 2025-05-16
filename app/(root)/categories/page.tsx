@@ -1,18 +1,15 @@
 'use client';
 import React, {useState} from 'react';
-import {ColumnDef} from "@tanstack/react-table";
-import {Category} from "@/types/Category";
 import useCategories from "@/hooks/useCategories";
 import {DataTable} from "@/components/DataTable/DataTable";
 import {expenseCategoriesService} from "@/app/services/expenseCategories";
-import CategoryForm from "@/app/(root)/categories/(components)/CategoryForm";
 import {TransactionType} from "@/types/Expense";
 import TransactionTypeToggle from "@/components/TransactionTypeToggle";
 import {incomeCategoriesService} from "@/app/services/incomeCategories";
 
 const Page = () => {
     const [transactionType, setTransactionType] = useState<TransactionType>('expense');
-    const {categories, addCategory} = useCategories(transactionType)
+    const {categories} = useCategories(transactionType)
     const schema = {
         name: {
             type: 'text' as const,

@@ -13,7 +13,6 @@ import {
 import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
 import {auth} from "@/auth";
-import ClientProviders from "@/app/(root)/(components)/ClientProviders";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {UserPanel} from "@/app/(root)/(components)/AppSidebar/(components)/UserPanel";
 

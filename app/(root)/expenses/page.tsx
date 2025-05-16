@@ -1,5 +1,5 @@
 'use client';
-import React, {useState} from 'react';
+import React from 'react';
 import ExpenseIncomeForm from "@/app/(root)/expenses/(components)/ExpenseIncomeForm";
 import ExpenseIncomeTable from "@/app/(root)/expenses/(components)/ExpenseIncomeTable";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";

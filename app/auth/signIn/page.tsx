@@ -2,7 +2,6 @@ import React from 'react';
 import SignInButtonOAuth from "@/app/(root)/(components)/SignInButtonOAuth"; // Assuming this path is correct
 import SignInForm from "@/app/auth/signIn/(components)/SignInForm";
 import Link from "next/link";
-import {buttonVariants} from "@/components/ui/button";
 
 const SignInPage = () => {
     return (
