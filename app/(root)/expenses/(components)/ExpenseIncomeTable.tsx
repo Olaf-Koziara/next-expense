@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {DataTable} from "@/components/DataTable/DataTable";
 import {Expense} from "@/types/Expense";
 import { useWallet } from '@/context/WalletContext';
@@ -13,9 +13,22 @@ import { Service } from '@/types/Service';
 type Transaction = (Expense | Income) ;
 
 const ExpenseIncomeTable = () => {
-    const { selectedWallet,setTransactions,transactionType } = useWallet();
+    const { 
+        selectedWallet, 
+        setTransactions,
+        transactionType 
+    } = useWallet();
     const {categories} = useCategories(transactionType);
-    const service = (transactionType === 'income' ? incomesService : expensesService) as Service<Transaction>;
+
+    const handleFetchData = useCallback(async (data: Expense|Income[]) => {
+
+        setTransactions(prev=>{
+            if(JSON.stringify(prev) === JSON.stringify(data)) {
+                return prev;
+            }
+            return data;
+        });
+    }, [selectedWallet?._id, transactionType, setTransactions]);
 
     const schema = {
         _id: {
@@ -72,11 +85,11 @@ const ExpenseIncomeTable = () => {
         <div className="space-y-4">
             <div className='max-h-[70vh] overflow-auto'>
                 <DataTable
-                    service={service}
+                    service={transactionType === 'income' ? incomesService : expensesService}
                     schema={schema}
                     dataParentId={selectedWallet._id}
                     itemRemovable={true}
-                    onFetchData={(data) => setTransactions(data as Transaction[])}
+                    onFetchData={handleFetchData}
                 />
             </div>
         </div>

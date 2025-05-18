@@ -6,6 +6,9 @@ import {User} from "@/models/user";
 import mongoose, {PipelineStage} from "mongoose";
 import {Expense} from "@/types/Expense";
 import {NextRequest} from "next/server";
+import { getPaginationFromUrl } from "@/utils/pagination";
+import { getSortParamsFromUrl } from "@/utils/sort";
+import { getFilterMatchStageFromUrl } from "./filter";
 
 
 // Define the filter parameter types
@@ -67,6 +70,15 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({error: 'Invalid wallet ID format'}, {status: 400});
         }
 
+        const url = new URL(request.url);
+    
+        if (!walletId) {
+            return NextResponse.json({error: 'Wallet id required',}, {status: 400});
+        }
+        const {sortBy, sortOrder} = getSortParamsFromUrl(url);
+        const {skip, pageSize} = getPaginationFromUrl(url);
+
+        const matchStage = getFilterMatchStageFromUrl(url);
         const pipeline: PipelineStage[] = [
             {
                 $match: {_id: new mongoose.Types.ObjectId(walletId)}
@@ -75,19 +87,39 @@ export async function GET(request: NextRequest) {
                 $unwind: '$expenses'
             },
             {
-                $project: {
-                    _id: '$expenses._id',
-                    title: '$expenses.title',
-                    amount: '$expenses.amount',
-                    category: '$expenses.category',
-                    date: '$expenses.date',
-                    currency: '$expenses.currency'
+                $match: matchStage
+            },
+            {
+                $sort: {
+                    [`expenses.${sortBy}`]: sortOrder === 'asc' ? 1 : -1
                 }
-            }
+            },
+            {
+                $facet: {
+                    data: [
+                        {$skip: skip},
+                        {$limit: pageSize},
+                        {
+                            $group: {
+                                _id: '$_id',
+                                expenses: {$push: '$expenses'}
+                            }
+                        }
+                    ],
+                    totalCount: [
+                        {
+                            $count: 'count'
+                        }
+                    ]
+                }
+            },
+         
         ];
 
-        const expenses = await Wallet.aggregate(pipeline);
-        return NextResponse.json({data:expenses,totalCount:expenses.length});
+        const [result] = await Wallet.aggregate(pipeline);
+        const totalCount = result?.totalCount[0]?.count || 0;
+        const expenses = result?.data[0]?.expenses || [];
+        return NextResponse.json({data:expenses,totalCount:totalCount});
     } catch (error) {
         console.error('Error fetching expenses:', error);
         return NextResponse.json({error: 'Internal server error'}, {status: 500});
