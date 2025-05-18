@@ -65,7 +65,7 @@ type Props<TData> = {
     onSortingChange?: (sorting: { id: string; desc: boolean }[]) => void;
     onFiltersChange?: (filters: { id: string; value: unknown }[]) => void;
     onPaginationChange?: (pagination: { pageIndex: number; pageSize: number }) => void;
-    data?: TData[];
+
 }
 
 export function DataTable<TData extends { _id: string }>({
@@ -83,7 +83,7 @@ export function DataTable<TData extends { _id: string }>({
     onSortingChange,
     onFiltersChange,
     onPaginationChange,
-    data: externalData
+
 }: Props<TData>) {
     const {
         data,
@@ -97,15 +97,14 @@ export function DataTable<TData extends { _id: string }>({
         setColumnFilters,
         fetchData,
     } = useDataTable(service, dataParentId, {
-        initialData: externalData || initialData,
+        initialData:initialData,
         initialSorting,
         initialFilters,
         initialPageSize,
-        externalData
     });
 
     useEffect(() => {
-
+        
         if(onFetchData){
           
             onFetchData(data);
@@ -115,7 +114,7 @@ export function DataTable<TData extends { _id: string }>({
             onDataChange(data);
         }
     
-    }, [onFetchData, onDataChange]);
+    }, [isLoading]);
 
     useEffect(() => {
         if(onSortingChange) {

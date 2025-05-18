@@ -28,7 +28,7 @@ interface WalletContextType {
     removeExpense: (_id: string) => Promise<void>;
     removeIncome: (_id: string) => Promise<void>;
     transactions: (Expense | Income)[];
-    setTransactions: (transactions: (Expense | Income)[]) => void;
+    setTransactions: React.Dispatch<React.SetStateAction<Expense|Income[]>>;
     refetchTrigger: number;
     triggerRefetch: () => void;
 }
@@ -179,7 +179,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 setTransactionType,
                 transactions,
                 refetchTrigger,
-                triggerRefetch
+                triggerRefetch,
+                fetchTransactions
             }}
         >
             {children}

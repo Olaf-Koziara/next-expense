@@ -23,7 +23,7 @@ export function useDataTable<TData extends { _id: string }>(
     });
     const [sorting, setSorting] = useState<SortingState>(options?.initialSorting ?? []);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(options?.initialFilters ?? []);
-    const [data, setData] = useState<TData[]>(options?.initialData ?? []);
+    const [data, setData] = useState<TData[]>([]);
     const [pageCount, setPageCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -32,7 +32,7 @@ export function useDataTable<TData extends { _id: string }>(
         try {
             const filter = generateFilterObject(columnFilters, sorting, pagination);
             let response: ResponseWithArray<TData>;
-            
+            console.log('fetching data', filter, dataParentId);
             if (dataParentId) {
                 response = await service.getAll(filter, dataParentId);
             } else {
@@ -50,7 +50,7 @@ export function useDataTable<TData extends { _id: string }>(
 
     useEffect(() => {
         fetchData();
-    }, [sorting, columnFilters, pagination, dataParentId, service, options?.refetchTrigger]);
+    }, [sorting, columnFilters, pagination, dataParentId, options?.refetchTrigger]);
 
     return {
         data,
