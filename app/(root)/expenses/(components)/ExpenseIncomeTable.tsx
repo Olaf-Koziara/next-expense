@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import {DataTable} from "@/components/DataTable/DataTable";
 import {Expense} from "@/types/Expense";
 import { useWallet } from '@/context/WalletContext';
@@ -7,10 +7,8 @@ import useCategories from "@/hooks/useCategories";
 import { Income } from '@/types/Income';
 import { expensesService } from "@/app/services/expenses";
 import { incomesService } from "@/app/services/incomes";
-import { Service } from '@/types/Service';
 
 
-type Transaction = (Expense | Income) ;
 
 const ExpenseIncomeTable = () => {
     const { 

@@ -1,63 +1,141 @@
 'use client';
-import React, {useEffect, useState} from 'react';
-import {WalletStats} from "@/types/Stats";
-import {useWallet} from "@/context/WalletContext";
+import React from 'react';
+import { useWallet } from "@/context/WalletContext";
 import ChartPie from "@/components/charts/Pie";
-import {dateRangeValuesToString} from "@/utils/date";
 import Area from "@/components/charts/Area";
-import {prepareExpenseDataForAreaChart} from "@/utils/calculate";
+import { prepareExpenseDataForAreaChart } from "@/utils/calculate";
 import useCategories from "@/hooks/useCategories";
-import StatisticsFilter, {StatisticsFilterValue} from "@/app/(root)/(components)/StatisticsFilter";
-import useStatus from "@/hooks/useStatus";
-import {LoadingSpinner} from "@/components/ui/loadingSpinner";
-
+import StatisticsFilter from "@/app/(root)/(components)/StatisticsFilter";
+import { LoadingSpinner } from "@/components/ui/loadingSpinner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useStatistics } from '@/hooks/useStatistics';
+import { DateRange } from '@/types/DateRange';
+import { format } from 'date-fns';
+const formatDate = (date: Date) => format(date, 'dd-MM-yyyy');
 
 const Dashboard = () => {
-    const {getStatistics, selectedWallet} = useWallet();
-    const {categories: expenseCategories} = useCategories('expense');
-    const {categories: incomeCategories} = useCategories('income');
-    const [statistics, setStatistics] = useState<WalletStats>();
-    const [statisticsFilter, setStatisticsFilter] = useState<StatisticsFilterValue>({from: new Date(), to: new Date()});
-    const {setStatus, status} = useStatus()
+    const { selectedWallet } = useWallet();
+    const { categories: expenseCategories } = useCategories('expense');
+    const { categories: incomeCategories } = useCategories('income');
+    const { statistics, isLoading, error, fetchStatistics } = useStatistics();
+    const [dateRange, setDateRange] = React.useState<DateRange>({ from: new Date(), to: new Date() });
 
-
-    useEffect(() => {
-        if (selectedWallet) {
-            setStatus('pending')
-            getStatistics(dateRangeValuesToString(statisticsFilter)).then(data => {
-                setStatistics(data)
-                setStatus('success');
-            }).catch(() => setStatus('error'))
+    React.useEffect(() => {
+        if (selectedWallet?._id) {
+            fetchStatistics(selectedWallet._id, dateRange).then(()=>{
+                if(statistics){
+                    console.log(prepareExpenseDataForAreaChart(statistics.summedExpenseCategoriesAndDate))
+                }
+            });
         }
-    }, [selectedWallet, statisticsFilter, getStatistics, setStatus]);
+    }, [selectedWallet?._id, dateRange, fetchStatistics]);
 
+    if (error) {
+        return <div className="text-red-500 text-center p-4">{error}</div>;
+    }
 
     return (
-        <div>
-            <StatisticsFilter onChange={setStatisticsFilter}/>
-            {
-                statistics && status === 'success' ?
-                    <div className='flex justify-center items-center flex-wrap'>
-                        <div className='w-1/2'><ChartPie chartConfig={{}} dataKey={'total'} nameKey={'category'}
-                                                         data={statistics?.summedExpenseCategories} title='Expenses'/>
-                        </div>
-                        <div className='w-1/2'><ChartPie data={statistics.summedIncomeCategories} dataKey={'total'}
-                                                         nameKey={'category'}
-                                                         chartConfig={{}} title='Incomes'/></div>
-                        <div className='w-1/2'>
-                            <Area data={prepareExpenseDataForAreaChart(statistics.summedExpenseCategoriesAndDate)}
-                                  dataKeys={['date', ...expenseCategories.map(category => category.name)]}/>
-                        </div>
-                        <div className='w-1/2'>
-                            <Area data={prepareExpenseDataForAreaChart(statistics.summedIncomeCategoriesAndDate)}
-                                  dataKeys={['date', ...incomeCategories.map(category => category.name)]}/>
-                        </div>
-                    </div> :
-                    <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 '><LoadingSpinner
-                        size={128}/></div>
-            }
+        <div className="space-y-6 p-6">
+            <div className="sticky top-0 z-10 backdrop-blur-sm border-b p-4">
+                <div className="flex justify-between items-center max-w-7xl mx-auto">
+                    <h1 className="text-2xl font-bold">Dashboard</h1>
+                    <StatisticsFilter onChange={setDateRange} />
+                </div>
+            </div>
 
+            {isLoading ? (
+                <div className="flex justify-center items-center h-64">
+                    <LoadingSpinner size={64} />
+                </div>
+            ) : statistics ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className=" shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold text-gray-700">
+                                Expense Distribution
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ChartPie
+                                data={statistics.summedExpenseCategories}
+                                dataKey="total"
+                                nameKey="category"
+                                chartConfig={{
+                                    theme: {
+                                        light: '#ef4444',
+                                        dark: '#ef4444'
+                                    }
+                                }}
+                            />
+                        </CardContent>
+                    </Card>
 
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold text-gray-700">
+                                Income Distribution
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ChartPie
+                                data={statistics.summedIncomeCategories}
+                                dataKey="total"
+                                nameKey="category"
+                                chartConfig={{
+                                    theme: {
+                                        light: '#22c55e',
+                                        dark: '#22c55e'
+                                    }
+                                }}
+                            />
+                        </CardContent>
+                    </Card>
+
+                    <Card className="md:col-span-2 shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold text-gray-700">
+                                Expense Trends
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Area
+                                data={prepareExpenseDataForAreaChart(statistics.summedExpenseCategoriesAndDate)}
+                                dataKeys={['date', ...expenseCategories.map(category => category.name)]}
+                                tickFormatter={formatDate}
+                                labelFormatter={formatDate}
+                                chartConfig={{
+                                    theme: {
+                                        light: '#ef4444',
+                                        dark: '#ef4444'
+                                    }
+                                }}
+                            />
+                        </CardContent>
+                    </Card>
+
+                    <Card className="md:col-span-2 shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold text-gray-700">
+                                Income Trends
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Area
+                                data={prepareExpenseDataForAreaChart(statistics.summedIncomeCategoriesAndDate)}
+                                dataKeys={['date', ...incomeCategories.map(category => category.name)]}
+                                tickFormatter={formatDate}
+                                labelFormatter={formatDate}
+                                chartConfig={{
+                                    theme: {
+                                        light: '#22c55e',
+                                        dark: '#22c55e'
+                                    }
+                                }}
+                            />
+                        </CardContent>
+                    </Card>
+                </div>
+            ) : null}
         </div>
     );
 };
