@@ -1,7 +1,6 @@
 "use client"
 import {Area, AreaChart as Chart, CartesianGrid, XAxis} from "recharts"
 import {ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent,} from "@/components/ui/chart"
-import {format} from "date-fns";
 import {pieChartColors} from "@/utils/charts";
 
 type Props<T> = {
@@ -9,7 +8,8 @@ type Props<T> = {
     dataKeys: string[],
     valueKeys?: string[],
     chartConfig?: ChartConfig,
-
+    tickFormatter?: (value: any) => string,
+    labelFormatter?: (value: any) => string,
     title?: string,
     description?: string
 }
@@ -18,6 +18,8 @@ function AreaChart<T>({
                           data,
                           chartConfig,
                           dataKeys,
+                          tickFormatter,
+                          labelFormatter,
 
                       }: Props<T>) {
     if (!chartConfig) {
@@ -34,6 +36,7 @@ function AreaChart<T>({
                     left: 12,
                     right: 12,
                 }}
+                
 
             >
                 <CartesianGrid vertical={false}/>
@@ -43,12 +46,14 @@ function AreaChart<T>({
                     axisLine={false}
                     tickMargin={1}
                     interval={0}
-                    tickFormatter={(value) => format(new Date(value), 'dd-MM')}
+                    tickFormatter={tickFormatter}
+                    
 
                 />
                 <ChartTooltip
                     cursor={false}
                     content={<ChartTooltipContent indicator="dot"/>}
+                    labelFormatter={labelFormatter}
                 />
                 {
                     dataKeys.map((key, index) => {
@@ -59,6 +64,7 @@ function AreaChart<T>({
                                 dataKey={key}
                                 stroke={pieChartColors[index]}
                                 fill={pieChartColors[index]}
+                                dot={true}
                             />
                         }
                     })

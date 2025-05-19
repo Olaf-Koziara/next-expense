@@ -10,7 +10,8 @@ import { LoadingSpinner } from "@/components/ui/loadingSpinner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useStatistics } from '@/hooks/useStatistics';
 import { DateRange } from '@/types/DateRange';
-
+import { format } from 'date-fns';
+const formatDate = (date: Date) => format(date, 'dd-MM-yyyy');
 
 const Dashboard = () => {
     const { selectedWallet } = useWallet();
@@ -21,7 +22,11 @@ const Dashboard = () => {
 
     React.useEffect(() => {
         if (selectedWallet?._id) {
-            fetchStatistics(selectedWallet._id, dateRange);
+            fetchStatistics(selectedWallet._id, dateRange).then(()=>{
+                if(statistics){
+                    console.log(prepareExpenseDataForAreaChart(statistics.summedExpenseCategoriesAndDate))
+                }
+            });
         }
     }, [selectedWallet?._id, dateRange, fetchStatistics]);
 
@@ -96,6 +101,8 @@ const Dashboard = () => {
                             <Area
                                 data={prepareExpenseDataForAreaChart(statistics.summedExpenseCategoriesAndDate)}
                                 dataKeys={['date', ...expenseCategories.map(category => category.name)]}
+                                tickFormatter={formatDate}
+                                labelFormatter={formatDate}
                                 chartConfig={{
                                     theme: {
                                         light: '#ef4444',
@@ -116,6 +123,8 @@ const Dashboard = () => {
                             <Area
                                 data={prepareExpenseDataForAreaChart(statistics.summedIncomeCategoriesAndDate)}
                                 dataKeys={['date', ...incomeCategories.map(category => category.name)]}
+                                tickFormatter={formatDate}
+                                labelFormatter={formatDate}
                                 chartConfig={{
                                     theme: {
                                         light: '#22c55e',
