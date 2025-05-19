@@ -8,8 +8,8 @@ type Props<T> = {
     dataKeys: string[],
     valueKeys?: string[],
     chartConfig?: ChartConfig,
-    tickFormatter?: (value: any) => string,
-    labelFormatter?: (value: any) => string,
+    tickFormatter?: (value: Partial<T>) => string,
+    labelFormatter?: (value: Partial<T>) => string,
     title?: string,
     description?: string
 }

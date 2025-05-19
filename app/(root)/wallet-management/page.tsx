@@ -14,7 +14,7 @@ const WalletManagementPage = () => {
     const [newWalletCurrency, setNewWalletCurrency] = useState('USD');
 //todo: add currency change
     const handleCurrencyChange = async (walletId: string, currency: string) => {
-     
+     console.log(walletId, currency);
     };
 
     const handleDeleteWallet = async (walletId: string) => {
