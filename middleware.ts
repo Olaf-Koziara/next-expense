@@ -25,7 +25,9 @@ export async function middleware(request: NextRequest) {
             throw new Error('NEXTAUTH_SECRET is not defined');
         }
 
-        const token = await getToken({ req: request, secret });
+        const token = await getToken({ req: request, secret,    secureCookie: process.env.NODE_ENV === 'production',
+
+        });
         if (!token) {
             const signInUrl = new URL('/auth/signIn', request.url);
             signInUrl.searchParams.set('callbackUrl', request.url);
