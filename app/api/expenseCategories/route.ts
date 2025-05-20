@@ -43,9 +43,31 @@ export const POST = async (req: Request) => {
             return Response.json({message: 'Name is required'}, {status: 400});
         }
 
+        // Find user first
+        const user = await User.findOne({email: session.user.email})
+            .populate('expenseCategories');
+
+        if (!user) {
+            return Response.json({message: 'User not found'}, {status: 404});
+        }
+
+        // Check if category with same name already exists for this user
+        const existingCategory = user.expenseCategories.find(
+            (category: any) => category.name.toLowerCase() === name.toLowerCase()
+        );
+
+        if (existingCategory) {
+            return Response.json(
+                {message: 'Category with this name already exists', category: existingCategory},
+                {status: 409}
+            );
+        }
+
+        // Create new category if it doesn't exist
         const newCategory = await ExpenseCategory.create({name});
 
-        const user = await User.findOneAndUpdate(
+        // Update user with new category
+        const updatedUser = await User.findOneAndUpdate(
             {email: session.user.email},
             {
                 $push: {
@@ -57,13 +79,14 @@ export const POST = async (req: Request) => {
             }
         ).populate('expenseCategories');
 
-        if (!user) {
-
+        if (!updatedUser) {
+            // Cleanup the created category if user update fails
             await ExpenseCategory.findByIdAndDelete(newCategory._id);
-            return Response.json({message: 'User not found'}, {status: 404});
+            return Response.json({message: 'Failed to update user'}, {status: 500});
         }
 
         return Response.json(
+            {message: 'Category created successfully', category: newCategory},
             {status: 201}
         );
     } catch (error) {
