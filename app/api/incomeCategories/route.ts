@@ -50,7 +50,7 @@ export const POST = async (req: Request) => {
 
         // Check if category with same name already exists for this user
         const existingCategory = user.incomeCategories.find(
-            (category: any) => category.name.toLowerCase() === name.toLowerCase()
+            (category: Category) => category.name.toLowerCase() === name.toLowerCase()
         );
 
         if (existingCategory) {
