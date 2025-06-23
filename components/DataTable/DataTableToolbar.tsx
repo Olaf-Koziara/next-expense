@@ -1,27 +1,26 @@
-'use client';
-import React from 'react';
-import { Table } from '@tanstack/react-table';
-import { Input } from '@/components/ui/input';
-import { DataTableViewOptions } from './DataTableViewOptions';
+"use client";
+import React from "react";
+import { Table } from "@tanstack/react-table";
+import { DataTableViewOptions } from "./DataTableViewOptions";
+import { Button } from "../ui/button";
+import { RefreshCcwDot } from "lucide-react";
 
 interface DataTableToolbarProps<TData> {
-    table: Table<TData>;
+  table: Table<TData>;
 }
 
-export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
-    return (
-        <div className="flex items-center justify-between">
-            <div className="flex flex-1 items-center space-x-2">
-                <Input
-                    placeholder="Filter tasks..."
-                    value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-                    onChange={(event) =>
-                        table.getColumn('title')?.setFilterValue(event.target.value)
-                    }
-                    className="h-8 w-[150px] lg:w-[250px]"
-                />
-            </div>
-            <DataTableViewOptions table={table} />
-        </div>
-    );
-} 
+export function DataTableToolbar<TData>({
+  table,
+}: DataTableToolbarProps<TData>) {
+  return (
+    <div className="flex items-center justify-end">
+      <div className="flex gap-2">
+        <Button onClick={() => table.resetColumnFilters(true)}>
+          <RefreshCcwDot />
+          Clear filters
+        </Button>
+        <DataTableViewOptions table={table} />
+      </div>
+    </div>
+  );
+}
