@@ -7,6 +7,7 @@ import {getHighestByKey, sumByKey, sumByKeys} from "@/utils/calculate";
 import {Income} from "@/types/Income";
 import {pieChartColors} from "@/utils/charts";
 import mongoose from "mongoose";
+import {sortItems} from "@/utils/sort";
 
 export const GET = async (req: Request) => {
 
@@ -103,8 +104,9 @@ export const GET = async (req: Request) => {
 
     const summedExpenseCategories = sumByKey<Expense>(result.expenses, 'amount', 'category').map(remapCategorySumData)
     const summedIncomeCategories = sumByKey<Income>(result.incomes, 'amount', 'category').map(remapCategorySumData)
-    const summedExpenseCategoriesAndDate = sumByKeys(result.expenses, ['category', 'date'], 'amount');
-    const summedIncomeCategoriesAndDate = sumByKeys(result.incomes, ['category', 'date'], 'amount');
+    const summedExpenseCategoriesAndDate = sortItems(sumByKeys(result.expenses, ['category', 'date'], 'amount'), 'date', 'asc');
+    console.log(summedExpenseCategoriesAndDate);
+    const summedIncomeCategoriesAndDate = sortItems(sumByKeys(result.incomes, ['category', 'date'], 'amount'), 'date', 'asc');
 
     const highestExpenseCategory = getHighestByKey(summedExpenseCategories, 'total');
     const highestIncomeCategory = getHighestByKey(summedIncomeCategories, 'total');
