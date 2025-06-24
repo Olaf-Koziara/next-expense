@@ -87,13 +87,10 @@ export const getHighestByKey = <T>(items: T[], key: keyof T): T | null => {
     return highest;
 }
 export const prepareExpenseDataForAreaChart = (expenses: CategoryDateTotal[]) => {
-    // Group and sum expenses by date and category
-    const groupedExpenses = sumByKeys(expenses, ['date', 'category'], 'amount');
+    type DataPoint = { date: string } & { [key: string]: number | string };
+    const dataByDate: Record<string, DataPoint> = {};
 
-    // Transform the grouped data into the desired format
-    const dataByDate: { [date: string]: { [category: string]: number } } = {};
-
-    groupedExpenses.forEach(item => {
+    expenses.forEach(item => {
         const date = item.date;
         const category = item.category;
         const amount = item.amount;
@@ -105,8 +102,9 @@ export const prepareExpenseDataForAreaChart = (expenses: CategoryDateTotal[]) =>
         dataByDate[date][category] = amount;
     });
 
-    // Convert the dataByDate object into an array
-    const transformedData = Object.values(dataByDate);
+    const transformedData = Object.values(dataByDate).sort((a, b) => 
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
 
     return transformedData;
 };

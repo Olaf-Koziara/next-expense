@@ -45,7 +45,7 @@ export function DataTableForm<TData>({ service, schema, dataParentId, onSuccess 
     };
 
     return (
-        <Card className="mb-4">
+        <Card className="my-4">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />
@@ -53,8 +53,8 @@ export function DataTableForm<TData>({ service, schema, dataParentId, onSuccess 
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-4 gap-3 flex items-end">
+                    <div className="flex-1">
                         {Object.entries(schema).map(([key, field]) => (
                             field.editable && (
                             <div key={key} className="space-y-2">
