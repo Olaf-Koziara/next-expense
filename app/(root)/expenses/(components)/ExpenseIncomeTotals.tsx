@@ -15,7 +15,6 @@ type TransactionConfig = {
   borderColor: string;
   textColor: string;
   getTotal: (totals: any) => number;
-  getBalanceChange: (increment: number) => number;
   animation?: {
     duration?: number;
     steps?: number;
@@ -30,7 +29,6 @@ const TRANSACTION_CONFIGS: Record<"expense" | "income", TransactionConfig> = {
     borderColor: "border-red-500",
     textColor: "text-red-500",
     getTotal: (totals) => totals.expenseTotal || 0,
-    getBalanceChange: (increment) => -increment,
     animation: {
       duration: 1,
       steps: 60,
@@ -43,7 +41,6 @@ const TRANSACTION_CONFIGS: Record<"expense" | "income", TransactionConfig> = {
     borderColor: "border-green-500",
     textColor: "text-green-500",
     getTotal: (totals) => totals.incomeTotal || 0,
-    getBalanceChange: (increment) => increment,
     animation: {
       duration: 1,
       steps: 60,
@@ -67,11 +64,11 @@ const AnimatedCard = ({
   textColor: string;
 }) => (
   <Card className={cn("border-2", "text-center", borderColor)}>
-    <CardHeader className="px-6 pt-3 pb-2">
+    <CardHeader className="px-6 pt-3 pb-0">
       <CardTitle className="text-lg">{title}</CardTitle>
     </CardHeader>
     <CardContent
-      className={cn("text-2xl font-bold", textColor, "px-6 pt-2 pb-3")}
+      className={cn("text-xl font-bold", textColor, "px-6 pt-0 pb-3")}
     >
       {formatCurrency(value, currency)}
     </CardContent>
@@ -97,7 +94,8 @@ const useAnimatedValues = (totals: any, type: "expense" | "income") => {
     const duration = animationConfig.duration || 1;
     const steps = animationConfig.steps || 60;
     const stepDuration = (duration * 1000) / steps;
-    const increment = total / steps;
+    const incrementTotal = total / steps;
+    const incrementBalance = balance / steps;
 
     let currentStep = 0;
     setDisplayTotal(0);
@@ -106,8 +104,8 @@ const useAnimatedValues = (totals: any, type: "expense" | "income") => {
     const interval = setInterval(() => {
       currentStep++;
       if (currentStep <= steps) {
-        setDisplayTotal((prev) => prev + increment);
-        setDisplayBalance((prev) => prev + config.getBalanceChange(increment));
+        setDisplayTotal((prev) => prev + incrementTotal);
+        setDisplayBalance((prev) => prev + incrementBalance);
       } else {
         clearInterval(interval);
       }
