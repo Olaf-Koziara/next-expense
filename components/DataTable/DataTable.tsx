@@ -136,109 +136,117 @@ export function DataTable<TData extends { _id: string }>({
   if (!table) return null;
 
   return (
-    <div className="space-y-4 w-full max-w-full overflow-x-auto">
+    <div className="relative">
       {form && (
-        <DataTableForm
-          service={service}
-          schema={schema}
-          dataParentId={dataParentId}
-          onSuccess={fetchData}
-        />
+        <div className="sticky top-0 z-10 bg-background border-b">
+          <DataTableForm
+            service={service}
+            schema={schema}
+            dataParentId={dataParentId}
+            onSuccess={fetchData}
+          />
+        </div>
       )}
-      <DataTableToolbar table={table} />
-      <div className="rounded-md border overflow-x-auto">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.column.getCanFilter() && (
-                      <div>
-                        <DataTableFilter column={header.column} />
-                      </div>
-                    )}
-                    <DataTableHeader header={header} />
-                  </TableHead>
-                ))}
-                {columns.some((column) => column.meta?.editable) && (
-                  <TableHead>Edit</TableHead>
-                )}
-                {itemRemovable && <TableHead>Remove</TableHead>}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={!itemRemovable ? columns.length : columns.length + 1}
-                  className="h-24 text-center"
-                >
-                  <Loader2 className="animate-spin m-auto" size={64} />
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {rowInEditId === row.id ? (
-                        <DataTableEditField
-                          column={cell.column}
-                          value={rowInEdit?.[cell.column.id as keyof TData]}
-                          onChange={(value) =>
-                            handleItemInputChange(
-                              value as TData[keyof TData],
-                              cell.column.id
-                            )
-                          }
-                        />
-                      ) : cell.column.columnDef.meta?.fieldVariant ===
-                        "date" ? (
-                        formatDate(cell.getValue() as string)
-                      ) : (
-                        flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )
+      <div className="space-y-4 w-full max-w-full overflow-x-auto">
+        <DataTableToolbar table={table} />
+        <div className="rounded-md border overflow-x-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.column.getCanFilter() && (
+                        <div>
+                          <DataTableFilter column={header.column} />
+                        </div>
                       )}
-                    </TableCell>
+                      <DataTableHeader header={header} />
+                    </TableHead>
                   ))}
                   {columns.some((column) => column.meta?.editable) && (
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        onClick={() => handleItemEdit(row)}
-                      >
-                        {rowInEditId === row.id ? <Save /> : <PenIcon />}
-                      </Button>
-                    </TableCell>
+                    <TableHead>Edit</TableHead>
                   )}
-                  {itemRemovable && (
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        onClick={() => handleItemRemove(row.original)}
-                      >
-                        <Trash2 />
-                      </Button>
-                    </TableCell>
-                  )}
+                  {itemRemovable && <TableHead>Remove</TableHead>}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={!itemRemovable ? columns.length : columns.length + 1}
-                  className="h-24 text-center"
-                >
-                  {NO_RESULTS_TEXT}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={
+                      !itemRemovable ? columns.length : columns.length + 1
+                    }
+                    className="h-24 text-center"
+                  >
+                    <Loader2 className="animate-spin m-auto" size={64} />
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {rowInEditId === row.id ? (
+                          <DataTableEditField
+                            column={cell.column}
+                            value={rowInEdit?.[cell.column.id as keyof TData]}
+                            onChange={(value) =>
+                              handleItemInputChange(
+                                value as TData[keyof TData],
+                                cell.column.id
+                              )
+                            }
+                          />
+                        ) : cell.column.columnDef.meta?.fieldVariant ===
+                          "date" ? (
+                          formatDate(cell.getValue() as string)
+                        ) : (
+                          flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )
+                        )}
+                      </TableCell>
+                    ))}
+                    {columns.some((column) => column.meta?.editable) && (
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleItemEdit(row)}
+                        >
+                          {rowInEditId === row.id ? <Save /> : <PenIcon />}
+                        </Button>
+                      </TableCell>
+                    )}
+                    {itemRemovable && (
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleItemRemove(row.original)}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={
+                      !itemRemovable ? columns.length : columns.length + 1
+                    }
+                    className="h-24 text-center"
+                  >
+                    {NO_RESULTS_TEXT}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
       <DataTablePagination table={table} />
     </div>
