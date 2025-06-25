@@ -11,7 +11,7 @@ import { Service } from "@/types/Service";
 
 type TransactionWithRequiredId = (Expense | Income) & { _id: string };
 
-const ExpenseIncomeTable = () => {
+export const ExpenseIncomeTable = () => {
   const { selectedWallet, setTransactions, transactionType } = useWallet();
   const { categories } = useCategories(transactionType);
 
@@ -93,10 +93,9 @@ const ExpenseIncomeTable = () => {
           dataParentId={selectedWallet._id}
           itemRemovable={true}
           onFetchData={handleFetchData}
+          form={true}
         />
       </div>
     </div>
   );
 };
-
-export default ExpenseIncomeTable;
