@@ -1,16 +1,11 @@
-'use client';
+"use client";
 
-import {  memo } from "react";
-import WalletList from "./WalletList";
+import { memo } from "react";
+import { WalletList } from "./WalletList";
 
+function WalletListWrapper() {
+  return <WalletList />;
+}
 
-
-const WalletListWrapper = memo(() => {
-    return (
-            <WalletList />
-    );
-});
-
-WalletListWrapper.displayName = 'WalletListWrapper';
-
-export default WalletListWrapper;
+export const MemoizedWalletListWrapper = memo(WalletListWrapper);
+export { WalletListWrapper };

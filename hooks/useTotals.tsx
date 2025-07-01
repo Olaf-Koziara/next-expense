@@ -30,7 +30,6 @@ export const useTotals = (options: UseTotalsOptions) => {
     }),
     [walletId, type, JSON.stringify(filters)]
   );
-
   const [data, setData] = useState<TotalsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

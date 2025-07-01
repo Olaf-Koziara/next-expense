@@ -6,11 +6,9 @@ interface ExpenseIncomeFormProps {
   onFormSubmitted?: () => void;
 }
 
-const ExpenseIncomeForm = ({
+export const ExpenseIncomeForm = ({
   type,
   onFormSubmitted,
 }: ExpenseIncomeFormProps) => {
   return <TransactionForm type={type} onFormSubmitted={onFormSubmitted} />;
 };
-
-export default ExpenseIncomeForm;
