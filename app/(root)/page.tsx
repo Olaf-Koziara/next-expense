@@ -5,14 +5,15 @@ import ChartPie from "@/components/charts/Pie";
 import Area from "@/components/charts/Area";
 import { prepareExpenseDataForAreaChart } from "@/utils/calculate";
 import useCategories from "@/hooks/useCategories";
-import StatisticsFilter from "@/app/(root)/(components)/StatisticsFilter";
+import { StatisticsFilter } from "@/app/(root)/(components)/StatisticsFilter";
 import { LoadingSpinner } from "@/components/ui/loadingSpinner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useStatistics } from "@/hooks/useStatistics";
 import { DateRange } from "@/types/DateRange";
 import { format } from "date-fns";
 import { countDaysBetweenTwoDates } from "@/utils/date";
-import { ResponsiveContainer } from "recharts";
+import { Label, ResponsiveContainer } from "recharts";
+import { BarChart } from "@/components/charts/Bar";
 const formatDate = (date: Date) => format(date, "dd-MM-yyyy");
 
 const Dashboard = () => {
@@ -100,27 +101,27 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                <div className="min-w-[800px] h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <Area
-                      data={prepareExpenseDataForAreaChart(
-                        statistics.summedExpenseCategoriesAndDate
-                      )}
-                      dataKeys={[
-                        "date",
-                        ...expenseCategories.map((category) => category.name),
-                      ]}
-                      tickFormatter={formatDate}
-                      labelFormatter={formatDate}
-                      chartConfig={{
-                        theme: {
-                          light: "#ef4444",
-                          dark: "#ef4444",
-                        },
-                      }}
-                    />
-                  </ResponsiveContainer>
-                </div>
+                <BarChart
+                  data={prepareExpenseDataForAreaChart(
+                    statistics.summedExpenseCategoriesAndDate
+                  )}
+                  dataKeys={[
+                    "date",
+                    ...expenseCategories.map((category) => category.name),
+                  ]}
+                  tickFormatter={formatDate}
+                  labelFormatter={formatDate}
+                  chartConfig={{
+                    desktop: {
+                      theme: {
+                        light: "#ef4444",
+                        dark: "#ef4444",
+                      },
+                      aspect: 3,
+                      height: 300,
+                    },
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
