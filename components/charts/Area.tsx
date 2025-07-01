@@ -1,5 +1,11 @@
 "use client";
-import { Area, AreaChart as Chart, CartesianGrid, XAxis } from "recharts";
+import {
+  Area,
+  AreaChart as Chart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   ChartConfig,
   ChartContainer,
@@ -29,7 +35,13 @@ function AreaChart<T>({
   if (!chartConfig) {
     chartConfig = {};
   }
-
+  if (!chartConfig["desktop"]?.height) {
+    if (chartConfig["desktop"]) {
+      chartConfig["desktop"]["height"] = 400;
+    } else {
+      Object.assign(chartConfig, { desktop: { height: 400 } });
+    }
+  }
   return (
     <ChartContainer config={chartConfig}>
       <Chart
@@ -55,6 +67,7 @@ function AreaChart<T>({
           textAnchor="end"
           height={60}
         />
+        <YAxis />
         <ChartTooltip
           cursor={false}
           content={<ChartTooltipContent indicator="dot" />}
