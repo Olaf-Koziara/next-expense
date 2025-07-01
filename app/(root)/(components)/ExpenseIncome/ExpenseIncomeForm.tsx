@@ -4,7 +4,7 @@ import React from "react";
 import { useWallet } from "@/context/WalletContext";
 import { TransactionForm } from "@/components/TransactionForm";
 
-export const ExpenseIncomeForm = () => {
+export function ExpenseIncomeForm() {
   const { transactionType } = useWallet();
 
   return (
@@ -14,4 +14,4 @@ export const ExpenseIncomeForm = () => {
       className="space-y-4"
     />
   );
-};
+}

@@ -267,7 +267,6 @@ export async function handleTransactionPATCH(
 
     Object.assign(transaction, updateData);
     wallet.balance += config.balanceUpdateOperation * (newAmount - oldAmount);
-
     await wallet.save();
 
     return NextResponse.json(transaction, { status: 200 });
