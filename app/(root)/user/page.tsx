@@ -53,7 +53,7 @@ export default function UserSettings() {
         </CardHeader>
         <Separator />
         <CardContent>
-          <div className="space-y-6">
+          <div className="pt-4 flex justify-between items-center">
             <UserPasswordChanger />
             <UserRemover />
           </div>

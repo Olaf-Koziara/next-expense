@@ -12,7 +12,12 @@ import { Service } from "@/types/Service";
 type TransactionWithRequiredId = (Expense | Income) & { _id: string };
 
 export const ExpenseIncomeTable = () => {
-  const { selectedWallet, setTransactions, transactionType } = useWallet();
+  const walletContext = useWallet();
+  const { selectedWallet, setTransactions, transactionType, setData } =
+    walletContext;
+  const dataTableContext = () => ({
+    setData,
+  });
   const { categories } = useCategories(transactionType);
 
   const handleFetchData = useCallback(
@@ -24,7 +29,7 @@ export const ExpenseIncomeTable = () => {
         return data;
       });
     },
-    [selectedWallet?._id, transactionType, setTransactions]
+    [setTransactions]
   );
 
   const schema = {
@@ -89,6 +94,7 @@ export const ExpenseIncomeTable = () => {
               ? (incomesService as Service<TransactionWithRequiredId>)
               : (expensesService as Service<TransactionWithRequiredId>)
           }
+          useContextHook={dataTableContext}
           schema={schema}
           dataParentId={selectedWallet._id}
           itemRemovable={true}

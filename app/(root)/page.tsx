@@ -11,8 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useStatistics } from "@/hooks/useStatistics";
 import { DateRange } from "@/types/DateRange";
 import { format } from "date-fns";
-import { countDaysBetweenTwoDates } from "@/utils/date";
-import { Label, ResponsiveContainer } from "recharts";
+import { ResponsiveContainer } from "recharts";
 import { BarChart } from "@/components/charts/Bar";
 const formatDate = (date: Date) => format(date, "dd-MM-yyyy");
 

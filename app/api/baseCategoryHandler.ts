@@ -2,18 +2,22 @@ import { connectMongoDB } from "@/lib/mongodb";
 import { auth } from "@/auth";
 import { User } from "@/models/user";
 import { Category } from "@/types/Category";
+import { QueryOptions } from "mongoose";
 
 export interface CategoryModel {
-  create: (data: { name: string }) => Promise<any>;
-  findByIdAndDelete: (id: string) => Promise<any>;
-  findByIdAndUpdate: (id: string, data: any, options?: any) => Promise<any>;
+  create: (data: { name: string }) => Promise<Category>;
+  findByIdAndDelete: (id: string) => Promise<Category>;
+  findByIdAndUpdate: (
+    id: string,
+    data: Category,
+    options?: QueryOptions
+  ) => Promise<Category>;
 }
 
 export interface BaseCategoryHandlerConfig {
   categoryModel: CategoryModel;
   userCategoryField: "expenseCategories" | "incomeCategories";
 }
-
 export async function handleCategoryGET(config: BaseCategoryHandlerConfig) {
   try {
     await connectMongoDB();

@@ -10,10 +10,9 @@ import { SignOut } from "@/app/(root)/(components)/signOutButton";
 
 interface UserPanelProps {
   name: string;
-  email: string;
 }
 
-export function UserPanel({ name, email }: UserPanelProps) {
+export function UserPanel({ name }: UserPanelProps) {
   return (
     <div>
       <div className="flex flex-col items-center justify-center pb-2">
