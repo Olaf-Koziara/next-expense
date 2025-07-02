@@ -4,12 +4,39 @@ import { NextResponse } from "next/server";
 import { Wallet } from "@/models/wallet";
 import mongoose from "mongoose";
 import { getFilterMatchStageFromUrl } from "@/app/api/expense/filter";
+import { MongoQuery } from "@/app/api/expense/filter";
 
 type TransactionType = "expense" | "income";
 
+interface AggregationTotals {
+  total: number;
+  count: number;
+}
+
+interface AggregationWallet {
+  balance: number;
+  currency: string;
+}
+
+interface AggregationResult {
+  expenses: AggregationTotals;
+  incomes: AggregationTotals;
+  wallet: AggregationWallet;
+}
+
+interface TotalsResponse {
+  currency: string;
+  walletBalance: number;
+  expenseTotal?: number;
+  expenseCount?: number;
+  incomeTotal?: number;
+  incomeCount?: number;
+  netAmount?: number;
+}
+
 const createTransactionPipeline = (
   type: TransactionType,
-  filters: Record<string, any>
+  filters: Record<string, MongoQuery>
 ) => [
   { $unwind: `$${type}s` },
   ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
@@ -22,13 +49,16 @@ const createTransactionPipeline = (
   },
 ];
 
-const buildResponse = (result: any, type: "expense" | "income" | "both") => {
+const buildResponse = (
+  result: AggregationResult,
+  type: "expense" | "income" | "both"
+): TotalsResponse => {
   const baseResponse = {
     currency: result.wallet.currency || "USD",
     walletBalance: result.wallet.balance || 0,
   };
 
-  const response: any = { ...baseResponse };
+  const response: TotalsResponse = { ...baseResponse };
 
   if (type === "expense" || type === "both") {
     response.expenseTotal = result.expenses.total || 0;
@@ -103,7 +133,7 @@ export const GET = async (req: Request) => {
     },
   ];
 
-  const [result] = await Wallet.aggregate(pipeline);
+  const [result] = (await Wallet.aggregate(pipeline)) as AggregationResult[];
   const response = buildResponse(result, type);
 
   return NextResponse.json(response, { status: 200 });

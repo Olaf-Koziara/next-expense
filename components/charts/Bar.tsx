@@ -14,15 +14,13 @@ export function BarChart<T>({
   chartConfig,
   tickFormatter,
   labelFormatter,
-  title,
-  description,
 }: BarChartProps<T>) {
   if (!chartConfig) chartConfig = {};
 
   if (!chartConfig["desktop"].height) {
     chartConfig["desktop"]["height"] = 400;
   }
-  const mobileHeight: number | undefined = chartConfig["mobile"]?.height;
+  // const mobileHeight: number | undefined = chartConfig["mobile"]?.height;
   return (
     <ChartContainer config={chartConfig}>
       <Chart
@@ -72,7 +70,5 @@ export interface BarChartProps<T> {
   chartConfig?: ChartConfig;
   tickFormatter?: (value: Partial<T>) => string;
   labelFormatter?: (value: Partial<T>) => string;
-  title?: string;
-  description?: string;
   height?: number;
 }

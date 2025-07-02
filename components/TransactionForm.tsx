@@ -57,7 +57,7 @@ export const TransactionForm = ({
     }
   };
 
-  const onSubmit: SubmitHandler<TransactionFormData> = async (data, event) => {
+  const onSubmit: SubmitHandler<TransactionFormData> = async (data) => {
     console.log("Form data:", data);
     console.log("Form errors:", form.formState.errors);
 

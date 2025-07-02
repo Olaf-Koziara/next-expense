@@ -1,6 +1,5 @@
 import { api } from "@/app/services/api";
 import { Category } from "@/types/Category";
-import { endpoints } from "@/app/services/endpoints";
 import { ResponseWithArray, Service } from "@/types/Service";
 
 export function createCategoryService(endpoint: string): Service<Category> {

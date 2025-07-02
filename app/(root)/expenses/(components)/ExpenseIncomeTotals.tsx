@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/global";
 import { useTotals } from "@/hooks/useTotals";
+import { TotalsResponse } from "@/app/services/totals";
 
 type Props = {
   type: "expense" | "income";
@@ -14,7 +15,7 @@ type TransactionConfig = {
   title: string;
   borderColor: string;
   textColor: string;
-  getTotal: (totals: any) => number;
+  getTotal: (totals: TotalsResponse) => number;
   animation?: {
     duration?: number;
     steps?: number;
@@ -28,7 +29,7 @@ const TRANSACTION_CONFIGS: Record<"expense" | "income", TransactionConfig> = {
     title: "Total Expenses",
     borderColor: "border-red-500",
     textColor: "text-red-500",
-    getTotal: (totals) => totals.expenseTotal || 0,
+    getTotal: (totals: TotalsResponse) => totals.expenseTotal || 0,
     animation: {
       duration: 1,
       steps: 60,
@@ -40,7 +41,7 @@ const TRANSACTION_CONFIGS: Record<"expense" | "income", TransactionConfig> = {
     title: "Total Income",
     borderColor: "border-green-500",
     textColor: "text-green-500",
-    getTotal: (totals) => totals.incomeTotal || 0,
+    getTotal: (totals: TotalsResponse) => totals.incomeTotal || 0,
     animation: {
       duration: 1,
       steps: 60,
@@ -75,7 +76,10 @@ const AnimatedCard = ({
   </Card>
 );
 
-const useAnimatedValues = (totals: any, type: "expense" | "income") => {
+const useAnimatedValues = (
+  totals: TotalsResponse,
+  type: "expense" | "income"
+) => {
   const [displayTotal, setDisplayTotal] = useState(0);
   const [displayBalance, setDisplayBalance] = useState(0);
 
@@ -118,13 +122,15 @@ const useAnimatedValues = (totals: any, type: "expense" | "income") => {
 };
 
 const ExpenseIncomeTotals = ({ type }: Props) => {
-  const { selectedWallet } = useWallet();
-  const { data: totals } = useTotals({
+  const { selectedWallet, transactions } = useWallet();
+  const { data: totals, refetch } = useTotals({
     walletId: selectedWallet?._id || "",
     type: type,
     enabled: !!selectedWallet?._id,
   });
-
+  useEffect(() => {
+    refetch();
+  }, [transactions]);
   const { displayTotal, displayBalance } = useAnimatedValues(totals, type);
   const config = TRANSACTION_CONFIGS[type];
 
@@ -145,7 +151,7 @@ const ExpenseIncomeTotals = ({ type }: Props) => {
         value={displayBalance}
         currency={selectedWallet.currency}
         borderColor="border-blue-500"
-        textColor={config.textColor}
+        textColor="text-red-500"
       />
     </div>
   );

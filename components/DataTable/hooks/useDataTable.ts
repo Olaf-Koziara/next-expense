@@ -40,7 +40,6 @@ export function useDataTable<TData extends { _id: string }>(
     try {
       const filter = generateFilterObject(columnFilters, sorting, pagination);
       let response: ResponseWithArray<TData>;
-      console.log("fetching data", filter, dataParentId);
       if (dataParentId) {
         response = await service.getAll(filter, dataParentId);
       } else {

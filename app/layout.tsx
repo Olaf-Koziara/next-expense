@@ -4,7 +4,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/themeProvider";
 import StyledComponentsRegistry from "@/lib/registry";
 import ThemeToggleWrapper from "@/components/ThemeToggleWrapper";
-import { WalletProvider } from "@/context/WalletContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

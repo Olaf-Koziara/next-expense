@@ -8,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CalendarInput from "@/components/ui/datepicker";
-import { useEffect, useState } from "react";
 
 function DataTableFilter<TData, TValue>({
   column,
@@ -21,7 +20,7 @@ function DataTableFilter<TData, TValue>({
     column.columnDef.meta ?? {};
 
   return filterVariant === "range" ? (
-    <div>
+    <div className="">
       <div className="flex space-x-2">
         <DebouncedInput
           type="number"

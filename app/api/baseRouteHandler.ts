@@ -208,7 +208,7 @@ export async function handleTransactionDELETE(
     const amountToRestore = transaction[config.balanceUpdateField];
 
     wallet[config.collectionField] = wallet[config.collectionField].filter(
-      (item: any) => item._id.toString() !== _id
+      (item: unknown) => item._id.toString() !== _id
     );
 
     wallet.balance += config.balanceUpdateOperation * amountToRestore;
