@@ -26,7 +26,7 @@ export function UserPanel({ name }: UserPanelProps) {
                 <div className="w-full flex flex-col gap-2 items-center p-3">
                   <div className=" text-center">Hi {name}</div>
                   <Link
-                    className="text-sm flex items-center p-2 rounded bg-fuchsia-950 hover:bg-fuchsia-800 transition"
+                    className="text-sm flex items-center p-2 rounded dark:bg-fuchsia-950 hover:text-gray-700 dark:hover-text-white dark:hover:bg-fuchsia-800 transition"
                     href="/user"
                   >
                     Menage <Settings2 size={"1.25rem"} />

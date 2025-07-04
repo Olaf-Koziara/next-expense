@@ -20,7 +20,7 @@ const Page = () => {
     <div className="pt-3">
       <h2 className="text-center text-3xl pb-3">Categories</h2>
 
-      <div className="w-1/3 mx-auto">
+      <div className="w-1/2 mx-auto">
         <TransactionTypeToggle onChange={setTransactionType} />
 
         <DataTable
