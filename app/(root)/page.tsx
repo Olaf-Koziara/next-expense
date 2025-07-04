@@ -39,7 +39,7 @@ const Dashboard = () => {
     <div className="space-y-6 p-6">
       <div className="sticky top-0 z-10 backdrop-blur-sm border-b p-4">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl font-bold">Summary</h1>
           <StatisticsFilter onChange={setDateRange} />
         </div>
       </div>

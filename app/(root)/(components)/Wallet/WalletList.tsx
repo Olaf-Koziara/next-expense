@@ -45,7 +45,7 @@ function WalletList() {
   return (
     <div className="flex flex-col gap-2">
       <DropdownMenu modal={false}>
-        <DropdownMenuTrigger className="w-full bg-blue-950 rounded-md hover:bg-gray-700">
+        <DropdownMenuTrigger className="w-full   rounded-md hover:text-gray-600 dark:hover:text-gray-300">
           <DropdownMenuLabel className="mx-auto w-full flex flex-col items-center">
             <Wallet2 />
             <WalletInfo />
@@ -63,31 +63,28 @@ function WalletList() {
             </Tooltip>
           </TooltipProvider>
           <DropdownMenuSeparator />
-          {wallets.length > 0 ? (
-            wallets.map((wallet) => (
-              <DropdownMenuItem
-                key={wallet._id}
-                className={
-                  selectedWallet?._id === wallet._id ? "bg-gray-600" : ""
-                }
-                onClick={() => handleSelectWallet(wallet)}
-              >
-                {wallet.name}
-              </DropdownMenuItem>
-            ))
-          ) : (
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-              <PopoverTrigger
-                onClick={handleAddWallet}
-                className="w-full bg-blue-950 rounded-md hover:bg-gray-700 p-2 flex items-center justify-center gap-2"
-              >
-                Add new <PlusCircleIcon className="inline" />
-              </PopoverTrigger>
-              <PopoverContent>
-                <WalletForm onSuccess={() => setIsPopoverOpen(false)} />
-              </PopoverContent>
-            </Popover>
-          )}
+          {wallets.map((wallet) => (
+            <DropdownMenuItem
+              key={wallet._id}
+              className={
+                selectedWallet?._id === wallet._id ? "bg-gray-600" : ""
+              }
+              onClick={() => handleSelectWallet(wallet)}
+            >
+              {wallet.name}
+            </DropdownMenuItem>
+          ))}
+          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <PopoverTrigger
+              onClick={handleAddWallet}
+              className="w-full  rounded-md hover:bg-gray-700 p-1 my-1 flex items-center justify-center gap-2"
+            >
+              Add new <PlusCircleIcon className="inline" />
+            </PopoverTrigger>
+            <PopoverContent>
+              <WalletForm onSuccess={() => setIsPopoverOpen(false)} />
+            </PopoverContent>
+          </Popover>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <Link
