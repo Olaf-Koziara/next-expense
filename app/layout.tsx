@@ -6,14 +6,14 @@ import StyledComponentsRegistry from "@/lib/registry";
 import ThemeToggleWrapper from "@/components/ThemeToggleWrapper";
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+  src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
   display: "swap",
 });
 
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
+  src: "../fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
   display: "swap",

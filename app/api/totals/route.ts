@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { connectMongoDB } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
-import { Wallet } from "@/models/wallet";
+import { Wallet } from "@/app/api/wallet/model/wallet";
 import mongoose from "mongoose";
 import { getFilterMatchStageFromUrl } from "@/app/api/expense/filter";
 import { MongoQuery } from "@/app/api/expense/filter";

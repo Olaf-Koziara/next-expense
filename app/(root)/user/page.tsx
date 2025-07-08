@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import UserRemover from "@/app/(root)/user/(components)/UserRemover";
+import UserRemover from "@/features/auth/components/UserRemover";
 import { Separator } from "@/components/ui/separator";
 import { User2, Mail } from "lucide-react";
-import UserPasswordChanger from "./(components)/UserPasswordChanger";
+import UserPasswordChanger from "../../../features/auth/components/UserPasswordChanger";
 
 export default function UserSettings() {
   const { data: session } = useSession();

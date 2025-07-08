@@ -1,4 +1,4 @@
-import { IncomeCategory } from "@/models/incomeCategory";
+import { IncomeCategory } from "@/features/category/schemas/incomeCategory";
 import {
   handleCategoryGET,
   handleCategoryPOST,

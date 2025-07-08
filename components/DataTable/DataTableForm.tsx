@@ -3,10 +3,9 @@
 import React, { useState } from "react";
 import { Service } from "@/types/Service";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import DataTableEditField from "./DataTableEditField";
-import { useWallet } from "@/context/WalletContext";
+import { useWallet } from "@/features/wallet/context/WalletContext";
 import { Schema } from "./types";
 
 type Props<TData> = {
@@ -38,7 +37,16 @@ export function DataTableForm<TData>({
     setIsLoading(true);
     try {
       await service.add(formData as TData, dataParentId);
-      setFormData({});
+      const emptyForm = {};
+      Object.keys(schema).forEach((key) => {
+        if (schema[key].editable) {
+          const empty = {
+            [key]: getEmptyValue(schema[key].type) as TData[keyof TData],
+          };
+          Object.assign(emptyForm, empty);
+        }
+      }, {} as Partial<TData>);
+      setFormData(emptyForm);
       triggerRefetch();
       onSuccess?.();
     } catch (error) {
@@ -59,7 +67,6 @@ export function DataTableForm<TData>({
             ([key, field]) =>
               field.editable && (
                 <div key={key} className="space-y-2">
-                  <Label htmlFor={key}>{field.label}</Label>
                   <DataTableEditField
                     column={{
                       columnDef: {
@@ -70,8 +77,11 @@ export function DataTableForm<TData>({
                         },
                       },
                     }}
+                    placeholder={field.label}
                     value={formData[key as keyof TData]}
-                    onChange={(value) => handleInputChange(key, value)}
+                    onChange={(value: TData[keyof TData]) =>
+                      handleInputChange(key, value as TData[keyof TData])
+                    }
                   />
                 </div>
               )
@@ -83,4 +93,13 @@ export function DataTableForm<TData>({
       </CardContent>
     </Card>
   );
+}
+
+function getEmptyValue(type: string) {
+  if (type === "number") return 0;
+  if (type === "select") return undefined;
+  if (type === "date") return undefined;
+  if (type === "currency") return "";
+  if (type === "text") return "";
+  return "";
 }

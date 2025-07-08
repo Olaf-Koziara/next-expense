@@ -1,9 +1,9 @@
+import { QueryParams } from "@/services/api";
 import {
   ColumnFiltersState,
   PaginationState,
   SortingState,
 } from "@tanstack/react-table";
-import { QueryParams } from "@/app/services/api";
 
 export const generateFilterObject = (
   columnFilter: ColumnFiltersState,
