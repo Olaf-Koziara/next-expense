@@ -12,11 +12,13 @@ financial insights.
 ## Features
 
 - **Expense & Income Tracking**: Add, edit, and delete transactions categorized as income or expenses.
-![Screenshot 2025-02-10 at 17 00 22 (2)](https://github.com/user-attachments/assets/e57b5622-930f-4242-9f6b-7b965bc0acc8)
+<img width="2704" height="1434" alt="image" src="https://github.com/user-attachments/assets/e4d76bf0-9be0-4677-ae67-972706d03038" />
+
 - **Date-Based Filtering**: Filter transactions by date range to analyze specific periods.
 - **Transaction Grouping**: Organize transactions into categories (e.g., food, travel, rent, salary).
-- ![Screenshot 2025-02-10 at 17 02 30 (2)](https://github.com/user-attachments/assets/794562cc-1058-4021-bb7c-88119cb6246d)
+<img width="1772" height="1384" alt="image" src="https://github.com/user-attachments/assets/62e24b85-2221-490a-a1fb-cf5f1c4ec4bb" />
 - **Data Visualization**: Charts and graphs for financial insights.
+- <img width="2687" height="1446" alt="image" src="https://github.com/user-attachments/assets/8c33d644-543e-4b22-8961-a2de15da7b51" />
 - **Balance Calculation**: View real-time balance updates based on income vs. expenses.
 - **Multi-Currency Support**: Convert and track expenses in different currencies.
 - **Recurring Transactions**: Set up automatic recurring expenses/incomes (e.g., salary, rent, subscriptions).
