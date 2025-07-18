@@ -2,9 +2,10 @@
 import React, { useState } from "react";
 import { DataTable } from "@/components/DataTable/DataTable";
 import { expenseCategoriesService } from "@/features/category/services/expenseCategories";
-import { TransactionType } from "@/types/Expense";
+
 import TransactionTypeToggle from "@/features/transaction/components/TransactionTypeToggle";
-import { incomeCategoriesService } from "@/features/category/services/in";
+import { TransactionType } from "@/features/transaction/types/Expense";
+import { incomeCategoriesService } from "@/features/category/services/incomeCategories";
 
 const Page = () => {
   const [transactionType, setTransactionType] =
