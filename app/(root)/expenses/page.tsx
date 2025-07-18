@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import { ExpenseIncomeTable } from "@/app/(root)/expenses/(components)/ExpenseIncomeTable";
+import { ExpenseIncomeTable } from "@/features/transaction/components/TransactionTable";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import ExpenseIncomeTotals from "./(components)/ExpenseIncomeTotals";
-import { useWallet } from "@/context/WalletContext";
+import ExpenseIncomeTotals from "../../../features/transaction/components/TransactionTotals";
+import { useWallet } from "@/features/wallet/context/WalletContext";
 
 export default function ExpensesPage() {
   const { transactionType, setTransactionType } = useWallet();

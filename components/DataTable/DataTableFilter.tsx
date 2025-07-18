@@ -76,6 +76,7 @@ function DataTableFilter<TData, TValue>({
       <CalendarInput
         mode={"range"}
         onChange={(event) => column.setFilterValue(event.target.value)}
+        formatValueToString={true}
         value={filterValue as string}
       />
     </div>

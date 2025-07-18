@@ -1,14 +1,14 @@
 "use client";
 import React from "react";
-import { useWallet } from "@/context/WalletContext";
+import { useWallet } from "@/features/wallet/context/WalletContext";
 import ChartPie from "@/components/charts/Pie";
 import Area from "@/components/charts/Area";
 import { prepareExpenseDataForAreaChart } from "@/utils/calculate";
-import useCategories from "@/hooks/useCategories";
-import { StatisticsFilter } from "@/app/(root)/(components)/StatisticsFilter";
+import useCategories from "@/features/category/hooks/useCategories";
+import { StatisticsFilter } from "@/features/statistics/components/StatisticsFilter";
 import { LoadingSpinner } from "@/components/ui/loadingSpinner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useStatistics } from "@/hooks/useStatistics";
+import { useStatistics } from "@/features/statistics/hooks/useStatistics";
 import { DateRange } from "@/types/DateRange";
 import { format } from "date-fns";
 import { ResponsiveContainer } from "recharts";

@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { connectMongoDB } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
-import { Wallet } from "@/models/wallet";
+import { Wallet } from "@/app/api/wallet/model/wallet";
 import { Expense } from "@/types/Expense";
 import { getHighestByKey, sumByKey, sumByKeys } from "@/utils/calculate";
 import { Income } from "@/types/Income";

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/lib/mongodb";
 import { auth } from "@/auth";
-import { Wallet } from "@/models/wallet";
-import { User } from "@/models/user";
+import { Wallet } from "@/app/api/wallet/model/wallet";
+import { User } from "@/features/auth/schemas/user";
 import mongoose, { PipelineStage } from "mongoose";
 import { getPaginationFromUrl } from "@/utils/pagination";
 import { getSortParamsFromUrl } from "@/utils/sort";
@@ -211,7 +211,7 @@ export async function handleTransactionDELETE(
       (item: unknown) => item._id.toString() !== _id
     );
 
-    wallet.balance += config.balanceUpdateOperation * amountToRestore;
+    wallet.balance -= config.balanceUpdateOperation * amountToRestore;
     await wallet.save();
 
     return NextResponse.json(

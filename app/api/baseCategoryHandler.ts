@@ -1,7 +1,7 @@
 import { connectMongoDB } from "@/lib/mongodb";
 import { auth } from "@/auth";
-import { User } from "@/models/user";
-import { Category } from "@/types/Category";
+import { User } from "@/features/auth/schemas/user";
+import { Category } from "@/features/category/types/Category";
 import { QueryOptions } from "mongoose";
 
 export interface CategoryModel {

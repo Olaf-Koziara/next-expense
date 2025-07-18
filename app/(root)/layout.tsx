@@ -1,6 +1,6 @@
 "use server";
-import { AppSidebar } from "@/app/(root)/(components)/AppSidebar/AppSidebar";
-import { ClientProviders } from "@/app/(root)/(components)/ClientProviders";
+import { AppSidebar } from "@/components/AppSidebar/AppSidebar";
+import { ClientProviders } from "@/components/ClientProviders";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 const Layout = ({ children }: Readonly<{ children: React.ReactNode }>) => {

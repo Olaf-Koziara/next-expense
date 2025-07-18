@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Loader2, PenIcon, Save, Trash2 } from "lucide-react";
+import { PenIcon, Save, Trash2 } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 import { Service } from "@/types/Service";
 import DataTableEditField from "@/components/DataTable/DataTableEditField";
@@ -238,21 +238,7 @@ export function DataTable<TData extends { _id: string }>({
               ))}
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={
-                      !itemRemovable ? columns.length : columns.length + 1
-                    }
-                    className="h-24 text-center bg-background/80"
-                  >
-                    <Loader2
-                      className="animate-spin m-auto text-primary"
-                      size={48}
-                    />
-                  </TableCell>
-                </TableRow>
-              ) : table.getRowModel().rows.length ? (
+              {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}

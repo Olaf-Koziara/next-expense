@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import { DataTable } from "@/components/DataTable/DataTable";
-import { expenseCategoriesService } from "@/app/services/expenseCategories";
+import { expenseCategoriesService } from "@/features/category/services/expenseCategories";
 import { TransactionType } from "@/types/Expense";
-import TransactionTypeToggle from "@/components/TransactionTypeToggle";
-import { incomeCategoriesService } from "@/app/services/incomeCategories";
+import TransactionTypeToggle from "@/features/transaction/components/TransactionTypeToggle";
+import { incomeCategoriesService } from "@/features/category/services/in";
 
 const Page = () => {
   const [transactionType, setTransactionType] =

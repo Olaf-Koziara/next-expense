@@ -1,4 +1,4 @@
-import { ExpenseCategory } from "@/models/expenseCategory";
+import { ExpenseCategory } from "@/features/category/schemas/expenseCategory";
 import {
   handleCategoryGET,
   handleCategoryPOST,
