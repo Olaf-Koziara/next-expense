@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Loader2, PenIcon, Save, Trash2 } from "lucide-react";
+import { PenIcon, Save, Trash2 } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 import { Service } from "@/types/Service";
 import DataTableEditField from "@/components/DataTable/DataTableEditField";
