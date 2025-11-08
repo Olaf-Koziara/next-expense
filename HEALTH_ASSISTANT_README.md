@@ -1,6 +1,6 @@
 # Personal Health Lifestyle Assistant
 
-A clean, DRY, and SOLID C++ program that helps users track their health goals and simulate 52 weeks of progress.
+A compact C++ program that helps users track their health goals and simulate 52 weeks of progress. All functionality is contained in a single main() function for simplicity.
 
 ## Features
 
@@ -57,8 +57,8 @@ Or directly:
 ```
 === Personal Health Lifestyle Assistant ===
 
-Enter weight (kg) [30.00-250.00]: 80
-Enter height (cm) [100.00-250.00]: 175
+Enter weight (kg) [30-250]: 80
+Enter height (cm) [100-250]: 175
 Enter age [15-100]: 25
 Enter gender (M/K): M
 
@@ -78,22 +78,14 @@ Enter choice (1-4): 2
 
 The program will then display your health profile, calculated metrics, and simulate 52 weeks of progress with monthly summaries.
 
-## Design Principles
+## Code Structure
 
-- **DRY (Don't Repeat Yourself)**: Functions are used to avoid code duplication
-- **SOLID Principles**:
-  - Single Responsibility: Each function has one clear purpose
-  - Open/Closed: Easy to extend with new features
-  - Liskov Substitution: Structures maintain consistent interfaces
-  - Interface Segregation: Minimal, focused function signatures
-  - Dependency Inversion: High-level logic separated from low-level calculations
-
-## Technical Details
-
-- Uses standard C++ libraries: iostream, cmath, iomanip, string
+- **Simple and compact**: All logic in main() function (~180 lines)
+- **No separate functions**: Everything is contained in a single main() for clarity
+- Uses standard C++ libraries: iostream, cmath, iomanip
 - Mathematical functions: pow(), abs(), sin(), exp()
 - No arrays (as per requirements)
-- Clean, minimal code following best practices
+- Clean, minimal code
 
 ## Clean Up
 
